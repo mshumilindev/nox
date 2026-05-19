@@ -262,6 +262,22 @@ It is not a chatbot, cloud assistant, productivity scorer, screenshot recorder, 
 - **Explainability** (`NoxConnectorExplainability`): provenance for what was and was not collected.
 - **UI**: sparse cadence/pressure cards on Now; cadence enrichment on Patterns; connector rows in Trust.
 
+## Phase 10 — Emergent behavioral intelligence
+
+Local-first, deterministic, confidence-gated layer in `Nox/Core/BehavioralIntelligence/`:
+
+- **Pattern engine** (`NoxBehavioralPatternEngine`, `NoxBehavioralSignature`, `NoxPatternConfidenceModel`): recurring structures (late-night work, overload–recovery oscillation, coordination-heavy stretches, deep-focus streaks, fragmentation, creative exploration, passive decompression, instability) — probabilistic and explainable, not personality typing.
+- **Contextual expectations** (`NoxContextualExpectationEngine`, `NoxExpectedRhythmModel`): likely work/recovery windows and transition hints for timing sensitivity only.
+- **Adaptive continuity** (`NoxAdaptiveContinuityModel`): dynamic thread weights from recurrence, resumptions, pattern alignment, and arc context.
+- **Temporal rhythm** (`NoxTemporalRhythmEngine`): weekly/monthly/seasonal-like behavioral topology (not health AI).
+- **Emergent life structures** (`NoxEmergentStructureEngine`, `NoxLifeStructureCandidate`): soft, revisable era labels (e.g. coordination-heavy period).
+- **Drift** (`NoxBehavioralDriftEngine`): calm observational copy when rhythms diverge — never alarmist.
+- **Adaptive interventions** (`NoxAdaptiveInterventionTimingEngine`): wraps Phase 9 interventions with orchestration-aware suppress/amplify and 6h cooldown.
+- **Memory prioritization** (`NoxContextualMemoryPrioritizer`): orders threads/arcs and enrichment notes for long-horizon and resurfacing.
+- **Orchestration substrate** (`NoxOrchestrationSignalLayer`, `NoxAmbientOrchestrationContext`): internal signals only (interruption sensitivity, focus stability, overload risk, recovery window, low fragmentation, return-after-absence) — not user-facing scores.
+- **Orchestrator** (`NoxBehavioralIntelligenceOrchestrator`) + **persistence** (`NoxBehavioralIntelligenceSignalStore`): runs after connector refresh in `NoxContextService.reloadMemoryView()`; honors `continuityEnrichmentPaused`; clears with connector-derived data.
+- **Integration**: `AppEnvironment.behavioralSnapshot`; reflective input/synthesis enriched with patterns and drift; `NoxLongHorizonLoader` reorders threads/arcs; Patterns surface shows sparse “Behavioral continuity” and “Life-shaped periods” sections.
+
 ## Interaction & Hover
 
 - `NoxBorderlessPressStyle` — press feedback + ambient hover on **Button** labels only.
@@ -271,7 +287,7 @@ It is not a chatbot, cloud assistant, productivity scorer, screenshot recorder, 
 
 ## Testing
 
-- Unit tests cover presence, memory, continuity, context QA, reflective continuity, **Phase 9 connectors**, **timeline dedup by time overlap**, **layered sections**, **historical empty copy**, and **activity classification** (e.g. ChatGPT → Research, legacy `unknown` resolution).
+- Unit tests cover presence, memory, continuity, context QA, reflective continuity, **Phase 9 connectors**, **Phase 10 behavioral intelligence**, **timeline dedup by time overlap**, **layered sections**, **historical empty copy**, and **activity classification** (e.g. ChatGPT → Research, legacy `unknown` resolution).
 - UI test files exist; product strategy avoids brittle layout UI tests as primary validation.
 
 ## Current Gaps And Risks

@@ -38,10 +38,13 @@ enum NoxExplainabilityPresenter {
     }
 
     static func whyReflectionAppeared(_ candidate: NoxReflectionCandidate) -> NoxInferenceReason {
-        NoxInferenceReason(
+        let detail = candidate.detailLine.isEmpty
+            ? NoxReflectionPresenter.defaultDetailLine
+            : candidate.detailLine
+        return NoxInferenceReason(
             id: candidate.id,
             headline: NoxEmotionalSafetyCopy.sanitize(candidate.text),
-            detail: "Grounded in recent local memory — not advice.",
+            detail: NoxEmotionalSafetyCopy.sanitize(detail),
             source: .reflection
         )
     }

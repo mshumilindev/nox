@@ -39,6 +39,7 @@ final class AppEnvironment {
     )
     var primaryExplanation: NoxInferenceReason?
     var connectorSnapshot: NoxConnectorContinuitySnapshot = .empty
+    var behavioralSnapshot: NoxBehavioralIntelligenceSnapshot = .empty
 
     var activeAppName: String?
     var activeBundleId: String?

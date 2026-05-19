@@ -1540,6 +1540,65 @@ struct NoxReflectiveContinuityTests {
         #expect(NoxReflectiveSynthesisEngine.shouldSynthesize(lastReflectionAt: nil) == true)
     }
 
+    @Test func reflectionPresenterDedupesIdenticalText() {
+        let now = Date()
+        let duplicate = NoxReflectionCandidate(
+            id: "a",
+            text: "Same observation.",
+            detailLine: "Detail A",
+            confidence: 0.6,
+            createdAt: now,
+            sourceSignals: []
+        )
+        let other = NoxReflectionCandidate(
+            id: "b",
+            text: "Same observation.",
+            detailLine: "Detail B",
+            confidence: 0.55,
+            createdAt: now.addingTimeInterval(-60),
+            sourceSignals: []
+        )
+        let unique = NoxReflectionCandidate(
+            id: "c",
+            text: "Different observation.",
+            detailLine: "Detail C",
+            confidence: 0.54,
+            createdAt: now.addingTimeInterval(-120),
+            sourceSignals: []
+        )
+        let distinct = NoxReflectionPresenter.distinct([duplicate, other, unique], limit: 4)
+        #expect(distinct.count == 2)
+        #expect(distinct.map(\.text).contains("Different observation."))
+    }
+
+    @Test func reflectiveSynthesisProducesDistinctStableIds() {
+        let input = NoxReflectionInput(
+            periodLabel: "Today",
+            semanticThemes: ["Development", "Research"],
+            continuityResumptions: 3,
+            fragmentedSessions: 2,
+            dominantArcLabels: ["Creative exploration"],
+            resurfacedArcLabels: ["AI-assisted development"],
+            recurringThreadTitles: ["AI-assisted development continuity"],
+            observationHours: 6,
+            hasPriorDayActivity: true,
+            behavioralPatternLabels: ["Deep-focus streak"],
+            behavioralPatternDetails: ["Sustained focus blocks have been forming locally."],
+            temporalRhythmLabels: ["Weekly rhythm"],
+            temporalRhythmDetails: ["Work density clusters mid-week."],
+            driftObservation: "Less stable rhythms. Recent rhythms have been less stable than usual.",
+            lifeStructureLabels: ["Coordination-heavy era"],
+            lifeStructureDetails: ["Scheduling and communication may be shaping the week."],
+            focusSummary: "fragmented attention",
+            weeklyHorizonSnippet: "Development and research alternated across the week with calmer evenings."
+        )
+        let results = NoxReflectiveSynthesisEngine.synthesize(input: input)
+        #expect(results.count >= 2)
+        #expect(Set(results.map(\.id)).count == results.count)
+        #expect(results.allSatisfy { !$0.detailLine.isEmpty })
+        #expect(Set(results.map(\.text)).count == results.count)
+    }
+
     @Test func semanticArcsGroupDevelopmentSpans() {
         let base = Date().addingTimeInterval(-3600)
         let spans = (0..<3).map { index in
@@ -1809,5 +1868,168 @@ struct NoxConnectorPhase9Tests {
             signalStore: store
         )
         #expect(snapshot == .empty)
+    }
+}
+
+struct NoxBehavioralIntelligencePhase10Tests {
+
+    @Test func patternEngineGatesLowConfidence() {
+        let signatures = NoxBehavioralPatternEngine.detect(
+            stats: .empty,
+            focus: nil,
+            spans: [],
+            connectorCadence: [],
+            recentDailyDensity: [],
+            weeklyRollups: []
+        )
+        #expect(signatures.allSatisfy { $0.confidence >= NoxPatternConfidenceModel.minimumDisplay })
+    }
+
+    @Test func driftCopyAvoidsAlarmLanguage() {
+        let drift = NoxBehavioralDriftEngine.detect(
+            recentDailyDensity: [0.7, 0.68, 0.65, 0.2, 0.18, 0.15],
+            stats: NoxMemoryDayStats(
+                periodLabel: "Today",
+                totalActiveMs: 20 * 60_000,
+                focusedMs: 5 * 60_000,
+                fragmentedMs: 10 * 60_000,
+                appSwitchCount: 4,
+                longestFocusBlockMs: 600_000,
+                dominantApp: nil,
+                dominantCategory: .passive
+            ),
+            focus: nil,
+            signatures: []
+        )
+        if let drift {
+            let combined = "\(drift.label) \(drift.detail)".lowercased()
+            #expect(!combined.contains("wrong"))
+            #expect(!combined.contains("burnout"))
+            #expect(!combined.contains("failing"))
+        }
+    }
+
+    @Test func adaptiveInterventionSuppressesDuringDeepFocus() {
+        let orchestration = NoxAmbientOrchestrationContext(
+            signals: [
+                NoxOrchestrationSignal(
+                    id: "focus",
+                    kind: .deepFocusStability,
+                    level: 0.85,
+                    note: "stable"
+                )
+            ],
+            generatedAt: Date()
+        )
+        let base = NoxAmbientIntervention(
+            id: "frag",
+            label: "Fragmented day",
+            detail: "Observed locally.",
+            kind: .fragmentedDayAck,
+            observedAt: Date()
+        )
+        let connector = NoxConnectorContinuitySnapshot(
+            generalizedSignals: [],
+            pressureSignals: [],
+            cadencePatterns: [],
+            transitions: [],
+            overloadSignals: [],
+            enrichmentNotes: [],
+            explainability: .empty,
+            intervention: base
+        )
+        let result = NoxAdaptiveInterventionTimingEngine.evaluate(
+            connectorSnapshot: connector,
+            orchestration: orchestration,
+            signatures: [],
+            drift: nil,
+            lastInterventionAt: Date().addingTimeInterval(-7 * 3600)
+        )
+        #expect(result == nil)
+    }
+
+    @Test @MainActor func behavioralOrchestratorHonorsPause() async {
+        let store = NoxBehavioralIntelligenceSignalStore()
+        try? await store.open()
+        let snapshot = await NoxBehavioralIntelligenceOrchestrator.refresh(
+            paused: true,
+            connectorSnapshot: .empty,
+            stats: .empty,
+            focus: nil,
+            spans: [],
+            threads: [],
+            arcs: [],
+            weeklyRollups: [],
+            monthlyRollups: [],
+            recentDailyDensity: [],
+            lastInterventionAt: nil,
+            signalStore: store
+        )
+        #expect(snapshot == .empty)
+    }
+
+    @Test func memoryPrioritizerOrdersByAdaptiveWeight() {
+        func thread(
+            id: String,
+            title: String,
+            strength: Double,
+            recurrence: Double,
+            resumptions: Int
+        ) -> NoxContinuityThread {
+            NoxContinuityThread(
+                id: id,
+                semanticType: .aiDevelopment,
+                title: title,
+                dominantApps: [],
+                dominantCategories: [],
+                dominantDomains: [],
+                continuitySignature: NoxContinuitySignature(
+                    ecosystemKey: id,
+                    semanticType: .aiDevelopment,
+                    appTokens: [],
+                    semanticState: .writing,
+                    fusionLabel: .likelyAIAssistedWork,
+                    interactionProfile: "steady",
+                    densityProfile: "moderate"
+                ),
+                firstSeenAt: Date(),
+                lastSeenAt: Date(),
+                totalActiveDurationMs: 3_600_000,
+                totalSessions: 2,
+                totalResumptions: resumptions,
+                continuityStrength: strength,
+                recurrenceStrength: recurrence,
+                interruptionPattern: "steady",
+                currentStatus: .active,
+                recentMemoryIds: [],
+                linkedSpanIds: [],
+                linkedSessionIds: [],
+                supportingSignals: [],
+                confidence: 0.7,
+                lastResumedAt: resumptions > 0 ? Date() : nil,
+                temporalPatterns: [],
+                decayState: .active,
+                sensitivityLevel: .normal
+            )
+        }
+        let threads = [
+            thread(id: "a", title: "Alpha", strength: 0.4, recurrence: 0.2, resumptions: 0),
+            thread(id: "b", title: "Beta", strength: 0.9, recurrence: 0.8, resumptions: 3)
+        ]
+        let weights = NoxAdaptiveContinuityModel.weights(
+            threads: threads,
+            arcs: [],
+            signatures: []
+        )
+        let result = NoxContextualMemoryPrioritizer.prioritize(
+            threads: threads,
+            arcs: [],
+            weights: weights,
+            signatures: [],
+            lifeStructures: [],
+            drift: nil,
+            existingNotes: []
+        )
+        #expect(result.threadIds.first == "b")
     }
 }

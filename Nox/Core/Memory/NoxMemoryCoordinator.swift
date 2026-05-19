@@ -42,6 +42,22 @@ final class NoxMemoryCoordinator {
             }
     }
 
+    func weeklyRollups(endingAt date: Date = Date()) async throws -> [NoxMemoryRollupSnapshot] {
+        try await rollupStore.rollups(
+            level: .weekly,
+            from: date.addingTimeInterval(-56 * 24 * 3600),
+            to: date
+        )
+    }
+
+    func monthlyRollups(endingAt date: Date = Date()) async throws -> [NoxMemoryRollupSnapshot] {
+        try await rollupStore.rollups(
+            level: .monthly,
+            from: date.addingTimeInterval(-120 * 24 * 3600),
+            to: date
+        )
+    }
+
     func clearRecentActivity(from start: Date, to end: Date) async throws -> Int {
         try await memoryStore.deleteSpans(inRange: start, to: end)
     }
@@ -257,6 +273,7 @@ final class NoxMemoryCoordinator {
         liveSignalCount: Int,
         continuitySeconds: TimeInterval,
         connectorSnapshot: NoxConnectorContinuitySnapshot = .empty,
+        behavioralSnapshot: NoxBehavioralIntelligenceSnapshot = .empty,
         at date: Date = Date()
     ) async throws -> NoxReflectiveContinuityBundle {
         let lookback = date.addingTimeInterval(-14 * 24 * 3600)
@@ -291,6 +308,7 @@ final class NoxMemoryCoordinator {
             liveSignalCount: liveSignalCount,
             continuitySeconds: continuitySeconds,
             connectorSnapshot: connectorSnapshot,
+            behavioralSnapshot: behavioralSnapshot,
             at: date
         )
     }

@@ -3,9 +3,26 @@ import Foundation
 struct NoxReflectionCandidate: Identifiable, Equatable, Sendable, Codable {
     let id: String
     let text: String
+    let detailLine: String
     let confidence: Double
     let createdAt: Date
     let sourceSignals: [String]
+
+    init(
+        id: String,
+        text: String,
+        detailLine: String,
+        confidence: Double,
+        createdAt: Date,
+        sourceSignals: [String]
+    ) {
+        self.id = id
+        self.text = text
+        self.detailLine = detailLine
+        self.confidence = confidence
+        self.createdAt = createdAt
+        self.sourceSignals = sourceSignals
+    }
 }
 
 struct NoxReflectionInput: Equatable, Sendable {
@@ -14,7 +31,17 @@ struct NoxReflectionInput: Equatable, Sendable {
     let continuityResumptions: Int
     let fragmentedSessions: Int
     let dominantArcLabels: [String]
+    let resurfacedArcLabels: [String]
     let recurringThreadTitles: [String]
     let observationHours: Int
     let hasPriorDayActivity: Bool
+    let behavioralPatternLabels: [String]
+    let behavioralPatternDetails: [String]
+    let temporalRhythmLabels: [String]
+    let temporalRhythmDetails: [String]
+    let driftObservation: String?
+    let lifeStructureLabels: [String]
+    let lifeStructureDetails: [String]
+    let focusSummary: String?
+    let weeklyHorizonSnippet: String?
 }

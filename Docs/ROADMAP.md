@@ -18,12 +18,15 @@ The old day-by-day MVP checklist has been retired. Nox is now tracked by shipped
 | 8 | Shipped | Adaptive ambient shell, semantic navigation, trust surfaces, memory controls |
 | 8.5-8.7 | Shipped | Human UI pass: surface hierarchy, layered timeline, calmer trust and Now surfaces |
 | 9 | Shipped in code | Connector-aware ambient continuity: calendar timing, communication pressure proxies, cadence, transitions, recovery signals, rare interventions |
+| 10 | Shipped in code | Emergent behavioral intelligence: pattern engine, expectations, adaptive continuity weighting, temporal rhythm, life structures, drift, adaptive intervention timing, memory prioritization, orchestration substrate |
 
 ## Current Product Boundary
 
 Nox currently works as a local deterministic ambient memory layer. It observes local activity metadata, derives semantic context, builds structured memory, and surfaces continuity without chat, cloud sync, productivity scoring, screenshots, clipboard capture, or typed text storage.
 
 Phase 9 connector functionality is implemented, but calendar access should receive release-level sandbox/entitlement validation before being treated as fully production-proven.
+
+Phase 10 behavioral intelligence is wired into memory reload and long-horizon surfaces; orchestration signals remain internal substrate only (no autonomous actions).
 
 ## Next Candidates
 

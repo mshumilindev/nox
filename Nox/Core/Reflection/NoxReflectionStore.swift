@@ -27,6 +27,19 @@ actor NoxReflectionStore {
             );
             CREATE INDEX IF NOT EXISTS idx_reflections_created ON reflections(created_at DESC);
             """)
+        try? execute(sql: "ALTER TABLE reflections ADD COLUMN detail_line TEXT;")
+        try? pruneDuplicateTexts()
+    }
+
+    func pruneDuplicateTexts() throws {
+        try execute(sql: """
+            DELETE FROM reflections
+            WHERE rowid NOT IN (
+                SELECT MIN(rowid)
+                FROM reflections
+                GROUP BY lower(trim(text))
+            );
+            """)
     }
 
     func upsert(_ candidate: NoxReflectionCandidate) throws {
@@ -36,20 +49,22 @@ actor NoxReflectionStore {
         }
         try execute(
             sql: """
-            INSERT INTO reflections (id, text, confidence, signals_json, created_at)
-            VALUES (?, ?, ?, ?, ?)
+            INSERT INTO reflections (id, text, confidence, signals_json, created_at, detail_line)
+            VALUES (?, ?, ?, ?, ?, ?)
             ON CONFLICT(id) DO UPDATE SET
                 text=excluded.text,
                 confidence=excluded.confidence,
                 signals_json=excluded.signals_json,
-                created_at=excluded.created_at;
+                created_at=excluded.created_at,
+                detail_line=excluded.detail_line;
             """,
             bindings: [
                 .text(candidate.id),
                 .text(candidate.text),
                 .double(candidate.confidence),
                 .text(signalsJson),
-                .double(candidate.createdAt.timeIntervalSince1970)
+                .double(candidate.createdAt.timeIntervalSince1970),
+                .text(candidate.detailLine)
             ]
         )
     }
@@ -57,7 +72,7 @@ actor NoxReflectionStore {
     func recent(limit: Int = 6) throws -> [NoxReflectionCandidate] {
         var statement: OpaquePointer?
         let sql = """
-            SELECT id, text, confidence, signals_json, created_at
+            SELECT id, text, confidence, signals_json, created_at, detail_line
             FROM reflections ORDER BY created_at DESC LIMIT ?;
             """
         guard sqlite3_prepare_v2(db, sql, -1, &statement, nil) == SQLITE_OK else {
@@ -73,10 +88,17 @@ actor NoxReflectionStore {
             let confidence = sqlite3_column_double(statement, 2)
             let signalsJson = String(cString: sqlite3_column_text(statement, 3))
             let createdAt = Date(timeIntervalSince1970: sqlite3_column_double(statement, 4))
+            let detailLine: String
+            if sqlite3_column_type(statement, 5) != SQLITE_NULL {
+                detailLine = String(cString: sqlite3_column_text(statement, 5))
+            } else {
+                detailLine = NoxReflectionPresenter.defaultDetailLine
+            }
             let signals = (try? decoder.decode([String].self, from: Data(signalsJson.utf8))) ?? []
             results.append(NoxReflectionCandidate(
                 id: id,
                 text: text,
+                detailLine: detailLine,
                 confidence: confidence,
                 createdAt: createdAt,
                 sourceSignals: signals

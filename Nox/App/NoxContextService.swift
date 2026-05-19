@@ -44,8 +44,10 @@ final class NoxContextService {
         timelineStore: timelineStore
     )
     private let connectorSignalStore = NoxConnectorSignalStore()
+    private let behavioralSignalStore = NoxBehavioralIntelligenceSignalStore()
     private lazy var connectorControl = NoxConnectorControlCoordinator(
-        signalStore: connectorSignalStore
+        signalStore: connectorSignalStore,
+        behavioralSignalStore: behavioralSignalStore
     )
     private let retentionPolicy = NoxMemoryRetentionPolicy.default
     private weak var environment: AppEnvironment?
@@ -69,6 +71,7 @@ final class NoxContextService {
             try await preferencesStore.open()
             try await sessionStore.open()
             try await connectorSignalStore.open()
+            try await behavioralSignalStore.open()
             preferences = (try? await preferencesStore.loadPreferences()) ?? .default
             environment?.preferences = preferences
             await hydrateFromPersistence()
@@ -174,13 +177,26 @@ final class NoxContextService {
 
             let range = environment.memoryPeriod.dateRange()
             let spans = try await memoryCoordinator.activitySpans(period: environment.memoryPeriod)
-            let connectorSnapshot = await refreshConnectorLayer(
+            var connectorSnapshot = await refreshConnectorLayer(
                 spans: spans,
                 stats: view.stats,
                 focus: view.focus,
                 range: range
             )
+            let behavioralSnapshot = await refreshBehavioralLayer(
+                connectorSnapshot: connectorSnapshot,
+                spans: spans,
+                stats: view.stats,
+                focus: view.focus,
+                threads: view.continuityThreads
+            )
+            if !preferences.connectors.continuityEnrichmentPaused {
+                connectorSnapshot = connectorSnapshot.replacingIntervention(
+                    behavioralSnapshot.recommendedIntervention
+                )
+            }
             environment.connectorSnapshot = connectorSnapshot
+            environment.behavioralSnapshot = behavioralSnapshot
 
             let reflective = try await memoryCoordinator.loadReflectiveContinuity(
                 period: environment.memoryPeriod,
@@ -193,7 +209,8 @@ final class NoxContextService {
                 lastResurfacingShownAt: ambientState.lastResurfacingShownAt,
                 liveSignalCount: liveBuffer.signals.count,
                 continuitySeconds: signalTracker.observationContinuitySeconds(),
-                connectorSnapshot: connectorSnapshot
+                connectorSnapshot: connectorSnapshot,
+                behavioralSnapshot: behavioralSnapshot
             )
             environment.longHorizonSnapshot = reflective.longHorizon
             environment.morningSummary = reflective.morningSummary
@@ -1042,7 +1059,43 @@ final class NoxContextService {
         try? await connectorControl.clearConnectorDerived()
         guard let environment else { return }
         environment.connectorSnapshot = .empty
+        environment.behavioralSnapshot = .empty
         await reloadMemoryView()
+    }
+
+    private func refreshBehavioralLayer(
+        connectorSnapshot: NoxConnectorContinuitySnapshot,
+        spans: [NoxActivitySpan],
+        stats: NoxMemoryDayStats,
+        focus: NoxFocusAnalysis?,
+        threads: [NoxContinuityThread]
+    ) async -> NoxBehavioralIntelligenceSnapshot {
+        let date = Date()
+        let lookback = date.addingTimeInterval(-14 * 24 * 3600)
+        let semanticSpans = (try? await memoryCoordinator.semanticSpans(from: lookback, to: date)) ?? []
+        let arcs = NoxSemanticArcEngine.buildArcs(
+            spans: semanticSpans,
+            threads: threads,
+            at: date
+        )
+        let weekly = (try? await memoryCoordinator.weeklyRollups(endingAt: date)) ?? []
+        let monthly = (try? await memoryCoordinator.monthlyRollups(endingAt: date)) ?? []
+
+        return await NoxBehavioralIntelligenceOrchestrator.refresh(
+            paused: preferences.connectors.continuityEnrichmentPaused,
+            connectorSnapshot: connectorSnapshot,
+            stats: stats,
+            focus: focus,
+            spans: spans,
+            threads: threads,
+            arcs: arcs,
+            weeklyRollups: weekly,
+            monthlyRollups: monthly,
+            recentDailyDensity: ambientState.recentConnectorDensities,
+            lastInterventionAt: ambientState.lastConnectorInterventionAt,
+            signalStore: behavioralSignalStore,
+            at: date
+        )
     }
 
     private func refreshConnectorLayer(

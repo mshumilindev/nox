@@ -19,6 +19,10 @@ struct NoxLongHorizonSnapshot: Equatable, Sendable {
     let resurfacingNotes: [String]
     let connectorCadencePatterns: [NoxCadencePattern]
     let connectorEnrichmentNotes: [String]
+    let behavioralSignatures: [NoxBehavioralSignature]
+    let temporalRhythmInsights: [NoxTemporalRhythmInsight]
+    let lifeStructureCandidates: [NoxLifeStructureCandidate]
+    let behavioralDrift: NoxBehavioralDriftInsight?
 
     static let empty = NoxLongHorizonSnapshot(
         activeThreads: [],
@@ -31,6 +35,10 @@ struct NoxLongHorizonSnapshot: Equatable, Sendable {
         reflections: [],
         resurfacingNotes: [],
         connectorCadencePatterns: [],
-        connectorEnrichmentNotes: []
+        connectorEnrichmentNotes: [],
+        behavioralSignatures: [],
+        temporalRhythmInsights: [],
+        lifeStructureCandidates: [],
+        behavioralDrift: nil
     )
 }

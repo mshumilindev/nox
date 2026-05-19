@@ -28,6 +28,7 @@ enum NoxReflectiveContinuityAssembler {
         liveSignalCount: Int,
         continuitySeconds: TimeInterval,
         connectorSnapshot: NoxConnectorContinuitySnapshot = .empty,
+        behavioralSnapshot: NoxBehavioralIntelligenceSnapshot = .empty,
         at date: Date = Date()
     ) async throws -> NoxReflectiveContinuityBundle {
         let arcs = NoxSemanticArcEngine.buildArcs(spans: semanticSpans, threads: threads, at: date)
@@ -56,6 +57,9 @@ enum NoxReflectiveContinuityAssembler {
                 threads: threads,
                 arcs: arcs,
                 stats: stats,
+                focus: focus,
+                weeklyRollups: weeklyRollups,
+                behavioral: behavioralSnapshot,
                 at: date
             )
             let fresh = NoxReflectiveSynthesisEngine.synthesize(input: input, at: date)
@@ -76,6 +80,10 @@ enum NoxReflectiveContinuityAssembler {
         for note in connectorEnrichmentNotes where !resurfacingNotes.contains(note) {
             resurfacingNotes.append(note)
         }
+        for note in NoxBehavioralIntelligenceEnricher.enrichmentNotes(snapshot: behavioralSnapshot)
+            where !resurfacingNotes.contains(note) {
+            resurfacingNotes.append(note)
+        }
 
         let longHorizon = NoxLongHorizonLoader.load(
             threads: threads,
@@ -83,12 +91,13 @@ enum NoxReflectiveContinuityAssembler {
             typedMemories: typedMemories,
             weeklyRollups: weeklyRollups,
             monthlyRollups: monthlyRollups,
-            reflections: Array(reflections.prefix(4)),
+            reflections: NoxReflectionPresenter.distinct(reflections, limit: 4),
             emerging: emergingResult.observations,
             arcs: arcs,
             resurfacingNotes: resurfacingNotes,
             connectorCadencePatterns: connectorSnapshot.cadencePatterns,
-            connectorEnrichmentNotes: connectorEnrichmentNotes
+            connectorEnrichmentNotes: connectorEnrichmentNotes,
+            behavioral: behavioralSnapshot
         )
 
         var morningSummary: NoxMorningSummary?
