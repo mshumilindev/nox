@@ -1,0 +1,46 @@
+disabled_rules:
+  - trailing_whitespace
+
+opt_in_rules:
+  - empty_count
+  - fatal_error_message
+  - force_unwrapping
+  - implicitly_unwrapped_optional
+
+included:
+  - Nox
+  - NoxTests
+
+excluded:
+  - NoxUITests
+
+line_length:
+  warning: 120
+  error: 250
+
+file_length:
+  warning: 200
+  error: 250
+
+function_body_length:
+  warning: 30
+  error: 40
+
+type_body_length:
+  warning: 150
+  error: 250
+
+identifier_name:
+  min_length:
+    warning: 2
+  excluded:
+    - id
+    - x
+    - y
+
+custom_rules:
+  no_force_try:
+    name: "No force try"
+    regex: "try!"
+    message: "Use explicit error handling instead of try!."
+    severity: error

@@ -1,0 +1,52 @@
+import Foundation
+
+enum NoxTimelinePresenter {
+    static func displayText(for event: NoxEvent) -> String {
+        let calm = NoxLiveContextCopy.displayText(for: event)
+        if !calm.isEmpty { return calm }
+
+        switch event.payload {
+        case .appChanged(let payload):
+            if let previous = payload.previousAppName, previous != payload.appName {
+                return "\(previous) → \(payload.appName)"
+            }
+            return payload.appName
+        case .windowChanged(let payload):
+            return payload.appName
+        case .idle:
+            return event.type == .userIdleStarted ? "Quiet period" : NoxHumanContextCopy.backInMotion
+        case .session(let payload):
+            if event.type == .sessionStarted {
+                return "\(payload.primaryApp) — sustained stretch"
+            }
+            return "\(payload.primaryApp) stretch ended"
+        case .presence(let payload):
+            return payload.current.capitalized
+        case .permission:
+            return "Context updated"
+        case .system(let payload):
+            return payload.message
+        case .interaction:
+            return ""
+        }
+    }
+
+    static func subtitle(for event: NoxEvent) -> String? {
+        switch event.payload {
+        case .appChanged(let payload):
+            return payload.windowTitle?.nilIfEmpty
+        case .windowChanged(let payload):
+            return payload.appName
+        case .session(let payload):
+            return payload.primaryBundleId
+        default:
+            return nil
+        }
+    }
+}
+
+private extension String {
+    var nilIfEmpty: String? {
+        isEmpty ? nil : self
+    }
+}

@@ -1,0 +1,34 @@
+import SwiftUI
+
+struct NoxMemoryPeriodPicker: View {
+  @Environment(AppEnvironment.self) private var environment
+
+  var body: some View {
+    HStack(spacing: NoxSpacing.xs) {
+      ForEach(NoxMemoryPeriod.allCases) { period in
+        Button {
+          environment.setMemoryPeriod(period)
+        } label: {
+          Text(period.title)
+            .font(NoxTypography.sectionLabel)
+            .foregroundStyle(
+              environment.memoryPeriod == period
+                ? NoxDesignTokens.ColorRole.textPrimary
+                : NoxDesignTokens.ColorRole.textSecondary
+            )
+            .padding(.horizontal, NoxSpacing.sm)
+            .padding(.vertical, NoxSpacing.xs)
+            .background(
+              Capsule(style: .continuous)
+                .fill(
+                  environment.memoryPeriod == period
+                    ? NoxDesignTokens.ColorRole.surfaceElevated.opacity(NoxDesignTokens.Opacity.secondary)
+                    : Color.clear
+                )
+            )
+        }
+        .buttonStyle(.plain)
+      }
+    }
+  }
+}
