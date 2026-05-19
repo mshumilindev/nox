@@ -30,7 +30,8 @@ enum NoxLongHorizonLoader {
         )
         let activeThreads = orderThreads(
             filteredThreads,
-            prioritizedIds: threadPriority
+            prioritizedIds: threadPriority,
+            temporalWeights: memoryEvolution.temporalWeights
         )
         .prefix(6)
         .map { $0 }
@@ -63,7 +64,11 @@ enum NoxLongHorizonLoader {
                 secondary: behavioral.prioritizedArcIds
             )
         )
-        let orderedArcs = orderArcs(arcs, prioritizedIds: arcPriority)
+        let orderedArcs = orderArcs(
+            arcs,
+            prioritizedIds: arcPriority,
+            temporalWeights: memoryEvolution.temporalWeights
+        )
 
         return NoxLongHorizonSnapshot(
             activeThreads: activeThreads,
@@ -104,32 +109,57 @@ enum NoxLongHorizonLoader {
 
     private static func orderThreads(
         _ threads: [NoxContinuityThread],
-        prioritizedIds: [String]
+        prioritizedIds: [String],
+        temporalWeights: [String: Double]
     ) -> [NoxContinuityThread] {
-        guard !prioritizedIds.isEmpty else {
-            return threads.sorted { $0.continuityStrength > $1.continuityStrength }
-        }
         let map = Dictionary(uniqueKeysWithValues: threads.map { ($0.id, $0) })
         var ordered: [NoxContinuityThread] = prioritizedIds.compactMap { map[$0] }
-        for thread in threads where !prioritizedIds.contains(thread.id) {
-            ordered.append(thread)
+        let remainder = threads
+            .filter { !prioritizedIds.contains($0.id) }
+            .sorted { weightedThreadScore($0, weights: temporalWeights) > weightedThreadScore($1, weights: temporalWeights) }
+        ordered.append(contentsOf: remainder)
+        if prioritizedIds.isEmpty {
+            return threads.sorted {
+                weightedThreadScore($0, weights: temporalWeights) > weightedThreadScore($1, weights: temporalWeights)
+            }
         }
         return ordered
     }
 
     private static func orderArcs(
         _ arcs: [NoxSemanticArc],
-        prioritizedIds: [String]
+        prioritizedIds: [String],
+        temporalWeights: [String: Double]
     ) -> [NoxSemanticArc] {
-        guard !prioritizedIds.isEmpty else {
-            return arcs.sorted { $0.strength > $1.strength }
-        }
         let map = Dictionary(uniqueKeysWithValues: arcs.map { ($0.id, $0) })
         var ordered: [NoxSemanticArc] = prioritizedIds.compactMap { map[$0] }
-        for arc in arcs where !prioritizedIds.contains(arc.id) {
-            ordered.append(arc)
+        let remainder = arcs
+            .filter { !prioritizedIds.contains($0.id) }
+            .sorted { weightedArcScore($0, weights: temporalWeights) > weightedArcScore($1, weights: temporalWeights) }
+        ordered.append(contentsOf: remainder)
+        if prioritizedIds.isEmpty {
+            return arcs.sorted {
+                weightedArcScore($0, weights: temporalWeights) > weightedArcScore($1, weights: temporalWeights)
+            }
         }
         return ordered
+    }
+
+    private static func weightedThreadScore(
+        _ thread: NoxContinuityThread,
+        weights: [String: Double]
+    ) -> Double {
+        let weight = weights[thread.id] ?? thread.continuityStrength
+        let resumptionBoost = min(0.15, Double(thread.totalResumptions) * 0.03)
+        let recurrenceBoost = thread.recurrenceStrength * 0.12
+        return weight + resumptionBoost + recurrenceBoost
+    }
+
+    private static func weightedArcScore(_ arc: NoxSemanticArc, weights: [String: Double]) -> Double {
+        let weight = weights[arc.id] ?? arc.strength
+        let resurfacedBoost = arc.continuityState == .resurfaced ? 0.12 : 0
+        let evolutionBoost = arc.evolution == .strengthening ? 0.08 : 0
+        return weight + resurfacedBoost + evolutionBoost
     }
 
     private static func buildNarratives(

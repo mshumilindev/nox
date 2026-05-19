@@ -23,6 +23,7 @@ The old day-by-day MVP checklist has been retired. Nox is now tracked by shipped
 | 11 | Shipped in code | Ambient utility: contextual nudging, decompression/silence, receptiveness, adaptive calmness, macOS ambient notifications (opt-in) |
 | 11.5 | Shipped in code | Utility calibration: notification fatigue/trust, gravity evolution, interruption cost, silence refinement, long-horizon relevance |
 | 12 | Shipped in code | Memory evolution: aging, long-horizon continuity, identity consistency, era evolution, ecology, temporal weights, long-term resurfacing |
+| 12.5 | Shipped in code | Memory evolution UX: temporal copy, visual aging, resurfacing rows, weight-based ordering, light era surfacing |
 
 ## Current Product Boundary
 

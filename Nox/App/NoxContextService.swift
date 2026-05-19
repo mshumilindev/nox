@@ -165,7 +165,6 @@ final class NoxContextService {
                 period: environment.memoryPeriod,
                 query: query
             )
-            environment.timelineSections = view.sections
             environment.dayStats = view.stats
             environment.focusAnalysis = view.focus
             latestFocusAnalysis = view.focus
@@ -186,6 +185,7 @@ final class NoxContextService {
                 range: range
             )
             let date = Date()
+            let presentationAnchor = range.end
             let lookback = date.addingTimeInterval(-14 * 24 * 3600)
             let semanticSpans = (try? await memoryCoordinator.semanticSpans(from: lookback, to: date)) ?? []
             let continuityArcs = NoxSemanticArcEngine.buildArcs(
@@ -223,6 +223,15 @@ final class NoxContextService {
                 at: date
             )
             environment.memoryEvolutionSnapshot = memoryEvolution
+            environment.timelineSections = NoxTemporalMemoryRowPresenter.enrich(
+                sections: view.sections,
+                threads: view.continuityThreads,
+                arcs: continuityArcs,
+                evolution: memoryEvolution,
+                ecologyCoupling: ambientState.memoryEvolution.ecologyCoupling,
+                period: environment.memoryPeriod,
+                at: presentationAnchor
+            )
 
             if !preferences.connectors.continuityEnrichmentPaused {
                 let intervention = utilitySnapshot.refinedIntervention

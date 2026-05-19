@@ -55,7 +55,10 @@ struct NoxPatternsSurfaceView: View {
                             spacing: NoxSpacing.cardStack
                         ) {
                             ForEach(snapshot.semanticArcs) { arc in
-                                NoxSemanticArcCard(arc: arc)
+                                NoxSemanticArcCard(
+                                    arc: arc,
+                                    evolution: memoryEvolution
+                                )
                             }
                         }
                     }
@@ -126,6 +129,10 @@ struct NoxPatternsSurfaceView: View {
                                 .noxSurface(.soft)
                         }
                     }
+                }
+
+                if let eraLine = NoxTemporalMemoryRowPresenter.eraObservation(for: memoryEvolution) {
+                    NoxMemoryEraObservationView(line: eraLine)
                 }
 
                 if showsTemporalContinuity {

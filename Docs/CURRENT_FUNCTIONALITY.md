@@ -338,6 +338,17 @@ Module: `Nox/Core/MemoryEvolution/`
 - **Temporal coherence** (`NoxTemporalCoherenceEngine`, `NoxMemoryEvolutionOrchestrator`): global sparse tuning pass; state persisted in `NoxAmbientState.memoryEvolution`.
 - **Integration**: runs after utility calibration; feeds long-horizon loader priorities, reflective resurfacing, and Patterns “Temporal continuity” section.
 
+## Phase 12.5 — Memory evolution UX pass
+
+Presentation layer in `Nox/Core/Memory/Presentation/` (no new dashboards or analytics):
+
+- **Aging presentation** (`NoxMemoryAgingPresenter`, `NoxMemoryTemporalState`, `NoxTimelineRowPresentation`): maps engine aging bands to visual emphasis (title/metadata/icon opacity, duration suppression) — presentation only, not leaked engine models.
+- **Temporal copy** (`NoxTemporalContinuityCopyBuilder`): replaces telemetry phrasing (“1m”, “N resumptions”) with calm continuity language (“recently active”, “returned across several sessions”) — confidence-gated and sparse.
+- **Row orchestration** (`NoxTemporalMemoryRowPresenter`): enriches timeline sections after Phase 12 refresh; injects rare long-term resurfacing rows; reorders by temporal weight within layers.
+- **Ecology hints** (`NoxMemoryRelationPresenter`): sparse relation lines (“connected to recent development continuity”) without explaining ecology directly.
+- **UI extraction**: `NoxTimelineRowView`, `NoxTimelineSectionView`, `NoxMemoryEraObservationView`; cards (`NoxContinuityThreadCard`, `NoxSemanticArcCard`) apply aging styles; light era observation above Memory timeline and in Patterns.
+- **Ordering**: `NoxLongHorizonLoader` and `NoxContextualMemoryPrioritizer` bias toward high temporal-weight / unresolved / resurfaced continuity over noisy short activity.
+
 ## Interaction & Hover
 
 - `NoxBorderlessPressStyle` — press feedback + ambient hover on **Button** labels only.
@@ -347,7 +358,7 @@ Module: `Nox/Core/MemoryEvolution/`
 
 ## Testing
 
-- Unit tests cover presence, memory, continuity, context QA, reflective continuity, **Phase 9 connectors**, **Phase 10 behavioral intelligence**, **timeline dedup by time overlap**, **layered sections**, **historical empty copy**, and **activity classification** (e.g. ChatGPT → Research, legacy `unknown` resolution).
+- Unit tests cover presence, memory, continuity, context QA, reflective continuity, **Phase 9 connectors**, **Phase 10 behavioral intelligence**, **Phase 12 memory evolution**, **Phase 12.5 presentation copy/aging**, **timeline dedup by time overlap**, **layered sections**, **historical empty copy**, and **activity classification** (e.g. ChatGPT → Research, legacy `unknown` resolution).
 - UI test files exist; product strategy avoids brittle layout UI tests as primary validation.
 
 ## Current Gaps And Risks

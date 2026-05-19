@@ -28,6 +28,8 @@ nonisolated enum NoxTimelineSymbol {
             return span.category.symbolName
         case .fragmentedSummary:
             return NoxSFSymbol.validated("arrow.triangle.branch", fallback: "circle.fill")
+        case .resurfacingMemory:
+            return NoxSFSymbol.validated("arrow.uturn.backward", fallback: "link")
         }
     }
 }

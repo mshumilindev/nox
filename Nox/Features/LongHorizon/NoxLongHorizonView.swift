@@ -34,7 +34,7 @@ struct NoxLongHorizonView: View {
             if !snapshot.semanticArcs.isEmpty {
                 section("SEMANTIC ARCS") {
                     ForEach(snapshot.semanticArcs) { arc in
-                        NoxSemanticArcCard(arc: arc)
+                        NoxSemanticArcCard(arc: arc, evolution: snapshot.memoryEvolution)
                     }
                 }
             }
@@ -42,7 +42,7 @@ struct NoxLongHorizonView: View {
             if !snapshot.activeThreads.isEmpty {
                 section("ACTIVE THREADS") {
                     ForEach(snapshot.activeThreads) { thread in
-                        NoxContinuityThreadCard(thread: thread)
+                        NoxContinuityThreadCard(thread: thread, evolution: snapshot.memoryEvolution)
                     }
                 }
             }
@@ -73,7 +73,10 @@ struct NoxLongHorizonView: View {
 
             if !snapshot.eraCandidates.isEmpty {
                 section("ERA CANDIDATES") {
-                    NoxEraSurface(candidates: snapshot.eraCandidates)
+                    NoxEraSurface(
+                        candidates: snapshot.eraCandidates,
+                        eraHints: snapshot.memoryEvolution.eraHints
+                    )
                 }
             }
         }

@@ -21,7 +21,10 @@ struct NoxMemorySurfaceView: View {
                 emergence: environment.memoryEmergence,
                 density: environment.memoryDensity,
                 dayOverview: nil,
-                presence: environment.presence
+                presence: environment.presence,
+                eraObservation: NoxTemporalMemoryRowPresenter.eraObservation(
+                    for: environment.memoryEvolutionSnapshot
+                )
             )
         }
     }

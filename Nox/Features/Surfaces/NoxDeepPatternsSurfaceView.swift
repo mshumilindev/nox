@@ -75,7 +75,10 @@ struct NoxDeepPatternsSurfaceView: View {
                 spacing: NoxSpacing.cardStack
             ) {
                 ForEach(snapshot.semanticArcs) { arc in
-                    NoxSemanticArcCard(arc: arc)
+                    NoxSemanticArcCard(
+                        arc: arc,
+                        evolution: environment.memoryEvolutionSnapshot
+                    )
                 }
             }
         }

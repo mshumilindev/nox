@@ -20,7 +20,10 @@ struct NoxThreadsSurfaceView: View {
                 ) {
                     ForEach(environment.longHorizonSnapshot.activeThreads) { thread in
                         VStack(alignment: .leading, spacing: NoxSpacing.md) {
-                            NoxContinuityThreadCard(thread: thread)
+                            NoxContinuityThreadCard(
+                                thread: thread,
+                                evolution: environment.memoryEvolutionSnapshot
+                            )
                             NoxContextExplanationCard(
                                 reason: NoxExplainabilityPresenter.whyContinuityAppeared(thread: thread)
                             )

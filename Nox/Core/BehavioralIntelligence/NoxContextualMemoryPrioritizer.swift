@@ -15,19 +15,27 @@ nonisolated enum NoxContextualMemoryPrioritizer {
         signatures: [NoxBehavioralSignature],
         lifeStructures: [NoxLifeStructureCandidate],
         drift: NoxBehavioralDriftInsight?,
-        existingNotes: [String]
+        existingNotes: [String],
+        temporalWeights: [String: Double] = [:]
     ) -> Result {
         let weightMap = Dictionary(uniqueKeysWithValues: weights.map { ($0.threadId, $0.weight) })
 
         let sortedThreads = threads.sorted { lhs, rhs in
-            let lw = weightMap[lhs.id] ?? lhs.continuityStrength
-            let rw = weightMap[rhs.id] ?? rhs.continuityStrength
+            let lw = temporalWeights[lhs.id] ?? weightMap[lhs.id] ?? lhs.continuityStrength
+            let rw = temporalWeights[rhs.id] ?? weightMap[rhs.id] ?? rhs.continuityStrength
             if abs(lw - rw) > 0.02 { return lw > rw }
+            if lhs.totalResumptions != rhs.totalResumptions {
+                return lhs.totalResumptions > rhs.totalResumptions
+            }
             return lhs.lastSeenAt > rhs.lastSeenAt
         }
 
         let sortedArcs = arcs.sorted { lhs, rhs in
+            let lw = temporalWeights[lhs.id] ?? lhs.strength
+            let rw = temporalWeights[rhs.id] ?? rhs.strength
+            if abs(lw - rw) > 0.02 { return lw > rw }
             if lhs.evolution == .strengthening, rhs.evolution != .strengthening { return true }
+            if lhs.continuityState == .resurfaced, rhs.continuityState != .resurfaced { return true }
             if lhs.strength != rhs.strength { return lhs.strength > rhs.strength }
             return lhs.lastSeenAt > rhs.lastSeenAt
         }
