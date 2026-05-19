@@ -25,9 +25,11 @@ struct NoxMemoryPeriodPicker: View {
                     ? NoxDesignTokens.ColorRole.surfaceElevated.opacity(NoxDesignTokens.Opacity.secondary)
                     : Color.clear
                 )
+                .allowsHitTesting(false)
             )
+            .noxHitTarget(minHeight: 32)
         }
-        .buttonStyle(.plain)
+        .buttonStyle(.noxBorderless)
       }
     }
   }

@@ -71,7 +71,8 @@ struct NoxMetadataExtractor {
         if let projectName { return projectName }
         if let sanitizedTitle, sanitizedTitle != appName { return sanitizedTitle }
         if let siteName { return siteName }
-        return appName
+        // nil — caller already knows the app; avoids "Cursor · Cursor" style duplicates.
+        return nil
     }
 
     private func contentTitle(

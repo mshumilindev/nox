@@ -1,25 +1,17 @@
 import SwiftUI
 
 struct NoxContinuityThreadCard: View {
-    let thread: NoxContinuityThread
+  let thread: NoxContinuityThread
 
-    var body: some View {
-        VStack(alignment: .leading, spacing: NoxSpacing.xs) {
-            Text(NoxContinuityResurfacingPresenter.threadDisplayTitle(thread))
-                .font(NoxTypography.actionEmphasis)
-                .foregroundStyle(NoxDesignTokens.ColorRole.textPrimary)
+  var body: some View {
+    VStack(alignment: .leading, spacing: NoxSpacing.xs) {
+      Text(NoxContinuityResurfacingPresenter.threadDisplayTitle(thread))
+        .font(NoxTypography.continuity)
+        .foregroundStyle(NoxDesignTokens.ColorRole.textPrimary.opacity(0.92))
 
-            Text(NoxContinuityResurfacingPresenter.threadDetailLine(thread))
-                .font(NoxTypography.caption)
-                .foregroundStyle(NoxDesignTokens.ColorRole.textSecondary)
-        }
-        .padding(NoxSpacing.md)
-        .frame(maxWidth: .infinity, alignment: .leading)
-        .background(cardBackground)
+      Text(NoxContinuityResurfacingPresenter.threadDetailLine(thread))
+        .noxMetadata()
     }
-
-    private var cardBackground: some View {
-        RoundedRectangle(cornerRadius: NoxDesignTokens.Radius.sm, style: .continuous)
-            .fill(NoxDesignTokens.ColorRole.surfaceElevated.opacity(NoxDesignTokens.Opacity.subtle))
-    }
+    .noxSurface(.standard)
+  }
 }

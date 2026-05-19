@@ -30,6 +30,18 @@ final class NoxMemoryCoordinator {
 
     var continuity: NoxContinuityEngine { continuityEngine }
 
+    func clearRecentActivity(from start: Date, to end: Date) async throws -> Int {
+        try await memoryStore.deleteSpans(inRange: start, to: end)
+    }
+
+    func clearAllSemanticMemory() async throws -> Int {
+        try await semanticStore.deleteAll()
+    }
+
+    func clearAllContinuityThreads() async throws -> Int {
+        try await continuityEngine.clearAllThreads()
+    }
+
     func runMemoryMaintenance(
         timelineStore: NoxTimelineStore,
         sessionStore: NoxSessionStore,

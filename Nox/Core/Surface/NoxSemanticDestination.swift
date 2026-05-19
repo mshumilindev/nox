@@ -1,0 +1,39 @@
+import Foundation
+
+/// Conceptual navigation — not dashboard tabs.
+enum NoxSemanticDestination: String, CaseIterable, Identifiable, Codable, Sendable {
+    case now
+    case threads
+    case memory
+    case patterns
+    case reflections
+    case local
+    case trust
+
+    var id: String { rawValue }
+
+    var title: String {
+        switch self {
+        case .now: "Now"
+        case .threads: "Threads"
+        case .memory: "Memory"
+        case .patterns: "Patterns"
+        case .reflections: "Reflections"
+        case .local: "Local"
+        case .trust: "Trust"
+        }
+    }
+
+    var symbolName: String {
+        switch self {
+        case .now: "waveform.path"
+        case .threads: "link"
+        case .memory: "clock.arrow.circlepath"
+        case .patterns: "square.grid.3x3"
+        case .reflections: "text.quote"
+        case .local: "internaldrive"
+        case .trust: "shield.lefthalf.filled"
+        }
+    }
+
+}

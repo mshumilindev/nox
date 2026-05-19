@@ -26,6 +26,14 @@ final class AppEnvironment {
     var memoryMaturity: NoxMemoryMaturity = .transient
     var morningSummary: NoxMorningSummary?
     var longHorizonSnapshot: NoxLongHorizonSnapshot = .empty
+    var preferences: NoxAmbientPreferences = .default
+    var awarenessSnapshot: NoxAwarenessSnapshot = NoxAwarenessPresenter.snapshot(
+        capabilities: .unavailable,
+        memoryReadiness: .observing,
+        pauseState: .active,
+        sensitivity: .normal
+    )
+    var primaryExplanation: NoxInferenceReason?
 
     var activeAppName: String?
     var activeBundleId: String?
@@ -87,5 +95,52 @@ final class AppEnvironment {
     func setMemorySearch(_ text: String) {
         memorySearchText = text
         Task { await contextService.reloadMemoryView() }
+    }
+
+    func setWindowMode(_ mode: NoxWindowMode) {
+        mutatePreferences { $0.windowMode = mode }
+        NoxAppRuntime.panelState.applyWindowMode(mode, using: self)
+    }
+
+    func setNavigationDestination(_ destination: NoxSemanticDestination) {
+        mutatePreferences { $0.navigationDestination = destination }
+    }
+
+    func setSurfaceDensity(_ density: NoxSurfaceDensity) {
+        mutatePreferences { $0.surfaceDensity = density }
+    }
+
+    func setObservationPaused(_ paused: Bool) {
+        mutatePreferences { $0.pauseState.observationPaused = paused }
+    }
+
+    func setSemanticMemoryPaused(_ paused: Bool) {
+        mutatePreferences { $0.pauseState.semanticMemoryPaused = paused }
+    }
+
+    func setQuietMode(_ mode: NoxQuietMode) {
+        mutatePreferences { prefs in
+            NoxQuietModeEngine.apply(mode, to: &prefs.pauseState)
+        }
+    }
+
+    func completeTrustOnboarding() {
+        mutatePreferences { $0.hasSeenTrustOnboarding = true }
+    }
+
+    /// Reassigns the whole struct so `@Observable` notifies SwiftUI (in-place nested mutation does not).
+    private func mutatePreferences(_ mutate: (inout NoxAmbientPreferences) -> Void) {
+        var updated = preferences
+        mutate(&updated)
+        preferences = updated
+        Task { await contextService.updatePreferences(updated) }
+    }
+
+    func clearRecentMemory() async {
+        await contextService.clearRecentMemory()
+    }
+
+    func clearSemanticContinuity() async {
+        await contextService.clearSemanticContinuity()
     }
 }

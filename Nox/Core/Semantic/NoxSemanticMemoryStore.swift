@@ -83,6 +83,12 @@ actor NoxSemanticMemoryStore {
         )
     }
 
+    @discardableResult
+    func deleteAll() throws -> Int {
+        try execute(sql: "DELETE FROM semantic_spans;")
+        return Int(sqlite3_changes(db))
+    }
+
     func searchSpans(from start: Date, to end: Date, query: String) throws -> [NoxSemanticMemorySpan] {
         let pattern = "%\(query.lowercased())%"
         return try fetchSpans(

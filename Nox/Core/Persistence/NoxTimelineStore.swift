@@ -67,6 +67,15 @@ actor NoxTimelineStore {
     }
 
     @discardableResult
+    func deleteEvents(from start: Date, to end: Date) throws -> Int {
+        try execute(
+            sql: "DELETE FROM timeline_events WHERE timestamp >= ? AND timestamp < ?;",
+            bindings: [.double(start.timeIntervalSince1970), .double(end.timeIntervalSince1970)]
+        )
+        return Int(sqlite3_changes(db))
+    }
+
+    @discardableResult
     func pruneOldEvents(olderThan days: Int = 30) throws -> Int {
         let cutoff = Date().addingTimeInterval(-Double(days) * 86_400).timeIntervalSince1970
         try execute(sql: "DELETE FROM timeline_events WHERE timestamp < ?;", bindings: [.double(cutoff)])

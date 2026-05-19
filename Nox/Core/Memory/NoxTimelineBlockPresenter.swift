@@ -93,12 +93,10 @@ enum NoxTimelineBlockPresenter {
     }
 
     private static func spanItem(_ span: NoxActivitySpan) -> NoxTimelineBlockItem {
-        let subtitle: String?
-        if let context = span.contextLabel {
-            subtitle = "\(span.appName) · \(context)"
-        } else {
-            subtitle = span.appName
-        }
+        let subtitle = NoxSemanticLabelCatalog.activitySpanSubtitle(
+            appName: span.appName,
+            contextLabel: span.contextLabel
+        )
         return NoxTimelineBlockItem(
             id: span.id,
             timestamp: span.startedAt,

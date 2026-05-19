@@ -58,6 +58,10 @@ final class NoxContinuityEngine {
         return pendingResurfacing
     }
 
+    func clearAllThreads() async throws -> Int {
+        try await store.deleteAll()
+    }
+
     // MARK: - Private
 
     private func attachSpan(

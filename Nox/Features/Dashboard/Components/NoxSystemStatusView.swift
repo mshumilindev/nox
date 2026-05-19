@@ -5,7 +5,8 @@ struct NoxSystemStatusView: View {
 
     var body: some View {
         VStack(alignment: .leading, spacing: NoxSpacing.sm) {
-            sectionHeader("LOCAL")
+            Text("Local")
+                .noxSectionLabel()
 
             VStack(alignment: .leading, spacing: NoxSpacing.md) {
                 statusRow(label: "Menu bar", value: "Active", tone: .active)
@@ -21,9 +22,7 @@ struct NoxSystemStatusView: View {
                     permissionActions
                 }
             }
-            .padding(NoxSpacing.lg)
-            .frame(maxWidth: .infinity, alignment: .leading)
-            .background(cardBackground)
+            .noxSurface(.soft, padding: NoxSpacing.lg)
         }
     }
 
@@ -38,17 +37,19 @@ struct NoxSystemStatusView: View {
                 Button("Open System Settings") {
                     environment.openAccessibilitySettings()
                 }
-                .buttonStyle(.plain)
                 .font(NoxTypography.actionEmphasis)
                 .foregroundStyle(NoxDesignTokens.ColorRole.accent)
+                .noxHitTarget(minHeight: 32)
+                .buttonStyle(.noxBorderless)
 
                 Button("Retry") {
                     environment.requestAccessibilityAccess()
                     environment.refreshPermissions()
                 }
-                .buttonStyle(.plain)
                 .font(NoxTypography.action)
                 .foregroundStyle(NoxDesignTokens.ColorRole.textSecondary)
+                .noxHitTarget(minHeight: 32)
+                .buttonStyle(.noxBorderless)
             }
         }
         .padding(.top, NoxSpacing.xs)
@@ -79,22 +80,6 @@ struct NoxSystemStatusView: View {
         case .locked:
             NoxDesignTokens.ColorRole.textSecondary.opacity(0.7)
         }
-    }
-
-    private var cardBackground: some View {
-        RoundedRectangle(cornerRadius: NoxDesignTokens.Radius.md, style: .continuous)
-            .fill(NoxDesignTokens.ColorRole.surfaceElevated.opacity(NoxDesignTokens.Opacity.subtle))
-            .overlay {
-                RoundedRectangle(cornerRadius: NoxDesignTokens.Radius.md, style: .continuous)
-                    .strokeBorder(NoxDesignTokens.ColorRole.border.opacity(NoxDesignTokens.Opacity.divider))
-            }
-    }
-
-    private func sectionHeader(_ title: String) -> some View {
-        Text(title)
-            .font(NoxTypography.sectionLabel)
-            .foregroundStyle(NoxDesignTokens.ColorRole.textSecondary)
-            .tracking(0.6)
     }
 
     private func sectionSubtitle(_ text: String) -> some View {

@@ -17,4 +17,8 @@ final class NoxPanelState {
     func closeDashboard() {
         windowController.close()
     }
+
+    func applyWindowMode(_ mode: NoxWindowMode, using environment: AppEnvironment) {
+        windowController.applyWindowMode(mode, using: environment)
+    }
 }

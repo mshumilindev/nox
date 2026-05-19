@@ -69,6 +69,17 @@ enum NoxSemanticLabelCatalog {
         return unique.prefix(3).joined(separator: " · ") + " · …"
     }
 
+    /// Activity timeline: `App · context` — omit duplicate when context resolves to the app name.
+    static func activitySpanSubtitle(appName: String, contextLabel: String?) -> String {
+        let app = appName.trimmingCharacters(in: .whitespacesAndNewlines)
+        guard !app.isEmpty else { return contextLabel ?? "" }
+        guard let context = contextLabel?.trimmingCharacters(in: .whitespacesAndNewlines), !context.isEmpty else {
+            return app
+        }
+        if context.caseInsensitiveCompare(app) == .orderedSame { return app }
+        return "\(app) · \(context)"
+    }
+
     static func memoryDetail(
         inference: NoxSemanticInference?,
         span: NoxSemanticMemorySpan

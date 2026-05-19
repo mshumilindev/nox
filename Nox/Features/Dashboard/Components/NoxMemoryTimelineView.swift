@@ -1,151 +1,147 @@
 import SwiftUI
 
 struct NoxMemoryTimelineView: View {
-    let blocks: [NoxTimelineBlockItem]
-    let emergence: NoxMemoryEmergence
-    let density: Double
-    var dayOverview: String?
-    var presence: NoxPresenceState = .quiet
+  let blocks: [NoxTimelineBlockItem]
+  let emergence: NoxMemoryEmergence
+  let density: Double
+  var dayOverview: String?
+  var presence: NoxPresenceState = .quiet
 
-    @State private var ambientGlow = false
+  var body: some View {
+    VStack(alignment: .leading, spacing: NoxSpacing.md) {
+      Text("Timeline")
+        .noxSectionLabel()
 
-    var body: some View {
-        VStack(alignment: .leading, spacing: NoxSpacing.sm) {
-            sectionHeader("MEMORY")
+      if let dayOverview, !dayOverview.isEmpty {
+        Text(dayOverview)
+          .font(NoxTypography.body)
+          .foregroundStyle(NoxDesignTokens.ColorRole.textPrimary.opacity(0.88))
+          .fixedSize(horizontal: false, vertical: true)
+          .padding(.bottom, NoxSpacing.xs)
+      }
 
-            if let dayOverview, !dayOverview.isEmpty {
-                Text(dayOverview)
-                    .font(NoxTypography.body)
-                    .foregroundStyle(NoxDesignTokens.ColorRole.textPrimary.opacity(0.92))
-                    .fixedSize(horizontal: false, vertical: true)
-            }
-
-            if blocks.isEmpty {
-                emergenceState
-            } else {
-                VStack(alignment: .leading, spacing: NoxSpacing.md) {
-                    ForEach(blocks) { block in
-                        memoryRow(block)
-                    }
-                }
-                .padding(NoxSpacing.lg)
-                .frame(maxWidth: .infinity, alignment: .leading)
-                .background(cardBackground)
-                .opacity(0.9 + density * 0.1)
-            }
+      if blocks.isEmpty {
+        emergenceState
+      } else {
+        VStack(alignment: .leading, spacing: 0) {
+          ForEach(Array(blocks.enumerated()), id: \.element.id) { index, block in
+            memoryFragment(
+              block,
+              isFirst: index == 0,
+              isLast: index == blocks.count - 1
+            )
+          }
         }
+      }
     }
+  }
 
-    private var emergenceState: some View {
-        ZStack {
-            RoundedRectangle(cornerRadius: NoxDesignTokens.Radius.md, style: .continuous)
-                .fill(NoxDesignTokens.ColorRole.accent.opacity(
-                    (ambientGlow ? 0.06 : 0.025) * (0.6 + emergence.ambientDensity * 0.4)
-                ))
-                .animation(
-                    .easeInOut(duration: 4.5).repeatForever(autoreverses: true),
-                    value: ambientGlow
-                )
+  private var emergenceState: some View {
+    VStack(alignment: .leading, spacing: NoxSpacing.sm) {
+      Text(emergence.title)
+        .font(NoxTypography.body)
+        .foregroundStyle(NoxDesignTokens.ColorRole.textPrimary.opacity(0.9))
 
-            VStack(alignment: .leading, spacing: NoxSpacing.md) {
-                Text(emergence.title)
-                    .font(NoxTypography.body)
-                    .foregroundStyle(NoxDesignTokens.ColorRole.textPrimary)
+      if !emergence.detail.isEmpty {
+        Text(emergence.detail)
+          .noxMetadata()
+          .fixedSize(horizontal: false, vertical: true)
+      }
 
-                if !emergence.detail.isEmpty {
-                    Text(emergence.detail)
-                        .font(NoxTypography.caption)
-                        .foregroundStyle(NoxDesignTokens.ColorRole.textSecondary)
-                        .fixedSize(horizontal: false, vertical: true)
-                }
+      if let windowLine = emergence.observationWindowLine {
+        Text(windowLine)
+          .font(NoxTypography.caption)
+          .foregroundStyle(NoxDesignTokens.ColorRole.textSecondary.opacity(0.5))
+      }
+    }
+    .noxSurface(.inset)
+  }
 
-                if let windowLine = emergence.observationWindowLine {
-                    Text(windowLine)
-                        .font(NoxTypography.caption)
-                        .foregroundStyle(NoxDesignTokens.ColorRole.textSecondary.opacity(0.85))
-                }
+  private func memoryFragment(
+    _ block: NoxTimelineBlockItem,
+    isFirst: Bool,
+    isLast: Bool
+  ) -> some View {
+    HStack(alignment: .center, spacing: NoxSpacing.md) {
+      timelineMarker(for: block, isFirst: isFirst, isLast: isLast)
 
-                NoxPhilosophySurface(presence: presence, style: .emergence, showsLocalNote: false)
-                    .padding(.top, NoxSpacing.sm)
-            }
-            .padding(NoxSpacing.lg)
-            .frame(maxWidth: .infinity, alignment: .leading)
+      VStack(alignment: .leading, spacing: NoxSpacing.xxs) {
+        HStack(alignment: .firstTextBaseline, spacing: NoxSpacing.sm) {
+          Text(block.title)
+            .font(NoxTypography.continuityDetail)
+            .foregroundStyle(NoxDesignTokens.ColorRole.textPrimary.opacity(0.92))
+            .lineLimit(2)
+            .fixedSize(horizontal: false, vertical: true)
+            .layoutPriority(1)
+
+          if let durationText = block.durationText {
+            Text(durationText)
+              .font(NoxTypography.timelineStamp)
+              .foregroundStyle(NoxDesignTokens.ColorRole.textSecondary.opacity(0.45))
+              .lineLimit(1)
+              .fixedSize(horizontal: true, vertical: false)
+          }
         }
-        .background(cardBackground)
-        .opacity(0.92 + emergence.ambientDensity * 0.06)
-        .onAppear { ambientGlow = true }
-    }
 
-    private func memoryRow(_ block: NoxTimelineBlockItem) -> some View {
-        HStack(alignment: .top, spacing: NoxSpacing.md) {
-            Image(systemName: block.markerSymbol ?? "circle")
-                .font(.system(size: NoxDesignTokens.SymbolSize.md, weight: .medium))
-                .foregroundStyle(markerColor(for: block))
-                .frame(width: 20)
-
-            VStack(alignment: .leading, spacing: NoxSpacing.xxs) {
-                HStack(alignment: .firstTextBaseline) {
-                    Text(block.title)
-                        .font(NoxTypography.actionEmphasis)
-                        .foregroundStyle(NoxDesignTokens.ColorRole.textPrimary)
-                    Spacer()
-                    if let durationText = block.durationText {
-                        Text(durationText)
-                            .font(NoxTypography.caption)
-                            .foregroundStyle(NoxDesignTokens.ColorRole.textSecondary)
-                    }
-                }
-
-                if let subtitle = block.subtitle, !subtitle.isEmpty {
-                    Text(subtitle)
-                        .font(NoxTypography.caption)
-                        .foregroundStyle(NoxDesignTokens.ColorRole.textSecondary)
-                        .fixedSize(horizontal: false, vertical: true)
-                }
-
-                if let detail = block.detailLine, !detail.isEmpty {
-                    Text(detail)
-                        .font(NoxTypography.caption)
-                        .foregroundStyle(NoxDesignTokens.ColorRole.textSecondary.opacity(0.88))
-                        .fixedSize(horizontal: false, vertical: true)
-                }
-            }
+        if let subtitle = block.subtitle, !subtitle.isEmpty {
+          Text(subtitle)
+            .font(NoxTypography.caption)
+            .foregroundStyle(NoxDesignTokens.ColorRole.textSecondary.opacity(0.58))
+            .fixedSize(horizontal: false, vertical: true)
         }
-    }
 
-    private func markerColor(for block: NoxTimelineBlockItem) -> Color {
-        switch block.kind {
-        case .continuityThread:
-            return NoxDesignTokens.ColorRole.accent
-        case .semanticSpan:
-            return NoxDesignTokens.ColorRole.accent
-        case .focusBlock(let focus):
-            switch focus.kind {
-            case .deepWork, .focused:
-                return NoxDesignTokens.ColorRole.accent
-            case .fragmented:
-                return NoxDesignTokens.ColorRole.presenceActive
-            }
-        case .interruption:
-            return NoxDesignTokens.ColorRole.textSecondary
-        default:
-            return NoxDesignTokens.ColorRole.presenceMuted
+        if let detail = block.detailLine, !detail.isEmpty {
+          Text(detail)
+            .font(NoxTypography.caption)
+            .foregroundStyle(NoxDesignTokens.ColorRole.textSecondary.opacity(0.48))
+            .fixedSize(horizontal: false, vertical: true)
         }
+      }
+      .padding(.vertical, NoxSpacing.sm)
     }
+  }
 
-    private var cardBackground: some View {
-        RoundedRectangle(cornerRadius: NoxDesignTokens.Radius.md, style: .continuous)
-            .fill(NoxDesignTokens.ColorRole.surfaceElevated.opacity(NoxDesignTokens.Opacity.secondary))
-            .overlay {
-                RoundedRectangle(cornerRadius: NoxDesignTokens.Radius.md, style: .continuous)
-                    .strokeBorder(NoxDesignTokens.ColorRole.border.opacity(NoxDesignTokens.Opacity.divider))
-            }
-    }
+  private func timelineMarker(
+    for block: NoxTimelineBlockItem,
+    isFirst: Bool,
+    isLast: Bool
+  ) -> some View {
+    let lineColor = NoxDesignTokens.ColorRole.border.opacity(0.14)
+    return VStack(spacing: 0) {
+      Rectangle()
+        .fill(lineColor)
+        .frame(width: 1)
+        .frame(maxHeight: .infinity)
+        .opacity(isFirst ? 0 : 1)
 
-    private func sectionHeader(_ title: String) -> some View {
-        Text(title)
-            .font(NoxTypography.sectionLabel)
-            .foregroundStyle(NoxDesignTokens.ColorRole.textSecondary)
-            .tracking(0.6)
+      Circle()
+        .fill(markerColor(for: block).opacity(0.75))
+        .frame(width: 5, height: 5)
+
+      Rectangle()
+        .fill(lineColor)
+        .frame(width: 1)
+        .frame(maxHeight: .infinity)
+        .opacity(isLast ? 0 : 1)
     }
+    .frame(width: 12)
+  }
+
+  private func markerColor(for block: NoxTimelineBlockItem) -> Color {
+    switch block.kind {
+    case .continuityThread, .semanticSpan:
+      NoxDesignTokens.ColorRole.accent
+    case .focusBlock(let focus):
+      switch focus.kind {
+      case .deepWork, .focused:
+        NoxDesignTokens.ColorRole.accent
+      case .fragmented:
+        NoxDesignTokens.ColorRole.presenceActive
+      }
+    case .interruption:
+      NoxDesignTokens.ColorRole.textSecondary
+    default:
+      NoxDesignTokens.ColorRole.presenceMuted
+    }
+  }
 }

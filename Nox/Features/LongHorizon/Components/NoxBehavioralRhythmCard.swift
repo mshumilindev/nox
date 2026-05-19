@@ -1,26 +1,18 @@
 import SwiftUI
 
 struct NoxBehavioralRhythmCard: View {
-    let entity: NoxTypedMemoryEntity
+  let entity: NoxTypedMemoryEntity
 
-    var body: some View {
-        VStack(alignment: .leading, spacing: NoxSpacing.xs) {
-            Text(entity.title)
-                .font(NoxTypography.actionEmphasis)
-                .foregroundStyle(NoxDesignTokens.ColorRole.textPrimary)
+  var body: some View {
+    VStack(alignment: .leading, spacing: NoxSpacing.xxs) {
+      Text(entity.title)
+        .font(NoxTypography.continuityDetail)
+        .foregroundStyle(NoxDesignTokens.ColorRole.textPrimary.opacity(0.88))
 
-            Text(entity.summary)
-                .font(NoxTypography.caption)
-                .foregroundStyle(NoxDesignTokens.ColorRole.textSecondary)
-                .fixedSize(horizontal: false, vertical: true)
-        }
-        .padding(NoxSpacing.md)
-        .frame(maxWidth: .infinity, alignment: .leading)
-        .background(cardBackground)
+      Text(entity.summary)
+        .noxMetadata()
+        .fixedSize(horizontal: false, vertical: true)
     }
-
-    private var cardBackground: some View {
-        RoundedRectangle(cornerRadius: NoxDesignTokens.Radius.sm, style: .continuous)
-            .fill(NoxDesignTokens.ColorRole.surfaceElevated.opacity(NoxDesignTokens.Opacity.subtle))
-    }
+    .padding(.vertical, NoxSpacing.xs)
+  }
 }

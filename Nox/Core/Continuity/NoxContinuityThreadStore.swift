@@ -260,6 +260,12 @@ actor NoxContinuityThreadStore {
         case int(Int)
     }
 
+    @discardableResult
+    func deleteAll() throws -> Int {
+        try execute(sql: "DELETE FROM continuity_threads;")
+        return Int(sqlite3_changes(db))
+    }
+
     private func execute(sql: String, bindings: [Binding] = []) throws {
         var statement: OpaquePointer?
         guard sqlite3_prepare_v2(db, sql, -1, &statement, nil) == SQLITE_OK else {

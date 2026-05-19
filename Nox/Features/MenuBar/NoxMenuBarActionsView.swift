@@ -34,6 +34,7 @@ struct NoxMenuBarActionsView: View {
                 .background(rowBackground(hovered: openHovered))
         }
         .buttonStyle(.plain)
+        .noxPointerCursor()
         .foregroundStyle(NoxDesignTokens.ColorRole.textPrimary)
         .keyboardShortcut("o", modifiers: .command)
         .accessibilityLabel("Open Nox")
@@ -48,6 +49,7 @@ struct NoxMenuBarActionsView: View {
                 .background(rowBackground(hovered: quitHovered))
         }
         .buttonStyle(.plain)
+        .noxPointerCursor()
         .foregroundStyle(NoxDesignTokens.ColorRole.textPrimary)
         .accessibilityLabel("Quit Nox")
         .accessibilityHint("Closes the Nox menu bar app.")

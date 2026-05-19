@@ -6,7 +6,7 @@ This document is the living inventory of what Nox actually implements today. Upd
 
 ## Product State
 
-Nox is currently a native macOS menu bar app with a floating dashboard, local activity awareness, deterministic context inference, structured memory, continuity detection, reflective continuity surfaces, and local persistence.
+Nox is currently a native macOS menu bar app with an adaptive ambient shell, local activity awareness, trust surfaces, memory controls, deterministic context inference, structured memory, continuity detection, reflective continuity, and local persistence.
 
 It is not a chatbot, cloud assistant, productivity scorer, screenshot recorder, clipboard tracker, or keystroke logger.
 
@@ -16,7 +16,7 @@ It is not a chatbot, cloud assistant, productivity scorer, screenshot recorder, 
 - Agent-style app using `LSUIElement`; it lives in the menu bar without a Dock-first experience.
 - Floating dashboard is owned by `NoxWindowController` through `NoxPanelState`, with single-window open/focus behavior.
 - Runtime singletons are centralized in `NoxAppRuntime`.
-- `AppEnvironment` owns UI-facing state for presence, permissions, live signals, timeline blocks, semantic context, search, memory period, long-horizon memory, morning continuity, reflections, memory maturity, and active app context.
+- `AppEnvironment` owns UI-facing state for presence, permissions, preferences, awareness snapshots, explainability, live signals, timeline blocks, semantic context, search, memory period, long-horizon memory, morning continuity, reflections, memory maturity, and active app context.
 - App lifecycle can checkpoint memory and session state before termination through `NoxLifecycleCoordinator` and `NoxContextService`.
 
 ## Menu Bar Experience
@@ -31,21 +31,54 @@ It is not a chatbot, cloud assistant, productivity scorer, screenshot recorder, 
   - calm local-first philosophy copy.
 - Menu bar copy avoids surveillance language.
 
-## Floating Dashboard
+## Visual Identity (Phase 8.5–8.7)
 
-- Dashboard contains:
-  - header and presence panel;
-  - live signals;
-  - **long-horizon memory surface** (continuity, arcs, reflections, rhythms);
-  - morning continuity banner when triggered;
-  - memory period picker;
-  - memory search;
-  - structured memory timeline;
-  - system/capability status;
-  - debug context explainability in debug builds;
-  - philosophy footer.
-- Dashboard density reacts to memory richness.
-- Timeline UI presents memory blocks, not a raw event stream.
+### Phase 8.7 — Human UI pass
+- **Three surface levels:** `major` (rare hero), `standard` (entities), `soft` (metadata/controls) — replaces uniform mega-cards.
+- **`noxGroup`** replaces heavy `noxCluster` wrappers; readable width cap (~520pt) on surfaces.
+- **Memory timeline:** continuity fragments with rail + hairline dividers (not admin log rows in one slab).
+- **Trust:** single composed boundaries list; calmer memory controls (toggle alignment, menu picker, quiet links).
+- **Now:** flat vertical composition — one `standard` presence block, `soft` live context, `major` morning only.
+- **Sidebar:** left-aligned rows, semantic grouping, accent bar selection (not icon-column template).
+- **Mode control:** underline selection, no glossy segmented pill.
+
+## Visual Identity (Phase 8.5 + 8.6)
+
+- Graphite atmospheric palette: canvas, rail, layered surfaces, muted indigo accent.
+- **Spacing scale (4pt base):** 4 · 8 · 12 · 16 · 24 · 32 · 48 — `NoxSpacing`, `NoxSurfacePage`, consistent card insets.
+- **Typography:** unified section labels (`noxSectionLabel`), metadata (`noxMetadata`), page titles via `NoxPageIntro` / `NoxSectionHeader`.
+- **Icons:** `NoxIcon` with rail / chrome / inline / section roles; destination symbols normalized (e.g. reflections `text.quote`, trust `shield.lefthalf.filled`).
+- `NoxMaterials` — 0.5pt borders, tiered fills, `cardPadding` / `cardPaddingLoose`; no glass spam.
+- `NoxAtmosphereBackground` — layered graphite gradients + soft vignette (static, no neon).
+- Architectural navigation rail (**128pt**, icon-above-label, no label wrap) with restrained selection fill.
+- `NoxWindowModeControl` — thin graphite mode switch (replaces thick segmented control).
+- Deep window mode: `NoxDeepPatternsSurfaceView` / `NoxDeepReflectionSurfaceView` with shared section headers.
+- Shell chrome: destination context + calm mode control; content well uses canvas tint.
+
+## Adaptive Ambient Shell (Phase 8)
+
+- `NoxAmbientShellView` replaces the single scroll wall with semantic navigation:
+  - **Now** — presence, awareness, live signals, explainability;
+  - **Threads** — continuity threads with “why” cards;
+  - **Memory** — timeline and search;
+  - **Patterns** — arcs, emerging patterns, rhythms;
+  - **Reflections** — calm reflection cards;
+  - **Local** — local-first transparency and capability ladder;
+  - **Trust** — privacy boundaries and memory controls.
+- **Window modes:** Compact, Expanded, Deep reflection (resizable floating panel).
+- **Progressive disclosure:** `NoxCollapsibleSection` folds dense content by default.
+- **Trust center:** stored/never collected/sensitive/retention/reflection boundaries.
+- **Memory controls:** pause observation, pause semantic memory, quiet modes, clear recent continuity.
+- **Permission onboarding:** first-launch sheet explaining awareness tiers.
+- **Emotional safety:** `NoxEmotionalSafetyCopy` blocks manipulative phrasing in product copy paths.
+
+## Trust & Awareness
+
+- `NoxAwarenessPresenter` — four human-facing awareness levels with scope labels.
+- `NoxSemanticVisibilityMode` — how sensitive contexts are stored/displayed.
+- `NoxExplainabilityPresenter` — “Why you're seeing this” without raw scores.
+- `NoxQuietModeEngine` — quiet evening, private session, low awareness, pause continuity.
+- Preferences persist via `NoxPreferencesStore` (local SQLite).
 
 ## Reflective Continuity Layer (Phase 7)
 

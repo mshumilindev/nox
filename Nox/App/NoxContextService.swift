@@ -37,6 +37,12 @@ final class NoxContextService {
     private var maintenanceTask: Task<Void, Never>?
     private var continuityNote: String?
     private var ambientState: NoxAmbientState = .empty
+    private var preferences = NoxAmbientPreferences.default
+    private let preferencesStore = NoxPreferencesStore()
+    private lazy var memoryControl = NoxMemoryControlCoordinator(
+        memoryCoordinator: memoryCoordinator,
+        timelineStore: timelineStore
+    )
     private let retentionPolicy = NoxMemoryRetentionPolicy.default
     private weak var environment: AppEnvironment?
 
@@ -56,7 +62,10 @@ final class NoxContextService {
             try await timelineStore.open()
             try await memoryCoordinator.open()
             try await ambientStateStore.open()
+            try await preferencesStore.open()
             try await sessionStore.open()
+            preferences = (try? await preferencesStore.loadPreferences()) ?? .default
+            environment?.preferences = preferences
             await hydrateFromPersistence()
             scheduleMemoryMaintenance()
         } catch {
@@ -120,6 +129,24 @@ final class NoxContextService {
         try? await ambientStateStore.saveSignalTracker(exported)
     }
 
+    func updatePreferences(_ preferences: NoxAmbientPreferences) async {
+        self.preferences = preferences
+        environment?.preferences = preferences
+        try? await preferencesStore.savePreferences(preferences)
+        refreshAwarenessSnapshot()
+        recalculatePresence()
+    }
+
+    func clearRecentMemory() async {
+        _ = try? await memoryControl.clearRecentMemory()
+        await reloadMemoryView()
+    }
+
+    func clearSemanticContinuity() async {
+        _ = try? await memoryControl.clearSemanticContinuity()
+        await reloadMemoryView()
+    }
+
     func reloadMemoryView() async {
         guard let environment else { return }
         let query = NoxMemoryQuery(text: environment.memorySearchText, period: environment.memoryPeriod)
@@ -175,6 +202,8 @@ final class NoxContextService {
                 emerging: reflective.emergingObservations,
                 maturity: reflective.memoryMaturity
             )
+            refreshAwarenessSnapshot()
+            refreshPrimaryExplanation()
             recalculatePresence()
         } catch {
             environment.timelineBlocks = []
@@ -318,7 +347,9 @@ final class NoxContextService {
             shouldPersist = !skip
         }
 
-        if shouldPersist, shouldPersistToTimeline(event) {
+        if shouldPersist,
+           shouldPersistToTimeline(event),
+           NoxQuietModeEngine.shouldIngestTimeline(preferences.pauseState) {
             await persist(event)
         }
 
@@ -398,13 +429,15 @@ final class NoxContextService {
         await evaluateSemantics(at: snapshot.capturedAt)
         recalculatePresence()
 
-        Task {
-            if let previous, previous.bundleId != snapshot.bundleId {
-                try? await memoryCoordinator.ingestAppChange(from: previous, to: snapshot)
-            } else {
-                try? await memoryCoordinator.ingestSnapshot(snapshot)
+        if NoxQuietModeEngine.shouldIngestTimeline(preferences.pauseState) {
+            Task {
+                if let previous, previous.bundleId != snapshot.bundleId {
+                    try? await memoryCoordinator.ingestAppChange(from: previous, to: snapshot)
+                } else {
+                    try? await memoryCoordinator.ingestSnapshot(snapshot)
+                }
+                await reloadMemoryView()
             }
-            await reloadMemoryView()
         }
     }
 
@@ -501,10 +534,11 @@ final class NoxContextService {
         let stabilized = presenceStabilizer.resolve(proposed: raw)
         environment.sessionSummary = sessionDetector.currentSession?.summaryLine
 
-        guard stabilized != environment.presence else { return }
+        let adjusted = NoxQuietModeEngine.presenceCeiling(preferences.pauseState, base: stabilized)
+        guard adjusted != environment.presence else { return }
 
         let previous = environment.presence
-        environment.presence = stabilized
+        environment.presence = adjusted
         Task {
             await persist(
                 NoxEvent(
@@ -652,25 +686,29 @@ final class NoxContextService {
             publishLiveSignals()
         }
 
-        if let resurfacing = try? await memoryCoordinator.ingestSemantic(
-            inference: latestSemanticInference,
-            appName: context.appName,
-            bundleId: context.bundleId,
-            context: context
-        ) {
-            liveBuffer.prepend(
-                NoxLiveSignal(
-                    id: "continuity-\(resurfacing.threadId)",
-                    timestamp: resurfacing.timestamp,
-                    text: resurfacing.primaryText,
-                    kind: .awareness,
-                    lifecycle: .transient(240)
-                )
+        if NoxQuietModeEngine.shouldIngestSemanticMemory(preferences.pauseState) {
+            let resurfacing = try? await memoryCoordinator.ingestSemantic(
+                inference: latestSemanticInference,
+                appName: context.appName,
+                bundleId: context.bundleId,
+                context: context
             )
-            publishLiveSignals()
+            if let resurfacing,
+               NoxQuietModeEngine.shouldResurface(preferences.pauseState),
+               NoxQuietModeEngine.shouldObserveContinuity(preferences.pauseState) {
+                liveBuffer.prepend(
+                    NoxLiveSignal(
+                        id: "continuity-\(resurfacing.threadId)",
+                        timestamp: resurfacing.timestamp,
+                        text: resurfacing.primaryText,
+                        kind: .awareness,
+                        lifecycle: .transient(240)
+                    )
+                )
+                publishLiveSignals()
+            }
+            _ = try? await memoryCoordinator.checkpointSemanticSpan(at: date)
         }
-
-        _ = try? await memoryCoordinator.checkpointSemanticSpan(at: date)
         scheduleMemoryReload()
     }
 
@@ -916,5 +954,24 @@ final class NoxContextService {
             state: .ended
         )
         try? await sessionStore.upsert(session, endReason: .completed)
+    }
+
+    private func refreshAwarenessSnapshot() {
+        guard let environment else { return }
+        let sensitivity = latestSemanticInference.sensitivityLevel
+        environment.awarenessSnapshot = NoxAwarenessPresenter.snapshot(
+            capabilities: capabilities,
+            memoryReadiness: environment.memoryReadiness,
+            pauseState: preferences.pauseState,
+            sensitivity: sensitivity
+        )
+    }
+
+    private func refreshPrimaryExplanation() {
+        guard let environment else { return }
+        environment.primaryExplanation = NoxExplainabilityPresenter.whySeeingLiveContext(
+            inference: latestSemanticInference,
+            awareness: environment.awarenessSnapshot
+        )
     }
 }
