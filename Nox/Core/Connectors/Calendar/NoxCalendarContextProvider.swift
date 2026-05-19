@@ -18,15 +18,8 @@ enum NoxCalendarContextProvider {
 
     static func requestAccessIfNeeded() async -> NoxCalendarAccessState {
         let store = EKEventStore()
-        if #available(macOS 14.0, *) {
-            let granted = (try? await store.requestFullAccessToEvents()) ?? false
-            return granted ? .authorized : .denied
-        }
-        return await withCheckedContinuation { continuation in
-            store.requestAccess(to: .event) { granted, _ in
-                continuation.resume(returning: granted ? .authorized : .denied)
-            }
-        }
+        let granted = (try? await store.requestFullAccessToEvents()) ?? false
+        return granted ? .authorized : .denied
     }
 
     static func dayProfile(for date: Date = Date()) -> NoxCalendarDayProfile {

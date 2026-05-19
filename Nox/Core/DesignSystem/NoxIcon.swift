@@ -12,9 +12,10 @@ struct NoxIcon: View {
     let systemName: String
     var role: Role = .inline
     var emphasized: Bool = false
+    var tint: Color?
 
     var body: some View {
-        Image(systemName: systemName)
+        Image(systemName: NoxSFSymbol.validated(systemName, fallback: "circle.fill"))
             .font(.system(size: pointSize, weight: weight))
             .symbolRenderingMode(.monochrome)
             .foregroundStyle(foreground)
@@ -47,6 +48,9 @@ struct NoxIcon: View {
     }
 
     private var foreground: Color {
+        if let tint {
+            return tint
+        }
         if emphasized {
             return NoxDesignTokens.ColorRole.accent.opacity(0.88)
         }

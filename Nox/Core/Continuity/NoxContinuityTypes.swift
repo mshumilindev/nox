@@ -28,7 +28,7 @@ enum NoxContinuityDecayState: String, Codable, Sendable {
     case archived
 }
 
-struct NoxContinuityMatchComponent: Equatable, Sendable, Codable {
+nonisolated struct NoxContinuityMatchComponent: Equatable, Sendable, Codable {
     let name: String
     let score: Double
     let detail: String

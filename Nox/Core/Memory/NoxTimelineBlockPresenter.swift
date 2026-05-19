@@ -71,7 +71,7 @@ enum NoxTimelineBlockPresenter {
             detailLine: detail.isEmpty ? nil : detail,
             durationText: thread.durationText,
             category: nil,
-            markerSymbol: "link"
+            markerSymbol: NoxSFSymbol.validated("link")
         )
     }
 
@@ -93,7 +93,9 @@ enum NoxTimelineBlockPresenter {
             detailLine: block.kind == .fragmented ? "Scattered attention" : "Steady continuity",
             durationText: formatDuration(ms: block.durationMs),
             category: .development,
-            markerSymbol: block.kind == .fragmented ? "arrow.triangle.branch" : "scope"
+            markerSymbol: NoxSFSymbol.validated(
+                block.kind == .fragmented ? "arrow.triangle.branch" : "scope"
+            )
         )
     }
 
@@ -109,11 +111,17 @@ enum NoxTimelineBlockPresenter {
             detailLine: detail.isEmpty ? nil : detail,
             durationText: formatDuration(ms: span.durationMs),
             category: nil,
-            markerSymbol: "sparkles"
+            markerSymbol: NoxSFSymbol.validated("sparkles")
         )
     }
 
     private static func spanItem(_ span: NoxActivitySpan) -> NoxTimelineBlockItem {
+        let resolvedCategory = NoxActivityCategory.resolving(
+            stored: span.category,
+            appName: span.appName,
+            bundleId: span.bundleId,
+            windowTitle: span.windowTitle
+        )
         let subtitle = NoxSemanticLabelCatalog.activitySpanSubtitle(
             appName: span.appName,
             contextLabel: span.contextLabel
@@ -122,12 +130,17 @@ enum NoxTimelineBlockPresenter {
             id: span.id,
             timestamp: span.startedAt,
             kind: .activitySpan(span),
-            title: span.category.displayName,
+            title: NoxSemanticLabelCatalog.activitySpanTitle(
+                category: span.category,
+                appName: span.appName,
+                bundleId: span.bundleId,
+                windowTitle: span.windowTitle
+            ),
             subtitle: subtitle,
             detailLine: nil,
             durationText: formatDuration(ms: span.durationMs),
-            category: span.category,
-            markerSymbol: "app"
+            category: resolvedCategory,
+            markerSymbol: resolvedCategory.symbolName
         )
     }
 
@@ -141,7 +154,7 @@ enum NoxTimelineBlockPresenter {
             detailLine: nil,
             durationText: formatDuration(ms: item.durationMs),
             category: .communication,
-            markerSymbol: "arrow.left.arrow.right"
+            markerSymbol: NoxSFSymbol.validated("arrow.left.arrow.right")
         )
     }
 

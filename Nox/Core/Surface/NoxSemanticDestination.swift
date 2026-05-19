@@ -1,7 +1,7 @@
 import Foundation
 
 /// Conceptual navigation — not dashboard tabs.
-enum NoxSemanticDestination: String, CaseIterable, Identifiable, Codable, Sendable {
+nonisolated enum NoxSemanticDestination: String, CaseIterable, Identifiable, Codable, Sendable {
     case now
     case threads
     case memory

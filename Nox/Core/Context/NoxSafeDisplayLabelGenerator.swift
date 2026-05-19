@@ -41,8 +41,8 @@ enum NoxSafeDisplayLabelGenerator {
 
         let base = baseLabel(for: dominant.contextType, appName: appName)
         var subtitle: String?
-        var redacted = false
-        var reason: String?
+        let redacted = false
+        let reason: String? = nil
 
         if sensitivity == .personal {
             return output(

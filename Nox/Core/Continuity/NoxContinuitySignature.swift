@@ -1,7 +1,7 @@
 import Foundation
 
 /// Coarse workflow shape — no raw sensitive content.
-struct NoxContinuitySignature: Equatable, Sendable, Codable {
+nonisolated struct NoxContinuitySignature: Equatable, Sendable, Codable {
     let ecosystemKey: String
     let semanticType: NoxContinuitySemanticType
     let appTokens: [String]
@@ -73,7 +73,7 @@ struct NoxContinuitySignature: Equatable, Sendable, Codable {
     }
 }
 
-enum NoxContinuitySemanticTypeResolver {
+nonisolated enum NoxContinuitySemanticTypeResolver {
     static func resolve(
         inference: NoxSemanticInference,
         appNames: [String]

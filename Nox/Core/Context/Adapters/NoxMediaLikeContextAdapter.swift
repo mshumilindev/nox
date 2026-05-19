@@ -19,7 +19,7 @@ struct NoxMediaLikeContextAdapter: NoxContextAdapter {
         let watching = NoxTitleTokenAnalyzer.hasMediaShapeEvidence(title: input.sanitizedTitle)
 
         let type: NoxDominantContextType = watching ? .watching : .listening
-        var confidence = passive ? 0.78 : 0.62
+        let confidence = passive ? 0.78 : 0.62
         var signals = ["media-player-family"]
         if watching { signals.append("media-title-shape") }
         if passive { signals.append("passive-playback") }

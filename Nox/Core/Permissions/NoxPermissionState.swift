@@ -1,6 +1,6 @@
 import Foundation
 
-struct NoxPermissionState: Equatable {
+nonisolated struct NoxPermissionState: Equatable {
     var accessibilityGranted: Bool
     var screenRecordingGranted: Bool
     var canReadAppContext: Bool
@@ -25,7 +25,7 @@ struct NoxPermissionState: Equatable {
     }
 }
 
-enum NoxPermissionMode: String, Equatable {
+nonisolated enum NoxPermissionMode: String, Equatable {
     case full
     case appOnly
     case limited

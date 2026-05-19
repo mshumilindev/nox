@@ -79,7 +79,7 @@ final class NoxContextService {
             environment?.memoryReadiness = .observing
         }
 
-        eventBus.subscribe { [weak self] event in
+        _ = eventBus.subscribe { [weak self] event in
             Task { @MainActor in
                 await self?.handle(event)
             }
@@ -402,7 +402,7 @@ final class NoxContextService {
             try await timelineStore.insertEvent(from: event)
             let records = try await timelineStore.getRecentEvents(limit: 50)
             environment?.timelineEvents = records
-            try? await timelineStore.pruneOldEvents(olderThan: retentionPolicy.warmTimelineDays)
+            _ = try? await timelineStore.pruneOldEvents(olderThan: retentionPolicy.warmTimelineDays)
         } catch {
             // Keep UI responsive if persistence fails.
         }

@@ -1,7 +1,7 @@
 import Foundation
 
 /// Explicit retention for hot / warm / cold layers and each compression horizon.
-struct NoxMemoryRetentionPolicy: Equatable, Sendable {
+nonisolated struct NoxMemoryRetentionPolicy: Equatable, Sendable {
     // MARK: Hot (in-memory)
 
     var hotInteractionWindowSeconds: TimeInterval = 60

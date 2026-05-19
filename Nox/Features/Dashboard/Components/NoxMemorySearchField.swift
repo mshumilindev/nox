@@ -5,7 +5,7 @@ struct NoxMemorySearchField: View {
 
   var body: some View {
     HStack(spacing: NoxSpacing.sm) {
-      Image(systemName: "magnifyingglass")
+      NoxIcon(systemName: "magnifyingglass", role: .inline)
         .font(.system(size: NoxDesignTokens.SymbolSize.sm))
         .foregroundStyle(NoxDesignTokens.ColorRole.textSecondary)
 

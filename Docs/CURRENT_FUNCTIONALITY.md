@@ -36,19 +36,19 @@ It is not a chatbot, cloud assistant, productivity scorer, screenshot recorder, 
 ### Phase 8.7 — Human UI pass
 - **Three surface levels:** `major` (rare hero), `standard` (entities), `soft` (metadata/controls) — replaces uniform mega-cards.
 - **`noxGroup`** replaces heavy `noxCluster` wrappers; readable width cap (~520pt) on surfaces.
-- **Memory timeline:** layered sections (Continuity → Semantic → Focus → Activity → Interruptions), fixed row heights, markers aligned to title line.
+- **Memory timeline:** layered sections (Continuity → Semantic → Focus → Activity → Interruptions), fixed row heights, SF Symbol markers aligned to title line (no dot/circle chrome).
 - **Trust:** single composed boundaries list; calmer memory controls (toggle alignment, menu picker, quiet links).
 - **Now:** flat vertical composition — one `standard` presence block, `soft` live context, `major` morning only.
 - **Sidebar:** left-aligned rows, semantic grouping, accent bar selection (not icon-column template).
 - **Mode control:** underline selection, no glossy segmented pill.
-- **Interaction:** `NoxAmbientHover` on buttons/chips only; `noxInteractiveChrome` on toggles/pickers; pointer cursor via push/pop stack (not on labels, timeline, or search field).
+- **Interaction:** `NoxAmbientHover` on buttons/chips only; `noxInteractiveChrome` on toggles/pickers (hover only — no custom pointer cursor).
 
 ## Visual Identity (Phase 8.5 + 8.6)
 
 - Graphite atmospheric palette: canvas, rail, layered surfaces, muted indigo accent.
 - **Spacing scale (4pt base):** 4 · 8 · 12 · 16 · 24 · 32 · 48 — `NoxSpacing`, `NoxSurfacePage`, consistent card insets.
 - **Typography:** unified section labels (`noxSectionLabel`), metadata (`noxMetadata`), page titles via `NoxPageIntro` / `NoxSectionHeader`.
-- **Icons:** `NoxIcon` with rail / chrome / inline / section roles; destination symbols normalized (e.g. reflections `text.quote`, trust `shield.lefthalf.filled`).
+- **Icons:** `NoxIcon` with rail / chrome / inline / section roles; `NoxSFSymbol.validated` ensures symbols exist before render; destination symbols normalized (e.g. reflections `text.quote`, trust `shield.lefthalf.filled`).
 - `NoxMaterials` — 0.5pt borders, tiered fills, `cardPadding` / `cardPaddingLoose`; no glass spam.
 - `NoxAtmosphereBackground` — layered graphite gradients + soft vignette (static, no neon).
 - Architectural navigation rail (**128pt**, icon-above-label, no label wrap) with restrained selection fill.
@@ -216,6 +216,13 @@ It is not a chatbot, cloud assistant, productivity scorer, screenshot recorder, 
 - **`NoxMemorySearchScope`** — when Filter memory is active, all layers narrow to search hits and shared time windows (no full-day semantic list + filtered activity).
 - **Historical periods** (Yesterday, Last 7 days) use static empty copy — live open-span emergence does not bleed into past days.
 - **Emergence for Today only** — `periodScopedEmergence` uses `openSpan` and live signals only when `memoryPeriod == .today`.
+- **Timeline markers** — `NoxTimelineSymbol` + category `symbolName` (e.g. Research → `book.fill`, Development → `hammer.fill`); period picker and search use `NoxIcon`.
+
+### Activity classification (no “Unknown” in UI)
+
+- `NoxAppClassifier` maps bundle IDs and title heuristics (including AI tools: ChatGPT, Codex, Claude, Perplexity, …) to `NoxActivityCategory`.
+- Legacy DB rows with `category = unknown` are reclassified on read via `NoxActivityCategory.resolving` and repaired on store open (`repairLegacyUnknownCategories`).
+- UI shows meaningful category titles (`Research`, `Development`, …) — not raw `Unknown`; thin fallback is `general` / `Active use`.
 
 ## Semantic Memory And Continuity
 
@@ -257,15 +264,14 @@ It is not a chatbot, cloud assistant, productivity scorer, screenshot recorder, 
 
 ## Interaction & Hover
 
-- `NoxBorderlessPressStyle` — press feedback + ambient hover + pointer on **Button** labels only.
+- `NoxBorderlessPressStyle` — press feedback + ambient hover on **Button** labels only.
 - `NoxAmbientHover` styles: `row`, `chip`, `card`, `inset` — suppressed when `isSelected`.
-- `noxInteractiveChrome()` — hover + pointer on **Toggle** and **Picker** only; row labels use `.allowsHitTesting(false)`.
-- `NoxPointerCursorModifier` — `onContinuousHover` with `NSCursor.push` / `pop` (avoids arrow reset flicker).
-- No pointer or hover on: timeline fragments, semantic arc cards, section headers, search field, or descriptive text.
+- `noxInteractiveChrome()` — ambient hover on **Toggle** and **Picker** only; row labels use `.allowsHitTesting(false)`.
+- No hover on: timeline fragments, semantic arc cards, section headers, search field, or descriptive text.
 
 ## Testing
 
-- Unit tests cover presence, memory, continuity, context QA, reflective continuity, **Phase 9 connectors**, **timeline dedup by time overlap**, **layered sections**, and **historical empty copy**.
+- Unit tests cover presence, memory, continuity, context QA, reflective continuity, **Phase 9 connectors**, **timeline dedup by time overlap**, **layered sections**, **historical empty copy**, and **activity classification** (e.g. ChatGPT → Research, legacy `unknown` resolution).
 - UI test files exist; product strategy avoids brittle layout UI tests as primary validation.
 
 ## Current Gaps And Risks
@@ -283,4 +289,3 @@ It is not a chatbot, cloud assistant, productivity scorer, screenshot recorder, 
 - Additional passive connectors (Mail/Slack metadata) with the same generalized-state contract.
 - Stronger permission/onboarding for awareness tiers.
 - Tap entire settings row to toggle (optional UX improvement).
-- Subtle focus ring on Filter memory field (without pointer hand).

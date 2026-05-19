@@ -20,7 +20,7 @@ struct NoxFocusInterruptionEngine {
     ) -> (blocks: [NoxFocusBlock], live: NoxFocusAnalysis) {
         let sorted = spans.sorted { $0.startedAt < $1.startedAt }
         var blocks: [NoxFocusBlock] = []
-        var windowStart = range.start
+        let windowStart = range.start
         let switchCount = max(0, sorted.count - 1)
 
         if switchCount >= fragmentedSwitchThreshold {

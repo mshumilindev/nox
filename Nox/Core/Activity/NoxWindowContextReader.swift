@@ -3,7 +3,7 @@ import ApplicationServices
 import CoreGraphics
 import Foundation
 
-enum NoxWindowContextReader {
+nonisolated enum NoxWindowContextReader {
     static func focusedWindowTitle(for bundleId: String, accessibilityGranted: Bool) -> String? {
         guard accessibilityGranted else { return nil }
 

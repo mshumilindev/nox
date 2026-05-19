@@ -3,7 +3,7 @@ import ApplicationServices
 import CoreGraphics
 import Foundation
 
-final class NoxActivityObserver: @unchecked Sendable {
+nonisolated final class NoxActivityObserver: @unchecked Sendable {
     private let queue = DispatchQueue(label: "dev.nox.activity-observer", qos: .userInitiated)
     private let permissionService = NoxPermissionService()
     private let axFocusMonitor = NoxAXFocusMonitor()
@@ -60,9 +60,10 @@ final class NoxActivityObserver: @unchecked Sendable {
 
     private func startAXFocusMonitor() {
         axFocusMonitor.setEnabled(permissionService.currentState().accessibilityGranted) { [weak self] in
-            self?.queue.async {
-                self?.emitCurrentSnapshot(force: false)
-                self?.scheduleBurstPolling()
+            guard let self else { return }
+            self.queue.async {
+                self.emitCurrentSnapshot(force: false)
+                self.scheduleBurstPolling()
             }
         }
     }
@@ -77,7 +78,9 @@ final class NoxActivityObserver: @unchecked Sendable {
                 object: nil,
                 queue: nil
             ) { [weak self] notification in
-                self?.handleApplicationActivated(notification)
+                let activatedPID = (notification.userInfo?[NSWorkspace.applicationUserInfoKey] as? NSRunningApplication)?
+                    .processIdentifier
+                self?.handleApplicationActivated(activatedPID: activatedPID)
             }
         )
 
@@ -122,13 +125,13 @@ final class NoxActivityObserver: @unchecked Sendable {
         )
     }
 
-    private func handleApplicationActivated(_ notification: Notification) {
+    private func handleApplicationActivated(activatedPID: pid_t?) {
         queue.async { [weak self] in
             guard let self else { return }
             let permissions = self.permissionService.currentState()
-            if let app = notification.userInfo?[NSWorkspace.applicationUserInfoKey] as? NSRunningApplication {
+            if let activatedPID {
                 self.axFocusMonitor.frontmostApplicationChanged(
-                    pid: app.processIdentifier,
+                    pid: activatedPID,
                     accessibilityGranted: permissions.accessibilityGranted
                 )
             } else if let app = NSWorkspace.shared.frontmostApplication {
@@ -177,9 +180,10 @@ final class NoxActivityObserver: @unchecked Sendable {
             guard let self else { return }
             let granted = self.permissionService.currentState().accessibilityGranted
             self.axFocusMonitor.setEnabled(granted) { [weak self] in
-                self?.queue.async {
-                    self?.emitCurrentSnapshot(force: false)
-                    self?.scheduleBurstPolling()
+                guard let self else { return }
+                self.queue.async {
+                    self.emitCurrentSnapshot(force: false)
+                    self.scheduleBurstPolling()
                 }
             }
             if granted, let app = NSWorkspace.shared.frontmostApplication {

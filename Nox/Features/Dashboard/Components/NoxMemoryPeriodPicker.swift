@@ -9,7 +9,10 @@ struct NoxMemoryPeriodPicker: View {
         Button {
           environment.setMemoryPeriod(period)
         } label: {
-          Text(period.title)
+          HStack(spacing: NoxSpacing.xxs) {
+            NoxIcon(systemName: period.symbolName, role: .inline)
+            Text(period.title)
+          }
             .font(NoxTypography.sectionLabel)
             .foregroundStyle(
               environment.memoryPeriod == period

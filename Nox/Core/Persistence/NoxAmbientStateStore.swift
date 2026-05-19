@@ -1,8 +1,6 @@
 import Foundation
 import SQLite3
 
-private let sqliteTransient = unsafeBitCast(-1, to: sqlite3_destructor_type.self)
-
 actor NoxAmbientStateStore {
     private var db: OpaquePointer?
     private let encoder = JSONEncoder()
@@ -67,7 +65,7 @@ actor NoxAmbientStateStore {
             throw NoxMemoryStoreError.execFailed
         }
         defer { sqlite3_finalize(statement) }
-        sqlite3_bind_text(statement, 1, key, -1, sqliteTransient)
+        sqlite3_bind_text(statement, 1, key, -1, noxSQLiteTransient)
         guard sqlite3_step(statement) == SQLITE_ROW else { return nil }
         return String(cString: sqlite3_column_text(statement, 0))
     }
@@ -87,7 +85,7 @@ actor NoxAmbientStateStore {
             let i = Int32(index + 1)
             switch binding {
             case .text(let value):
-                sqlite3_bind_text(statement, i, value, -1, sqliteTransient)
+                sqlite3_bind_text(statement, i, value, -1, noxSQLiteTransient)
             case .double(let value):
                 sqlite3_bind_double(statement, i, value)
             }

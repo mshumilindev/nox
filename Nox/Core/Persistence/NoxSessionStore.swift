@@ -1,8 +1,6 @@
 import Foundation
 import SQLite3
 
-private let sqliteTransient = unsafeBitCast(-1, to: sqlite3_destructor_type.self)
-
 enum NoxWorkSessionEndReason: String, Codable, Sendable {
     case completed
     case interruptedByRestart
@@ -151,10 +149,10 @@ actor NoxSessionStore {
             let i = Int32(index + 1)
             switch binding {
             case .text(let value):
-                sqlite3_bind_text(statement, i, value, -1, sqliteTransient)
+                sqlite3_bind_text(statement, i, value, -1, noxSQLiteTransient)
             case .textOptional(let value):
                 if let value {
-                    sqlite3_bind_text(statement, i, value, -1, sqliteTransient)
+                    sqlite3_bind_text(statement, i, value, -1, noxSQLiteTransient)
                 } else {
                     sqlite3_bind_null(statement, i)
                 }

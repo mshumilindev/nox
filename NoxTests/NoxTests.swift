@@ -306,6 +306,27 @@ struct NoxClassifierTests {
             windowTitle: "Team sync"
         ) == .communication)
     }
+
+    @Test func classifiesChatGPTAsResearchNotUnknown() {
+        let classifier = NoxAppClassifier()
+        let category = classifier.classify(
+            bundleId: "com.openai.chat",
+            appName: "ChatGPT",
+            windowTitle: "New chat"
+        )
+        #expect(category == .research)
+        #expect(category.displayName != "Unknown")
+    }
+
+    @Test func resolvesLegacyUnknownCategoryFromAppIdentity() {
+        let resolved = NoxActivityCategory.resolving(
+            stored: .unknown,
+            appName: "ChatGPT",
+            bundleId: "com.openai.chat",
+            windowTitle: nil
+        )
+        #expect(resolved == .research)
+    }
 }
 
 struct NoxTitleSanitizerTests {

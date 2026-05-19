@@ -1,7 +1,7 @@
 import CoreGraphics
 
 /// 4pt base scale — no arbitrary spacing in feature UI.
-enum NoxSpacing {
+nonisolated enum NoxSpacing {
     static let unit: CGFloat = 4
 
     static let xxs: CGFloat = 4

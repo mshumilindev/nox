@@ -50,7 +50,7 @@ enum NoxAppFamilyResolver {
         case .passive: return .mediaPlayer
         case .entertainment: return .game
         case .system, .systemInternal: return .utility
-        case .unknown: break
+        case .unknown, .general: break
         }
 
         let haystack = "\(bundleId) \(appName)".lowercased()

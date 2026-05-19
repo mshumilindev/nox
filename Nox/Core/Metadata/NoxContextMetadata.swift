@@ -13,7 +13,7 @@ struct NoxContextMetadata: Codable, Equatable, Sendable {
         projectName: nil,
         domain: nil,
         siteName: nil,
-        category: .unknown,
+        category: .general,
         rawWindowTitle: nil
     )
 }

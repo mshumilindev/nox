@@ -1,7 +1,7 @@
 import Foundation
 import CoreGraphics
 
-enum NoxWindowMode: String, CaseIterable, Identifiable, Codable, Sendable {
+nonisolated enum NoxWindowMode: String, CaseIterable, Identifiable, Codable, Sendable {
     case compact
     case expanded
     case deepReflection
@@ -28,7 +28,7 @@ enum NoxWindowMode: String, CaseIterable, Identifiable, Codable, Sendable {
     }
 }
 
-enum NoxSurfaceDensity: String, CaseIterable, Codable, Sendable {
+nonisolated enum NoxSurfaceDensity: String, CaseIterable, Codable, Sendable {
     case calm
     case balanced
     case rich

@@ -64,7 +64,7 @@ struct NoxConnectorTrustControls: View {
         title: String,
         detail: String,
         isOn: Bool,
-        onChange: @escaping (Bool) -> Void
+        onChange: @escaping @MainActor (Bool) -> Void
     ) -> some View {
         HStack(alignment: .top, spacing: NoxSpacing.md) {
             VStack(alignment: .leading, spacing: NoxSpacing.xxs) {

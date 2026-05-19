@@ -1,6 +1,6 @@
 import SwiftUI
 
-enum NoxDesignTokens {
+nonisolated enum NoxDesignTokens {
     enum Radius {
         static let sm: CGFloat = 8
         static let md: CGFloat = 10

@@ -34,7 +34,7 @@ enum NoxSemanticStability {
         guard NoxAppFamilyResolver.resolve(
             bundleId: context.bundleId ?? "",
             appName: context.appName ?? "",
-            category: .unknown
+            category: .general
         ) == .browser else { return false }
         return metrics.isPassive
             || metrics.scrollIntensity < 1.5 && metrics.typingDensity < 0.8

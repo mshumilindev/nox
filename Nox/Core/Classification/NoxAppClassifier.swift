@@ -83,6 +83,16 @@ struct NoxAppClassifier {
             "com.apple.logic10",
             "com.blackmagic-design.DaVinciResolve"
         ]
+        let aiAssistants: Set<String> = [
+            "com.openai.chat",
+            "com.openai.codex",
+            "com.anthropic.claude",
+            "ai.perplexity.mac",
+            "com.perplexity.mac",
+            "com.openai.chatgpt",
+            "com.poe.poe",
+            "com.microsoft.copilot"
+        ]
         let productivity: Set<String> = [
             "com.apple.Notes",
             "com.apple.reminders",
@@ -104,6 +114,7 @@ struct NoxAppClassifier {
         ]
 
         if development.contains(bundleId) { return .development }
+        if aiAssistants.contains(bundleId) { return .research }
         if browsers.contains(bundleId) { return .research }
         if communication.contains(bundleId) { return .communication }
         if creative.contains(bundleId) { return .creative }
@@ -144,7 +155,19 @@ struct NoxAppClassifier {
         if containsAny(text, ["browser", "safari", "chrome", "firefox", "edge", "brave"]) {
             return .research
         }
-        return .unknown
+        if containsAny(text, [
+            "openai", "chatgpt", "claude", "anthropic", "perplexity", "copilot", "gemini",
+            "poe", "mistral", "llama", "deepseek"
+        ]) {
+            return .research
+        }
+        if containsAny(text, ["codex"]) {
+            return .development
+        }
+        if !appName.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty {
+            return .productivity
+        }
+        return .general
     }
 
     private func containsAny(_ text: String, _ markers: [String]) -> Bool {

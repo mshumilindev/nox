@@ -1,6 +1,6 @@
 import Foundation
 
-struct NoxSemanticMemorySpan: Identifiable, Equatable, Sendable, Codable {
+nonisolated struct NoxSemanticMemorySpan: Identifiable, Equatable, Sendable, Codable {
     let id: String
     let startedAt: Date
     var endedAt: Date?

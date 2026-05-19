@@ -8,7 +8,7 @@ enum NoxConnectorKind: String, Codable, CaseIterable, Sendable {
     case recovery
 }
 
-struct NoxConnectorPreferences: Codable, Equatable, Sendable {
+nonisolated struct NoxConnectorPreferences: Codable, Equatable, Sendable {
     var calendarEnabled: Bool
     var communicationPressureEnabled: Bool
     var continuityEnrichmentPaused: Bool
@@ -43,7 +43,7 @@ enum NoxPressureLevel: String, Codable, Sendable {
     case elevated
 }
 
-struct NoxCadencePattern: Identifiable, Codable, Equatable, Sendable {
+nonisolated struct NoxCadencePattern: Identifiable, Codable, Equatable, Sendable {
     let id: String
     let label: String
     let confidence: Double

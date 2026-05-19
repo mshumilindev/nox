@@ -1,7 +1,7 @@
 import Foundation
 
 /// Nox must never appear in observation, memory, presence, or statistics.
-enum NoxSelfExclusion {
+nonisolated enum NoxSelfExclusion {
     static let analysisCategory: NoxAnalysisCategory = .systemInternal
     static var ownBundleId: String? {
         Bundle.main.bundleIdentifier

@@ -35,8 +35,8 @@ final class NoxMemoryAggregator {
             return openSpan
         }
 
-        if let previous = openSpan {
-            closeOpenSpan(at: snapshot.capturedAt)
+        if openSpan != nil {
+            _ = closeOpenSpan(at: snapshot.capturedAt)
         }
 
         let span = NoxActivitySpan(

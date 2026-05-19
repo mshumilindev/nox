@@ -1,8 +1,6 @@
 import Foundation
 import SQLite3
 
-private let sqliteTransient = unsafeBitCast(-1, to: sqlite3_destructor_type.self)
-
 actor NoxConnectorSignalStore {
     private var db: OpaquePointer?
     private let encoder = JSONEncoder()
@@ -59,7 +57,7 @@ actor NoxConnectorSignalStore {
             throw NoxMemoryStoreError.execFailed
         }
         defer { sqlite3_finalize(statement) }
-        sqlite3_bind_text(statement, 1, kind, -1, sqliteTransient)
+        sqlite3_bind_text(statement, 1, kind, -1, noxSQLiteTransient)
         sqlite3_bind_int(statement, 2, Int32(limit))
 
         var payloads: [String] = []
@@ -100,7 +98,7 @@ actor NoxConnectorSignalStore {
             let position = Int32(index + 1)
             switch binding {
             case .text(let value):
-                sqlite3_bind_text(statement, position, value, -1, sqliteTransient)
+                sqlite3_bind_text(statement, position, value, -1, noxSQLiteTransient)
             case .double(let value):
                 sqlite3_bind_double(statement, position, value)
             }

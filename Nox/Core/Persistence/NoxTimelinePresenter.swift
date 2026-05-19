@@ -1,6 +1,6 @@
 import Foundation
 
-enum NoxTimelinePresenter {
+nonisolated enum NoxTimelinePresenter {
     static func displayText(for event: NoxEvent) -> String {
         let calm = NoxLiveContextCopy.displayText(for: event)
         if !calm.isEmpty { return calm }
@@ -34,7 +34,8 @@ enum NoxTimelinePresenter {
     static func subtitle(for event: NoxEvent) -> String? {
         switch event.payload {
         case .appChanged(let payload):
-            return payload.windowTitle?.nilIfEmpty
+            let title = payload.windowTitle
+            return title.flatMap { $0.isEmpty ? nil : $0 }
         case .windowChanged(let payload):
             return payload.appName
         case .session(let payload):
@@ -45,8 +46,3 @@ enum NoxTimelinePresenter {
     }
 }
 
-private extension String {
-    var nilIfEmpty: String? {
-        isEmpty ? nil : self
-    }
-}

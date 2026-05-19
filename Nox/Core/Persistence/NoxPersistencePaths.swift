@@ -1,7 +1,7 @@
 import Foundation
 
 /// Stable on-disk location for all Nox local data (survives Xcode restarts).
-enum NoxPersistencePaths {
+nonisolated enum NoxPersistencePaths {
     private static let appFolderName = "Nox"
     private static let databaseFileName = "timeline.db"
 

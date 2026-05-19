@@ -33,7 +33,7 @@ enum NoxQuietMode: String, Codable, Sendable, CaseIterable {
     }
 }
 
-struct NoxAmbientPauseState: Codable, Equatable, Sendable {
+nonisolated struct NoxAmbientPauseState: Codable, Equatable, Sendable {
     var observationPaused: Bool
     var semanticMemoryPaused: Bool
     var continuityPaused: Bool

@@ -1,9 +1,9 @@
+@preconcurrency import ApplicationServices
 import AppKit
-import ApplicationServices
 import CoreGraphics
 import Foundation
 
-struct NoxPermissionService: Sendable {
+nonisolated struct NoxPermissionService: Sendable {
     func currentCapabilities() -> NoxCapabilityState {
         let accessibility = AXIsProcessTrusted()
         let screenRecording = CGPreflightScreenCaptureAccess()
@@ -24,9 +24,13 @@ struct NoxPermissionService: Sendable {
     }
 
     func requestAccessibilityPrompt() {
-        let options = [kAXTrustedCheckOptionPrompt.takeUnretainedValue() as String: true] as CFDictionary
+        let options = [Self.accessibilityPromptOptionKey: true] as CFDictionary
         _ = AXIsProcessTrustedWithOptions(options)
     }
+
+    private static let accessibilityPromptOptionKey: String = {
+        kAXTrustedCheckOptionPrompt.takeUnretainedValue() as String
+    }()
 
     @MainActor
     func openAccessibilitySettings() {

@@ -1,6 +1,6 @@
 import Foundation
 
-struct NoxAmbientState: Codable, Equatable, Sendable {
+nonisolated struct NoxAmbientState: Codable, Equatable, Sendable {
     var lastPresence: String?
     var lastActiveAppName: String?
     var lastActiveBundleId: String?
@@ -79,7 +79,7 @@ struct NoxAmbientState: Codable, Equatable, Sendable {
     }
 }
 
-struct NoxPersistedSignalTracker: Codable, Equatable, Sendable {
+nonisolated struct NoxPersistedSignalTracker: Codable, Equatable, Sendable {
     var firstSignalAt: Date?
     var currentBundleId: String?
     var currentAppStartedAt: Date?

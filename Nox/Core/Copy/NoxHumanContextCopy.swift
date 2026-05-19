@@ -1,7 +1,7 @@
 import Foundation
 
 /// Life-work-rest balanced UI language — attention and context, not productivity telemetry.
-enum NoxHumanContextCopy {
+nonisolated enum NoxHumanContextCopy {
 
     // MARK: - Fragmented / mixed attention
 

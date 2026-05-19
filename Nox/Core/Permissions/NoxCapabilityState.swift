@@ -1,7 +1,7 @@
 import Foundation
 
 /// Single source of truth for what Nox can observe on this Mac.
-struct NoxCapabilityState: Equatable, Sendable {
+nonisolated struct NoxCapabilityState: Equatable, Sendable {
     let accessibilityGranted: Bool
     let screenRecordingGranted: Bool
     let appAwarenessAvailable: Bool
@@ -50,7 +50,7 @@ struct NoxCapabilityState: Equatable, Sendable {
     }
 }
 
-enum NoxAwarenessTier: String, Equatable, Sendable {
+nonisolated enum NoxAwarenessTier: String, Equatable, Sendable {
     case full
     case appOnly
     case unavailable

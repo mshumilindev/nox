@@ -1,8 +1,6 @@
 import Foundation
 import SQLite3
 
-private let sqliteTransient = unsafeBitCast(-1, to: sqlite3_destructor_type.self)
-
 actor NoxReflectionStore {
     private var db: OpaquePointer?
     private let databaseURL: URL
@@ -113,7 +111,7 @@ actor NoxReflectionStore {
             let position = Int32(index + 1)
             switch binding {
             case .text(let value):
-                sqlite3_bind_text(statement, position, value, -1, sqliteTransient)
+                sqlite3_bind_text(statement, position, value, -1, noxSQLiteTransient)
             case .double(let value):
                 sqlite3_bind_double(statement, position, value)
             case .int(let value):

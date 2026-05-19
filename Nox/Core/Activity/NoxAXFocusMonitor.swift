@@ -2,7 +2,7 @@ import ApplicationServices
 import Foundation
 
 /// Fires when the focused window or its title changes (Accessibility).
-final class NoxAXFocusMonitor: @unchecked Sendable {
+nonisolated final class NoxAXFocusMonitor: @unchecked Sendable {
     private let queue = DispatchQueue(label: "dev.nox.ax-focus-monitor", qos: .userInitiated)
     private var observer: AXObserver?
     private var observedPID: pid_t = -1

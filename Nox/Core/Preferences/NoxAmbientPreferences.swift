@@ -1,6 +1,6 @@
 import Foundation
 
-struct NoxAmbientPreferences: Codable, Equatable, Sendable {
+nonisolated struct NoxAmbientPreferences: Codable, Equatable, Sendable {
     var windowMode: NoxWindowMode
     var navigationDestination: NoxSemanticDestination
     var surfaceDensity: NoxSurfaceDensity

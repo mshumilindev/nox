@@ -1,6 +1,6 @@
 import Foundation
 
-enum NoxEventType: String, Codable, Sendable {
+nonisolated enum NoxEventType: String, Codable, Sendable {
     case appChanged = "app.changed"
     case windowChanged = "window.changed"
     case userIdleStarted = "user.idle.started"
@@ -21,7 +21,7 @@ enum NoxEventType: String, Codable, Sendable {
     case interactionActive = "interaction.active"
 }
 
-struct NoxEvent: Identifiable, Sendable {
+nonisolated struct NoxEvent: Identifiable, Sendable {
     let id: UUID
     let type: NoxEventType
     let timestamp: Date
@@ -40,7 +40,7 @@ struct NoxEvent: Identifiable, Sendable {
     }
 }
 
-enum NoxEventPayload: Sendable {
+nonisolated enum NoxEventPayload: Sendable {
     case appChanged(AppChangedPayload)
     case windowChanged(WindowChangedPayload)
     case idle(IdlePayload)

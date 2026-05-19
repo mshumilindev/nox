@@ -1,7 +1,7 @@
 import Foundation
 
 /// Structured facts for a compression horizon. Layer-specific fields carry different semantics.
-struct NoxRollupFacts: Codable, Equatable, Sendable {
+nonisolated struct NoxRollupFacts: Codable, Equatable, Sendable {
     var totalActiveMs: Int = 0
     var focusedMs: Int = 0
     var fragmentedMs: Int = 0
@@ -39,25 +39,25 @@ struct NoxRollupFacts: Codable, Equatable, Sendable {
     var typedMemoryIds: [String] = []
 }
 
-struct NoxRollupAppShare: Codable, Equatable, Sendable {
+nonisolated struct NoxRollupAppShare: Codable, Equatable, Sendable {
     let name: String
     let bundleId: String
     let durationMs: Int
 }
 
-struct NoxRollupCategoryShare: Codable, Equatable, Sendable {
+nonisolated struct NoxRollupCategoryShare: Codable, Equatable, Sendable {
     let category: String
     let durationMs: Int
 }
 
-struct NoxContinuityWindow: Codable, Equatable, Sendable {
+nonisolated struct NoxContinuityWindow: Codable, Equatable, Sendable {
     let appName: String
     let bundleId: String
     let durationMs: Int
     let contextLabel: String?
 }
 
-struct NoxRepeatedPattern: Codable, Equatable, Sendable {
+nonisolated struct NoxRepeatedPattern: Codable, Equatable, Sendable {
     let label: String
     let occurrenceCount: Int
     let totalDurationMs: Int

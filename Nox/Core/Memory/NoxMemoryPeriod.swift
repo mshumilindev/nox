@@ -15,6 +15,14 @@ enum NoxMemoryPeriod: String, CaseIterable, Identifiable, Sendable {
         }
     }
 
+    var symbolName: String {
+        switch self {
+        case .today: "sun.max"
+        case .yesterday: "moon"
+        case .lastSevenDays: "calendar"
+        }
+    }
+
     func dateRange(calendar: Calendar = .current) -> (start: Date, end: Date) {
         let end = Date()
         switch self {

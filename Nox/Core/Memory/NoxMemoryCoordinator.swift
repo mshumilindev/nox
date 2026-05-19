@@ -21,6 +21,7 @@ final class NoxMemoryCoordinator {
 
     func open() async throws {
         try await memoryStore.open()
+        _ = try await memoryStore.repairLegacyUnknownCategories()
         try await semanticEngine.open()
         try await continuityEngine.open()
         try await rollupStore.open()

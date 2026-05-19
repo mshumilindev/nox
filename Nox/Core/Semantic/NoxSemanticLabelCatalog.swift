@@ -69,6 +69,21 @@ enum NoxSemanticLabelCatalog {
         return unique.prefix(3).joined(separator: " · ") + " · …"
     }
 
+    /// Activity timeline primary line — category label, never "Unknown".
+    static func activitySpanTitle(
+        category: NoxActivityCategory,
+        appName: String,
+        bundleId: String,
+        windowTitle: String? = nil
+    ) -> String {
+        NoxActivityCategory.resolving(
+            stored: category,
+            appName: appName,
+            bundleId: bundleId,
+            windowTitle: windowTitle
+        ).displayName
+    }
+
     /// Activity timeline: `App · context` — omit duplicate when context resolves to the app name.
     static func activitySpanSubtitle(appName: String, contextLabel: String?) -> String {
         let app = appName.trimmingCharacters(in: .whitespacesAndNewlines)

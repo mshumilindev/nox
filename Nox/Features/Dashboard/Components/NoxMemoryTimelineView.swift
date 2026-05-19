@@ -150,29 +150,30 @@ struct NoxMemoryTimelineView: View {
   ) -> some View {
     let lineColor = NoxDesignTokens.ColorRole.border.opacity(0.14)
     let dotY = NoxTimelineMarkerLayout.dotCenterY
-    let dotRadius = NoxTimelineMarkerLayout.dotDiameter / 2
+    let iconSize = NoxTimelineMarkerLayout.dotDiameter + 4
     return ZStack(alignment: .top) {
       Canvas { context, size in
         let x = size.width / 2
+        let railHalf = iconSize / 2
         var path = Path()
         if !isFirst {
           path.move(to: CGPoint(x: x, y: 0))
-          path.addLine(to: CGPoint(x: x, y: dotY - dotRadius))
+          path.addLine(to: CGPoint(x: x, y: dotY - railHalf))
         }
         if !isLast {
-          path.move(to: CGPoint(x: x, y: dotY + dotRadius))
+          path.move(to: CGPoint(x: x, y: dotY + railHalf))
           path.addLine(to: CGPoint(x: x, y: size.height))
         }
         context.stroke(path, with: .color(lineColor), lineWidth: 1)
       }
 
-      Circle()
-        .fill(markerColor(for: block).opacity(0.75))
-        .frame(width: NoxTimelineMarkerLayout.dotDiameter, height: NoxTimelineMarkerLayout.dotDiameter)
-        .position(
-          x: NoxTimelineMarkerLayout.railWidth / 2,
-          y: dotY
-        )
+      NoxIcon(
+        systemName: NoxTimelineSymbol.name(for: block),
+        role: .inline,
+        tint: markerColor(for: block)
+      )
+      .frame(width: iconSize, height: iconSize)
+      .position(x: NoxTimelineMarkerLayout.railWidth / 2, y: dotY)
     }
     .frame(width: NoxTimelineMarkerLayout.railWidth)
   }

@@ -1,6 +1,6 @@
 import Foundation
 
-struct NoxActivitySnapshot: Equatable, Sendable {
+nonisolated struct NoxActivitySnapshot: Equatable, Sendable {
     let appName: String
     let bundleId: String
     let windowTitle: String?

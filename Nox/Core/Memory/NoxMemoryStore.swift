@@ -1,8 +1,6 @@
 import Foundation
 import SQLite3
 
-private let sqliteTransient = unsafeBitCast(-1, to: sqlite3_destructor_type.self)
-
 actor NoxMemoryStore {
     private var db: OpaquePointer?
     private let dbURL: URL
@@ -148,6 +146,42 @@ actor NoxMemoryStore {
             """)
     }
 
+    /// Idempotent repair for rows stored before classifier covered AI tools.
+    func repairLegacyUnknownCategories() throws -> Int {
+        let legacy = try fetchSpans(sql: """
+            SELECT id, started_at, ended_at, app_name, bundle_id, window_title, context_label, category, interruptions, focus_score, metadata_json
+            FROM activity_spans
+            WHERE category = 'unknown';
+            """)
+        var updated = 0
+        for span in legacy {
+            let resolved = NoxActivityCategory.resolving(
+                stored: .unknown,
+                appName: span.appName,
+                bundleId: span.bundleId,
+                windowTitle: span.windowTitle
+            )
+            guard resolved != .unknown else { continue }
+            try upsertSpan(
+                NoxActivitySpan(
+                    id: span.id,
+                    startedAt: span.startedAt,
+                    endedAt: span.endedAt,
+                    appName: span.appName,
+                    bundleId: span.bundleId,
+                    windowTitle: span.windowTitle,
+                    contextLabel: span.contextLabel,
+                    category: resolved,
+                    interruptions: span.interruptions,
+                    focusScore: span.focusScore,
+                    metadataJson: span.metadataJson
+                )
+            )
+            updated += 1
+        }
+        return updated
+    }
+
     func closeOpenSpans(at date: Date) throws -> Int {
         let open = try openSpans()
         for var span in open {
@@ -272,10 +306,10 @@ actor NoxMemoryStore {
             let position = Int32(index + 1)
             switch binding {
             case .text(let value):
-                sqlite3_bind_text(statement, position, value, -1, sqliteTransient)
+                sqlite3_bind_text(statement, position, value, -1, noxSQLiteTransient)
             case .textOptional(let value):
                 if let value {
-                    sqlite3_bind_text(statement, position, value, -1, sqliteTransient)
+                    sqlite3_bind_text(statement, position, value, -1, noxSQLiteTransient)
                 } else {
                     sqlite3_bind_null(statement, position)
                 }
@@ -312,7 +346,13 @@ actor NoxMemoryStore {
             let bundleId = String(cString: sqlite3_column_text(statement, 4))
             let windowTitle = columnOptionalString(statement, 5)
             let contextLabel = columnOptionalString(statement, 6)
-            let category = NoxActivityCategory(rawValue: String(cString: sqlite3_column_text(statement, 7))) ?? .unknown
+            let storedCategory = NoxActivityCategory(rawValue: String(cString: sqlite3_column_text(statement, 7))) ?? .general
+            let category = NoxActivityCategory.resolving(
+                stored: storedCategory,
+                appName: appName,
+                bundleId: bundleId,
+                windowTitle: windowTitle
+            )
             let interruptions = Int(sqlite3_column_int(statement, 8))
             let focusScore = sqlite3_column_double(statement, 9)
             let metadata = columnOptionalString(statement, 10)

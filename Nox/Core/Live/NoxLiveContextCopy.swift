@@ -1,7 +1,7 @@
 import Foundation
 
 /// Calm, human-facing copy for live context detail — not raw telemetry labels.
-enum NoxLiveContextCopy {
+nonisolated enum NoxLiveContextCopy {
 
     static func displayText(for event: NoxEvent) -> String {
         switch event.payload {
