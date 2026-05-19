@@ -233,7 +233,8 @@ final class NoxContextService {
                 continuitySeconds: signalTracker.observationContinuitySeconds(),
                 connectorSnapshot: connectorSnapshot,
                 behavioralSnapshot: behavioralSnapshot,
-                calmnessProfile: utilitySnapshot.calmness
+                calmnessProfile: utilitySnapshot.calmness,
+                utilityCalibration: utilitySnapshot.calibration
             )
             environment.longHorizonSnapshot = reflective.longHorizon
             environment.morningSummary = reflective.morningSummary
@@ -1137,7 +1138,7 @@ final class NoxContextService {
         arcs: [NoxSemanticArc],
         at date: Date
     ) async -> NoxAmbientUtilitySnapshot {
-        NoxAmbientUtilityOrchestrator.refresh(
+        let base = NoxAmbientUtilityOrchestrator.refresh(
             paused: preferences.connectors.continuityEnrichmentPaused,
             preferences: preferences.ambientUtility,
             stats: stats,
@@ -1151,6 +1152,22 @@ final class NoxContextService {
             ambientState: ambientState,
             at: date
         )
+        var trust = ambientState.ambientTrust
+        let (calibrated, _) = NoxAmbientUtilityCalibrationOrchestrator.calibrate(
+            base: base,
+            trust: &trust,
+            threads: threads,
+            arcs: arcs,
+            stats: stats,
+            focus: focus,
+            behavioral: behavioralSnapshot,
+            connectorSnapshot: connectorSnapshot,
+            ambientState: ambientState,
+            notificationsEnabled: preferences.ambientUtility.ambientNotificationsEnabled,
+            at: date
+        )
+        ambientState.ambientTrust = trust
+        return calibrated
     }
 
     private func deliverAmbientNotificationIfNeeded(

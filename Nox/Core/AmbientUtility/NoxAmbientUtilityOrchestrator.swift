@@ -119,7 +119,8 @@ enum NoxAmbientUtilityOrchestrator {
             attentionInsight: attention,
             preferSilence: preferSilence,
             notificationCandidate: notificationCandidate,
-            refinedIntervention: refinedIntervention
+            refinedIntervention: refinedIntervention,
+            calibration: .neutral
         )
     }
 

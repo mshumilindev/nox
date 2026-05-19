@@ -15,13 +15,18 @@ enum NoxLongHorizonLoader {
         connectorCadencePatterns: [NoxCadencePattern] = [],
         connectorEnrichmentNotes: [String] = [],
         behavioral: NoxBehavioralIntelligenceSnapshot = .empty,
+        utilityCalibration: NoxAmbientUtilityCalibration = .neutral,
         at date: Date = Date()
     ) -> NoxLongHorizonSnapshot {
         let filteredThreads = threads
             .filter { $0.decayState == .active || $0.currentStatus == .resumed }
+        let threadPriority = mergedPriority(
+            primary: utilityCalibration.prioritizedThreadIds,
+            secondary: behavioral.prioritizedThreadIds
+        )
         let activeThreads = orderThreads(
             filteredThreads,
-            prioritizedIds: behavioral.prioritizedThreadIds
+            prioritizedIds: threadPriority
         )
         .prefix(6)
         .map { $0 }
@@ -47,7 +52,11 @@ enum NoxLongHorizonLoader {
             .prefix(4)
             .map { NoxContinuityResurfacingPresenter.threadDisplayTitle($0) }
 
-        let orderedArcs = orderArcs(arcs, prioritizedIds: behavioral.prioritizedArcIds)
+        let arcPriority = mergedPriority(
+            primary: utilityCalibration.prioritizedArcIds,
+            secondary: behavioral.prioritizedArcIds
+        )
+        let orderedArcs = orderArcs(arcs, prioritizedIds: arcPriority)
 
         return NoxLongHorizonSnapshot(
             activeThreads: activeThreads,
@@ -74,6 +83,15 @@ enum NoxLongHorizonLoader {
             ),
             behavioralDrift: behavioral.drift
         )
+    }
+
+    private static func mergedPriority(primary: [String], secondary: [String]) -> [String] {
+        var seen = Set<String>()
+        var merged: [String] = []
+        for id in primary + secondary where seen.insert(id).inserted {
+            merged.append(id)
+        }
+        return merged
     }
 
     private static func orderThreads(

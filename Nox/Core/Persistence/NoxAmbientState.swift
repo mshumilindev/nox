@@ -17,6 +17,7 @@ nonisolated struct NoxAmbientState: Codable, Equatable, Sendable {
     var lastAmbientNotificationAt: Date?
     var lastContextualNudgeAt: Date?
     var recentNotificationKinds: [String]
+    var ambientTrust: NoxAmbientTrustState
 
     init(
         lastPresence: String?,
@@ -34,7 +35,8 @@ nonisolated struct NoxAmbientState: Codable, Equatable, Sendable {
         recentConnectorDensities: [Double] = [],
         lastAmbientNotificationAt: Date? = nil,
         lastContextualNudgeAt: Date? = nil,
-        recentNotificationKinds: [String] = []
+        recentNotificationKinds: [String] = [],
+        ambientTrust: NoxAmbientTrustState = .initial
     ) {
         self.lastPresence = lastPresence
         self.lastActiveAppName = lastActiveAppName
@@ -52,6 +54,7 @@ nonisolated struct NoxAmbientState: Codable, Equatable, Sendable {
         self.lastAmbientNotificationAt = lastAmbientNotificationAt
         self.lastContextualNudgeAt = lastContextualNudgeAt
         self.recentNotificationKinds = recentNotificationKinds
+        self.ambientTrust = ambientTrust
     }
 
     static let empty = NoxAmbientState(
@@ -70,7 +73,8 @@ nonisolated struct NoxAmbientState: Codable, Equatable, Sendable {
         recentConnectorDensities: [],
         lastAmbientNotificationAt: nil,
         lastContextualNudgeAt: nil,
-        recentNotificationKinds: []
+        recentNotificationKinds: [],
+        ambientTrust: .initial
     )
 
     init(from decoder: Decoder) throws {
@@ -91,6 +95,7 @@ nonisolated struct NoxAmbientState: Codable, Equatable, Sendable {
         lastAmbientNotificationAt = try container.decodeIfPresent(Date.self, forKey: .lastAmbientNotificationAt)
         lastContextualNudgeAt = try container.decodeIfPresent(Date.self, forKey: .lastContextualNudgeAt)
         recentNotificationKinds = try container.decodeIfPresent([String].self, forKey: .recentNotificationKinds) ?? []
+        ambientTrust = try container.decodeIfPresent(NoxAmbientTrustState.self, forKey: .ambientTrust) ?? .initial
     }
 }
 

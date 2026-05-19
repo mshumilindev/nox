@@ -116,6 +116,7 @@ nonisolated struct NoxAmbientUtilitySnapshot: Equatable, Sendable {
     let preferSilence: Bool
     let notificationCandidate: NoxAmbientNotificationCandidate?
     let refinedIntervention: NoxAmbientIntervention?
+    let calibration: NoxAmbientUtilityCalibration
 
     static let empty = NoxAmbientUtilitySnapshot(
         nudges: [],
@@ -142,7 +143,8 @@ nonisolated struct NoxAmbientUtilitySnapshot: Equatable, Sendable {
         attentionInsight: nil,
         preferSilence: false,
         notificationCandidate: nil,
-        refinedIntervention: nil
+        refinedIntervention: nil,
+        calibration: .neutral
     )
 }
 

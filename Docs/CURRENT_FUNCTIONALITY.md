@@ -307,6 +307,21 @@ Module: `Nox/Core/AmbientUtility/`
 - **Notifications** (`NoxAmbientNotificationEngine`, cooldown/relevance/suppression models): local macOS `UserNotifications` only; opt-in via Trust; 4h global / 12h per-kind cooldowns; calm copy only.
 - **Integration**: `AppEnvironment.ambientUtilitySnapshot`; utility runs after behavioral layer; refines connector interventions; calmness passed to reflective assembly; optional `NoxContextualNudgeBanner` on Now when no intervention.
 
+## Phase 11.5 — Ambient utility calibration
+
+Calibration layer in `Nox/Core/AmbientUtility/Calibration/`:
+
+- **Notification calibration** (`NoxNotificationCalibrationEngine`, `NoxNotificationFatigueModel`, `NoxNotificationTrustTracker`): adaptive cooldowns, fatigue from delivery history and interruption cost — not engagement optimization.
+- **Gravity evolution** (`NoxContinuityGravityEvolutionEngine`): continuity importance accrues/decays over weeks from recurrence, re-entry, and fading.
+- **Experiential priority** (`NoxExperientialPriorityEngine`): significance beyond raw structural weights.
+- **Decompression maturity** (`NoxDecompressionMaturityEngine`, `NoxRecoveryQualityModel`): passive collapse vs restorative recovery vs overload loops.
+- **Interruption cost** (`NoxInterruptionCostEngine`): gates notifications, nudges, and interventions during high-cost moments.
+- **Ambient trust** (`NoxAmbientTrustModel`, `NoxAmbientTrustState` in `NoxAmbientState`): system becomes more restrained when trust uncertainty rises.
+- **Utility refinement** (`NoxUtilityRefinementEngine`): fewer nudges, higher-confidence unfinished threads, suppressed low-value notifications.
+- **Silence refinement** (`NoxSilenceRefinementEngine`): state-aware silence primitive.
+- **Long-horizon relevance** (`NoxLongHorizonRelevanceEngine`): cumulative thread/arc prioritization for long-horizon surfaces.
+- **Orchestration** (`NoxAmbientUtilityCalibrationOrchestrator`): runs after Phase 11 base refresh on every memory reload.
+
 ## Interaction & Hover
 
 - `NoxBorderlessPressStyle` — press feedback + ambient hover on **Button** labels only.

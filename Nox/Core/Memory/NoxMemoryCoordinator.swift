@@ -275,6 +275,7 @@ final class NoxMemoryCoordinator {
         connectorSnapshot: NoxConnectorContinuitySnapshot = .empty,
         behavioralSnapshot: NoxBehavioralIntelligenceSnapshot = .empty,
         calmnessProfile: NoxAdaptiveCalmnessProfile = .balanced,
+        utilityCalibration: NoxAmbientUtilityCalibration = .neutral,
         at date: Date = Date()
     ) async throws -> NoxReflectiveContinuityBundle {
         let lookback = date.addingTimeInterval(-14 * 24 * 3600)
@@ -311,6 +312,7 @@ final class NoxMemoryCoordinator {
             connectorSnapshot: connectorSnapshot,
             behavioralSnapshot: behavioralSnapshot,
             calmnessProfile: calmnessProfile,
+            utilityCalibration: utilityCalibration,
             at: date
         )
     }
