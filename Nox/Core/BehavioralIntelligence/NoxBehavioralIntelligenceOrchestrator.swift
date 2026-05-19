@@ -87,12 +87,39 @@ enum NoxBehavioralIntelligenceOrchestrator {
             existingNotes: connectorSnapshot.enrichmentNotes
         )
 
+        let partialBehavioral = NoxBehavioralIntelligenceSnapshot(
+            signatures: signatures,
+            expectations: expectations,
+            continuityWeights: continuityWeights,
+            temporalRhythms: temporalRhythms,
+            lifeStructures: lifeStructures,
+            drift: drift,
+            orchestration: orchestration,
+            enrichmentNotes: [],
+            prioritizedThreadIds: prioritization.threadIds,
+            prioritizedArcIds: prioritization.arcIds,
+            recommendedIntervention: nil
+        )
+        let reflectionInput = NoxReflectionInputBuilder.build(
+            period: .today,
+            spans: [],
+            threads: threads,
+            arcs: arcs,
+            stats: stats,
+            focus: focus,
+            weeklyRollups: weeklyRollups,
+            behavioral: partialBehavioral,
+            at: date
+        )
+
         let intervention = NoxAdaptiveInterventionTimingEngine.evaluate(
             connectorSnapshot: connectorSnapshot,
             orchestration: orchestration,
             signatures: signatures,
             drift: drift,
             lastInterventionAt: lastInterventionAt,
+            focus: focus,
+            reflectionInput: reflectionInput,
             at: date
         )
 

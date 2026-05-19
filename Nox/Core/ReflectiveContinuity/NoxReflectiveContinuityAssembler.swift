@@ -47,22 +47,33 @@ enum NoxReflectiveContinuityAssembler {
             continuitySeconds: continuitySeconds
         )
 
-        var reflections = (try? await reflectionStore.recent(limit: 4)) ?? []
+        var reflections = (try? await reflectionStore.recent(limit: 6)) ?? []
         let lastReflection = try? await reflectionStore.lastCreatedAt()
+        let reflectionInput = NoxReflectionInputBuilder.build(
+            period: period,
+            spans: semanticSpans,
+            threads: threads,
+            arcs: arcs,
+            stats: stats,
+            focus: focus,
+            weeklyRollups: weeklyRollups,
+            behavioral: behavioralSnapshot,
+            at: date
+        )
 
         if NoxReflectiveSynthesisEngine.shouldSynthesize(lastReflectionAt: lastReflection, at: date) {
-            let input = NoxReflectionInputBuilder.build(
-                period: period,
-                spans: semanticSpans,
+            let raw = NoxReflectiveSynthesisEngine.synthesize(input: reflectionInput, at: date)
+            let fresh = NoxContinuityMaturityOrchestrator.matureReflections(
+                raw,
+                input: reflectionInput,
+                stored: reflections,
                 threads: threads,
                 arcs: arcs,
-                stats: stats,
-                focus: focus,
-                weeklyRollups: weeklyRollups,
                 behavioral: behavioralSnapshot,
+                focus: focus,
+                connectorSnapshot: connectorSnapshot,
                 at: date
             )
-            let fresh = NoxReflectiveSynthesisEngine.synthesize(input: input, at: date)
             for candidate in fresh {
                 try? await reflectionStore.upsert(candidate)
             }
@@ -71,33 +82,54 @@ enum NoxReflectiveContinuityAssembler {
             }
         }
 
+        let displayReflections = NoxContinuityMaturityOrchestrator.matureReflections(
+            NoxReflectionPresenter.distinct(reflections, limit: 6),
+            input: reflectionInput,
+            stored: reflections,
+            threads: threads,
+            arcs: arcs,
+            behavioral: behavioralSnapshot,
+            focus: focus,
+            connectorSnapshot: connectorSnapshot,
+            at: date
+        )
+
         var resurfacingNotes = NoxContinuityResurfacingOrchestrator.resurfacingNotes(
             threads: threads,
             arcs: arcs,
             lastShownAt: lastResurfacingShownAt,
             at: date
         )
-        for note in connectorEnrichmentNotes where !resurfacingNotes.contains(note) {
-            resurfacingNotes.append(note)
-        }
-        for note in NoxBehavioralIntelligenceEnricher.enrichmentNotes(snapshot: behavioralSnapshot)
+        for note in NoxContinuityMaturityOrchestrator.matureEnrichmentNotes(connectorEnrichmentNotes)
             where !resurfacingNotes.contains(note) {
             resurfacingNotes.append(note)
         }
+        for note in NoxContinuityMaturityOrchestrator.matureEnrichmentNotes(
+            NoxBehavioralIntelligenceEnricher.enrichmentNotes(snapshot: behavioralSnapshot)
+        ) where !resurfacingNotes.contains(note) {
+            resurfacingNotes.append(note)
+        }
+        resurfacingNotes = NoxContinuityMaturityOrchestrator.matureResurfacingNotes(resurfacingNotes)
 
-        let longHorizon = NoxLongHorizonLoader.load(
+        var longHorizon = NoxLongHorizonLoader.load(
             threads: threads,
             semanticSpans: semanticSpans,
             typedMemories: typedMemories,
             weeklyRollups: weeklyRollups,
             monthlyRollups: monthlyRollups,
-            reflections: NoxReflectionPresenter.distinct(reflections, limit: 4),
+            reflections: displayReflections,
             emerging: emergingResult.observations,
             arcs: arcs,
             resurfacingNotes: resurfacingNotes,
             connectorCadencePatterns: connectorSnapshot.cadencePatterns,
             connectorEnrichmentNotes: connectorEnrichmentNotes,
             behavioral: behavioralSnapshot
+        )
+        longHorizon = NoxLongHorizonMaturityEngine.mature(
+            snapshot: longHorizon,
+            threads: threads,
+            arcs: arcs,
+            at: date
         )
 
         var morningSummary: NoxMorningSummary?

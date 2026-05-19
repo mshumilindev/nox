@@ -30,8 +30,8 @@ enum NoxAmbientInterventionEngine {
             return intervention(
                 id: "intervention-fragmented",
                 kind: .fragmentedDayAck,
-                label: "Today has been unusually fragmented.",
-                detail: "Observed locally — not a score or warning.",
+                label: "The day has felt scattered.",
+                detail: "Noticed on this Mac — not a warning.",
                 at: date
             )
         }

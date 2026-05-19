@@ -276,7 +276,21 @@ Local-first, deterministic, confidence-gated layer in `Nox/Core/BehavioralIntell
 - **Memory prioritization** (`NoxContextualMemoryPrioritizer`): orders threads/arcs and enrichment notes for long-horizon and resurfacing.
 - **Orchestration substrate** (`NoxOrchestrationSignalLayer`, `NoxAmbientOrchestrationContext`): internal signals only (interruption sensitivity, focus stability, overload risk, recovery window, low fragmentation, return-after-absence) — not user-facing scores.
 - **Orchestrator** (`NoxBehavioralIntelligenceOrchestrator`) + **persistence** (`NoxBehavioralIntelligenceSignalStore`): runs after connector refresh in `NoxContextService.reloadMemoryView()`; honors `continuityEnrichmentPaused`; clears with connector-derived data.
-- **Integration**: `AppEnvironment.behavioralSnapshot`; reflective input/synthesis enriched with patterns and drift; `NoxLongHorizonLoader` reorders threads/arcs; Patterns surface shows sparse “Behavioral continuity” and “Life-shaped periods” sections.
+- **Integration**: `AppEnvironment.behavioralSnapshot`; reflective input/synthesis enriched with patterns and drift; `NoxLongHorizonLoader` reorders threads/arcs; Patterns surface shows sparse “Continuity shapes” and “Life-shaped periods” sections.
+
+## Phase 10.5 — Continuity maturity pass
+
+Refinement layer in `Nox/Core/ContinuityMaturity/` (no new product surfaces):
+
+- **Reflection naturalization** (`NoxReflectionNaturalizationEngine`, `NoxReflectiveLanguageSoftener`, `NoxContinuityPhraseAssembler`, `NoxTemporalGroundingEngine`): softer continuity-native copy, temporal grounding (“recently”, “this week”), less taxonomy/engine vocabulary.
+- **Continuity gravity** (`NoxContinuityGravityEngine`, `NoxContinuityImportanceModel`): recurrence, resurfacing, and persistence weight which reflections dominate vs fade.
+- **Salience** (`NoxContinuitySalienceModel`): phrasing asymmetry (returning, unresolved, fragile, quiet) without emotion labels.
+- **Suppression** (`NoxReflectionSuppressionEngine`): fewer reflections (2–3), marginal-confidence and near-duplicate filtering, long-horizon significance gate.
+- **Contextual relevance** (`NoxContextualRelevanceFilter`): suppress mismatched observations (e.g. deep-focus copy during fragmentation unless high gravity).
+- **Behavioral humility** (`NoxBehavioralHumilityLayer`): implied intelligence — softened enrichment/resurfacing notes, Patterns shows detail lines not pattern labels.
+- **Long-horizon maturity** (`NoxLongHorizonMaturityEngine`): cumulative ordering, capped emerging/behavioral visibility, softened narratives.
+- **Intervention subtlety** (`NoxInterventionSubtletyPass`): rarer triggers, extended fragmented cooldown, calmer copy, decompression-aware silence.
+- **Orchestration** (`NoxContinuityMaturityOrchestrator`): wired through reflective assembly, long-horizon load, and adaptive interventions.
 
 ## Interaction & Hover
 

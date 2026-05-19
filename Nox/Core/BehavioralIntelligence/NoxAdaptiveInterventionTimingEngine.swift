@@ -10,14 +10,37 @@ nonisolated enum NoxAdaptiveInterventionTimingEngine {
         signatures: [NoxBehavioralSignature],
         drift: NoxBehavioralDriftInsight?,
         lastInterventionAt: Date?,
+        focus: NoxFocusAnalysis? = nil,
+        reflectionInput: NoxReflectionInput? = nil,
         at date: Date = Date()
     ) -> NoxAmbientIntervention? {
         if let last = lastInterventionAt, date.timeIntervalSince(last) < cooldown {
             return nil
         }
 
-        if orchestration.signals.contains(where: { $0.kind == .returnAfterAbsence && $0.level >= 0.65 }) {
-            return intervention(
+        let maturityContext = NoxContinuityMaturityContext.build(
+            input: reflectionInput ?? .empty,
+            focus: focus,
+            behavioral: NoxBehavioralIntelligenceSnapshot(
+                signatures: signatures,
+                expectations: nil,
+                continuityWeights: [],
+                temporalRhythms: [],
+                lifeStructures: [],
+                drift: drift,
+                orchestration: orchestration,
+                enrichmentNotes: [],
+                prioritizedThreadIds: [],
+                prioritizedArcIds: [],
+                recommendedIntervention: nil
+            ),
+            connectorSnapshot: connectorSnapshot
+        )
+
+        var result: NoxAmbientIntervention?
+
+        if orchestration.signals.contains(where: { $0.kind == .returnAfterAbsence && $0.level >= 0.72 }) {
+            result = intervention(
                 id: "intervention-return-adaptive",
                 kind: .resurfacingAfterReturn,
                 label: "Continuity may feel familiar again.",
@@ -26,6 +49,7 @@ nonisolated enum NoxAdaptiveInterventionTimingEngine {
             )
         }
 
+        if result == nil {
         let base = NoxAmbientInterventionEngine.evaluate(
             transitions: connectorSnapshot.transitions,
             cadencePatterns: connectorSnapshot.cadencePatterns,
@@ -37,14 +61,16 @@ nonisolated enum NoxAdaptiveInterventionTimingEngine {
 
         if let base {
             if shouldSuppress(base: base, orchestration: orchestration, signatures: signatures) {
-                return nil
+                result = nil
+            } else {
+                result = base
             }
-            return base
         }
 
-        if let drift, drift.confidence >= 0.58,
-           orchestration.signals.contains(where: { $0.kind == .highInterruptionSensitivity }) {
-            return intervention(
+        if result == nil,
+           let drift, drift.confidence >= 0.62,
+           orchestration.signals.contains(where: { $0.kind == .highInterruptionSensitivity && $0.level >= 0.62 }) {
+            result = intervention(
                 id: "intervention-drift-observe",
                 kind: .fragmentedDayAck,
                 label: drift.label,
@@ -53,9 +79,10 @@ nonisolated enum NoxAdaptiveInterventionTimingEngine {
             )
         }
 
-        if orchestration.signals.contains(where: { $0.kind == .recoveryOpportunityWindow && $0.level >= 0.62 }),
+        if result == nil,
+           orchestration.signals.contains(where: { $0.kind == .recoveryOpportunityWindow && $0.level >= 0.68 }),
            signatures.contains(where: { $0.kind == .overloadRecoveryOscillation }) {
-            return intervention(
+            result = intervention(
                 id: "intervention-recovery-adaptive",
                 kind: .recoveryAwareShift,
                 label: "Rhythm may be shifting toward recovery.",
@@ -63,8 +90,15 @@ nonisolated enum NoxAdaptiveInterventionTimingEngine {
                 at: date
             )
         }
+        }
 
-        return nil
+        return NoxInterventionSubtletyPass.refine(
+            result,
+            context: maturityContext,
+            signatures: signatures,
+            lastInterventionAt: lastInterventionAt,
+            at: date
+        )
     }
 
     private static func shouldSuppress(

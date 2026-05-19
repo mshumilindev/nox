@@ -44,4 +44,25 @@ struct NoxReflectionInput: Equatable, Sendable {
     let lifeStructureDetails: [String]
     let focusSummary: String?
     let weeklyHorizonSnippet: String?
+
+    static let empty = NoxReflectionInput(
+        periodLabel: "Recently",
+        semanticThemes: [],
+        continuityResumptions: 0,
+        fragmentedSessions: 0,
+        dominantArcLabels: [],
+        resurfacedArcLabels: [],
+        recurringThreadTitles: [],
+        observationHours: 1,
+        hasPriorDayActivity: false,
+        behavioralPatternLabels: [],
+        behavioralPatternDetails: [],
+        temporalRhythmLabels: [],
+        temporalRhythmDetails: [],
+        driftObservation: nil,
+        lifeStructureLabels: [],
+        lifeStructureDetails: [],
+        focusSummary: nil,
+        weeklyHorizonSnippet: nil
+    )
 }

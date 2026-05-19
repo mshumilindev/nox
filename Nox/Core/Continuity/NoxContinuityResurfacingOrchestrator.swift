@@ -31,7 +31,7 @@ enum NoxContinuityResurfacingOrchestrator {
         guard let arc = arcs.first(where: { $0.continuityState == .resurfaced && $0.strength >= 0.45 }) else {
             return nil
         }
-        return "This \(arc.label.lowercased()) context has resurfaced repeatedly this month."
+        return "\(arc.label) has been returning in bursts lately."
     }
 
     private static func threadResurfacingNote(threads: [NoxContinuityThread], at date: Date) -> String? {
@@ -46,7 +46,7 @@ enum NoxContinuityResurfacingOrchestrator {
 
         let name = thread.title.replacingOccurrences(of: " continuity", with: "")
         if thread.totalResumptions >= 2 {
-            return "You briefly returned to a previously active \(name.lowercased()) arc."
+            return "There was a brief return to \(name.lowercased())."
         }
         return nil
     }

@@ -52,27 +52,19 @@ struct NoxPatternsSurfaceView: View {
                 }
 
                 if snapshot.behavioralDrift != nil || !snapshot.behavioralSignatures.isEmpty {
-                    NoxCollapsibleSection(title: "Behavioral continuity", defaultExpanded: false) {
+                    NoxCollapsibleSection(title: "Continuity shapes", defaultExpanded: false) {
                         if let drift = snapshot.behavioralDrift {
-                            VStack(alignment: .leading, spacing: NoxSpacing.xxs) {
-                                Text(drift.label)
-                                    .font(NoxTypography.continuityDetail)
-                                NoxFixedLineText(
-                                    text: drift.detail,
-                                    color: NoxDesignTokens.ColorRole.textSecondary.opacity(0.52)
-                                )
-                            }
+                            NoxFixedLineText(
+                                text: drift.detail,
+                                color: NoxDesignTokens.ColorRole.textSecondary.opacity(0.52)
+                            )
                             .noxSurface(.soft)
                         }
                         ForEach(snapshot.behavioralSignatures) { signature in
-                            VStack(alignment: .leading, spacing: NoxSpacing.xxs) {
-                                Text(signature.label)
-                                    .font(NoxTypography.continuityDetail)
-                                NoxFixedLineText(
-                                    text: signature.detail,
-                                    color: NoxDesignTokens.ColorRole.textSecondary.opacity(0.52)
-                                )
-                            }
+                            NoxFixedLineText(
+                                text: signature.detail,
+                                color: NoxDesignTokens.ColorRole.textSecondary.opacity(0.52)
+                            )
                             .frame(minHeight: NoxSurfaceLayout.arcCardMinHeight, alignment: .topLeading)
                             .noxSurface(.standard)
                         }

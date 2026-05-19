@@ -9,8 +9,9 @@ nonisolated enum NoxAdaptiveContinuityModel {
         resurfacingFrequency: [String: Int] = [:]
     ) -> [NoxAdaptiveContinuityWeight] {
         threads.map { thread in
-            var weight = thread.continuityStrength
-            var reasons: [String] = ["base_strength"]
+            let gravity = NoxContinuityImportanceModel.threadImportance(thread)
+            var weight = (thread.continuityStrength * 0.55) + (gravity * 0.45)
+            var reasons: [String] = ["base_strength", "continuity_gravity"]
 
             if thread.recurrenceStrength >= 0.5 {
                 weight += 0.08
