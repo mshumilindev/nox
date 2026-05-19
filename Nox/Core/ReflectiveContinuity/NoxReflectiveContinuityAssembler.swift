@@ -27,9 +27,15 @@ enum NoxReflectiveContinuityAssembler {
         lastResurfacingShownAt: Date?,
         liveSignalCount: Int,
         continuitySeconds: TimeInterval,
+        connectorSnapshot: NoxConnectorContinuitySnapshot = .empty,
         at date: Date = Date()
     ) async throws -> NoxReflectiveContinuityBundle {
         let arcs = NoxSemanticArcEngine.buildArcs(spans: semanticSpans, threads: threads, at: date)
+        let connectorEnrichmentNotes = NoxConnectorContinuityEnricher.enrichmentNotes(
+            snapshot: connectorSnapshot,
+            arcs: arcs,
+            threads: threads
+        )
 
         let emergingResult = NoxEmergingMemoryEngine.observe(
             semanticSpans: semanticSpans,
@@ -61,12 +67,15 @@ enum NoxReflectiveContinuityAssembler {
             }
         }
 
-        let resurfacingNotes = NoxContinuityResurfacingOrchestrator.resurfacingNotes(
+        var resurfacingNotes = NoxContinuityResurfacingOrchestrator.resurfacingNotes(
             threads: threads,
             arcs: arcs,
             lastShownAt: lastResurfacingShownAt,
             at: date
         )
+        for note in connectorEnrichmentNotes where !resurfacingNotes.contains(note) {
+            resurfacingNotes.append(note)
+        }
 
         let longHorizon = NoxLongHorizonLoader.load(
             threads: threads,
@@ -77,7 +86,9 @@ enum NoxReflectiveContinuityAssembler {
             reflections: Array(reflections.prefix(4)),
             emerging: emergingResult.observations,
             arcs: arcs,
-            resurfacingNotes: resurfacingNotes
+            resurfacingNotes: resurfacingNotes,
+            connectorCadencePatterns: connectorSnapshot.cadencePatterns,
+            connectorEnrichmentNotes: connectorEnrichmentNotes
         )
 
         var morningSummary: NoxMorningSummary?

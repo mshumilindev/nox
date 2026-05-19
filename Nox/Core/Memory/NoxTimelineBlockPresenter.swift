@@ -1,6 +1,45 @@
 import Foundation
 
 enum NoxTimelineBlockPresenter {
+
+    static func makeSections(
+        spans: [NoxActivitySpan],
+        focusBlocks: [NoxFocusBlock],
+        interruptions: [NoxInterruption],
+        semanticSpans: [NoxSemanticMemorySpan] = [],
+        continuityThreads: [NoxContinuityThread] = []
+    ) -> [NoxTimelineSection] {
+        let stitched = NoxSemanticSpanStitcher.stitch(semanticSpans)
+        let threadSpanIds = Set(continuityThreads.flatMap(\.linkedSpanIds))
+
+        let continuityItems = continuityThreads.prefix(6).map(continuityItem)
+        let semanticItems = stitched
+            .prefix(8)
+            .filter { !threadSpanIds.contains($0.id) }
+            .map(semanticItem)
+        let focusItems = focusBlocks.prefix(4).map(focusItem)
+        let dedupedActivity = NoxTimelineActivityDeduper.filter(
+            activitySpans: spans.filter { !$0.category.excludedFromAnalysis },
+            semanticSpans: stitched
+        )
+        let activityItems = dedupedActivity.prefix(12).map(spanItem)
+        let interruptionItems = interruptions.prefix(4).map(interruptionItem)
+
+        let buckets: [NoxTimelineLayer: [NoxTimelineBlockItem]] = [
+            .continuity: continuityItems,
+            .semantic: semanticItems,
+            .focus: focusItems,
+            .activity: activityItems,
+            .interruption: interruptionItems
+        ]
+
+        return NoxTimelineLayer.displayOrder.compactMap { layer in
+            let items = (buckets[layer] ?? []).sorted { $0.timestamp > $1.timestamp }
+            guard !items.isEmpty else { return nil }
+            return NoxTimelineSection(layer: layer, items: items)
+        }
+    }
+
     static func makeBlocks(
         spans: [NoxActivitySpan],
         focusBlocks: [NoxFocusBlock],
@@ -8,31 +47,13 @@ enum NoxTimelineBlockPresenter {
         semanticSpans: [NoxSemanticMemorySpan] = [],
         continuityThreads: [NoxContinuityThread] = []
     ) -> [NoxTimelineBlockItem] {
-        var items: [NoxTimelineBlockItem] = []
-
-        for thread in continuityThreads.prefix(6) {
-            items.append(continuityItem(thread))
-        }
-
-        let stitched = NoxSemanticSpanStitcher.stitch(semanticSpans)
-        let threadSpanIds = Set(continuityThreads.flatMap(\.linkedSpanIds))
-        for semantic in stitched.prefix(8) where !threadSpanIds.contains(semantic.id) {
-            items.append(semanticItem(semantic))
-        }
-
-        for block in focusBlocks.prefix(4) {
-            items.append(focusItem(block))
-        }
-
-        for span in spans.prefix(12) where !span.category.excludedFromAnalysis {
-            items.append(spanItem(span))
-        }
-
-        for interruption in interruptions.prefix(4) {
-            items.append(interruptionItem(interruption))
-        }
-
-        return items.sorted { $0.timestamp > $1.timestamp }
+        makeSections(
+            spans: spans,
+            focusBlocks: focusBlocks,
+            interruptions: interruptions,
+            semanticSpans: semanticSpans,
+            continuityThreads: continuityThreads
+        ).flatMap(\.items)
     }
 
     private static func continuityItem(_ thread: NoxContinuityThread) -> NoxTimelineBlockItem {

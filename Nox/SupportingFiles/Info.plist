@@ -8,5 +8,7 @@
 	<string>Nox</string>
 	<key>LSUIElement</key>
 	<true/>
+	<key>NSCalendarsUsageDescription</key>
+	<string>Nox reads calendar timing locally to understand coordination density. Event titles are not stored.</string>
 </dict>
 </plist>

@@ -28,6 +28,17 @@ struct NoxNowSurfaceView: View {
       if let morning = environment.morningSummary, !morning.isEmpty {
         NoxMorningSummaryBanner(summary: morning)
       }
+
+      if let intervention = environment.connectorSnapshot.intervention {
+        NoxConnectorInterventionBanner(intervention: intervention)
+      }
+
+      NoxConnectorPressureCard(snapshot: environment.connectorSnapshot)
+
+      NoxConnectorCadenceCard(
+        patterns: environment.connectorSnapshot.cadencePatterns,
+        transitions: environment.connectorSnapshot.transitions
+      )
     }
   }
 }

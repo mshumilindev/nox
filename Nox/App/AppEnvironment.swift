@@ -9,7 +9,11 @@ final class AppEnvironment {
     var permissionState: NoxPermissionState = .limited
     var liveSignals: [NoxLiveSignal] = []
     var timelineEvents: [NoxTimelineRecord] = []
-    var timelineBlocks: [NoxTimelineBlockItem] = []
+    var timelineSections: [NoxTimelineSection] = []
+
+    var timelineBlocks: [NoxTimelineBlockItem] {
+        timelineSections.flatMap(\.items)
+    }
     var memoryPeriod: NoxMemoryPeriod = .today
     var memorySearchText: String = ""
     var memoryReadiness: NoxMemoryReadiness = .observing
@@ -34,6 +38,7 @@ final class AppEnvironment {
         sensitivity: .normal
     )
     var primaryExplanation: NoxInferenceReason?
+    var connectorSnapshot: NoxConnectorContinuitySnapshot = .empty
 
     var activeAppName: String?
     var activeBundleId: String?
@@ -142,5 +147,25 @@ final class AppEnvironment {
 
     func clearSemanticContinuity() async {
         await contextService.clearSemanticContinuity()
+    }
+
+    func setCalendarConnectorEnabled(_ enabled: Bool) {
+        mutatePreferences { $0.connectors.calendarEnabled = enabled }
+    }
+
+    func setCommunicationPressureEnabled(_ enabled: Bool) {
+        mutatePreferences { $0.connectors.communicationPressureEnabled = enabled }
+    }
+
+    func setContinuityEnrichmentPaused(_ paused: Bool) {
+        mutatePreferences { $0.connectors.continuityEnrichmentPaused = paused }
+    }
+
+    func requestCalendarAccess() async {
+        await contextService.requestCalendarAccess()
+    }
+
+    func clearConnectorContinuity() async {
+        await contextService.clearConnectorContinuity()
     }
 }

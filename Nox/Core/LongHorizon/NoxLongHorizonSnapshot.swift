@@ -17,6 +17,8 @@ struct NoxLongHorizonSnapshot: Equatable, Sendable {
     let semanticArcs: [NoxSemanticArc]
     let reflections: [NoxReflectionCandidate]
     let resurfacingNotes: [String]
+    let connectorCadencePatterns: [NoxCadencePattern]
+    let connectorEnrichmentNotes: [String]
 
     static let empty = NoxLongHorizonSnapshot(
         activeThreads: [],
@@ -27,6 +29,8 @@ struct NoxLongHorizonSnapshot: Equatable, Sendable {
         eraCandidates: [],
         semanticArcs: [],
         reflections: [],
-        resurfacingNotes: []
+        resurfacingNotes: [],
+        connectorCadencePatterns: [],
+        connectorEnrichmentNotes: []
     )
 }

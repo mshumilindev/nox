@@ -12,6 +12,8 @@ enum NoxLongHorizonLoader {
         emerging: [NoxEmergingMemoryObservation],
         arcs: [NoxSemanticArc],
         resurfacingNotes: [String],
+        connectorCadencePatterns: [NoxCadencePattern] = [],
+        connectorEnrichmentNotes: [String] = [],
         at date: Date = Date()
     ) -> NoxLongHorizonSnapshot {
         let activeThreads = threads
@@ -50,7 +52,9 @@ enum NoxLongHorizonLoader {
             eraCandidates: eras,
             semanticArcs: arcs,
             reflections: reflections,
-            resurfacingNotes: resurfacingNotes
+            resurfacingNotes: resurfacingNotes,
+            connectorCadencePatterns: connectorCadencePatterns,
+            connectorEnrichmentNotes: connectorEnrichmentNotes
         )
     }
 

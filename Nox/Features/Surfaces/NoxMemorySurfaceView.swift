@@ -15,7 +15,9 @@ struct NoxMemorySurfaceView: View {
             }
 
             NoxMemoryTimelineView(
-                blocks: environment.timelineBlocks,
+                period: environment.memoryPeriod,
+                sections: environment.timelineSections,
+                stats: environment.dayStats,
                 emergence: environment.memoryEmergence,
                 density: environment.memoryDensity,
                 dayOverview: nil,

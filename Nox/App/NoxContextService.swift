@@ -43,6 +43,10 @@ final class NoxContextService {
         memoryCoordinator: memoryCoordinator,
         timelineStore: timelineStore
     )
+    private let connectorSignalStore = NoxConnectorSignalStore()
+    private lazy var connectorControl = NoxConnectorControlCoordinator(
+        signalStore: connectorSignalStore
+    )
     private let retentionPolicy = NoxMemoryRetentionPolicy.default
     private weak var environment: AppEnvironment?
 
@@ -64,13 +68,14 @@ final class NoxContextService {
             try await ambientStateStore.open()
             try await preferencesStore.open()
             try await sessionStore.open()
+            try await connectorSignalStore.open()
             preferences = (try? await preferencesStore.loadPreferences()) ?? .default
             environment?.preferences = preferences
             await hydrateFromPersistence()
             scheduleMemoryMaintenance()
         } catch {
             environment?.timelineEvents = []
-            environment?.timelineBlocks = []
+            environment?.timelineSections = []
             environment?.memoryReadiness = .observing
         }
 
@@ -155,16 +160,27 @@ final class NoxContextService {
                 period: environment.memoryPeriod,
                 query: query
             )
-            environment.timelineBlocks = view.blocks
+            environment.timelineSections = view.sections
             environment.dayStats = view.stats
             environment.focusAnalysis = view.focus
             latestFocusAnalysis = view.focus
-            environment.memoryDensity = density(for: view.stats, blockCount: view.blocks.count)
+            let timelineItems = view.sections.flatMap(\.items)
+            environment.memoryDensity = density(for: view.stats, blockCount: timelineItems.count)
             environment.daySemanticOverview = NoxDaySemanticFraming.overview(
-                blocks: view.blocks,
+                blocks: timelineItems,
                 stats: view.stats,
                 continuityThreads: view.continuityThreads
             )
+
+            let range = environment.memoryPeriod.dateRange()
+            let spans = try await memoryCoordinator.activitySpans(period: environment.memoryPeriod)
+            let connectorSnapshot = await refreshConnectorLayer(
+                spans: spans,
+                stats: view.stats,
+                focus: view.focus,
+                range: range
+            )
+            environment.connectorSnapshot = connectorSnapshot
 
             let reflective = try await memoryCoordinator.loadReflectiveContinuity(
                 period: environment.memoryPeriod,
@@ -176,13 +192,14 @@ final class NoxContextService {
                 lastMorningAt: ambientState.lastMorningSummaryAt,
                 lastResurfacingShownAt: ambientState.lastResurfacingShownAt,
                 liveSignalCount: liveBuffer.signals.count,
-                continuitySeconds: signalTracker.observationContinuitySeconds()
+                continuitySeconds: signalTracker.observationContinuitySeconds(),
+                connectorSnapshot: connectorSnapshot
             )
             environment.longHorizonSnapshot = reflective.longHorizon
             environment.morningSummary = reflective.morningSummary
             environment.memoryMaturity = reflective.memoryMaturity
             let readiness = memoryReadiness(
-                blocks: view.blocks,
+                blocks: timelineItems,
                 liveCount: liveBuffer.signals.count,
                 stats: view.stats,
                 maturity: reflective.memoryMaturity
@@ -195,18 +212,32 @@ final class NoxContextService {
             if !reflective.longHorizon.resurfacingNotes.isEmpty {
                 ambientState.lastResurfacingShownAt = Date()
             }
+            if connectorSnapshot.intervention != nil {
+                ambientState.lastConnectorInterventionAt = Date()
+            }
+            ambientState.lastConnectorFocusKind = view.focus.kind?.rawValue
+            var densities = ambientState.recentConnectorDensities
+            densities.append(NoxCadenceDensity.score(for: view.stats))
+            if densities.count > 14 { densities.removeFirst(densities.count - 14) }
+            ambientState.recentConnectorDensities = densities
             try? await ambientStateStore.save(ambientState)
 
+            let periodEmerging = await periodScopedEmergence(
+                period: environment.memoryPeriod,
+                range: range,
+                threads: view.continuityThreads,
+                stats: view.stats
+            )
             syncDerivedEnvironmentState(
                 memoryReadiness: readiness,
-                emerging: reflective.emergingObservations,
-                maturity: reflective.memoryMaturity
+                emerging: periodEmerging.observations,
+                maturity: periodEmerging.maturity
             )
             refreshAwarenessSnapshot()
             refreshPrimaryExplanation()
             recalculatePresence()
         } catch {
-            environment.timelineBlocks = []
+            environment.timelineSections = []
             environment.dayStats = .empty
             environment.memoryReadiness = .building
         }
@@ -578,10 +609,12 @@ final class NoxContextService {
 
     private func syncDerivedEnvironmentState(
         memoryReadiness: NoxMemoryReadiness,
-        emerging: [NoxEmergingMemoryObservation] = [],
-        maturity: NoxMemoryMaturity = .transient
+        emerging: [NoxEmergingMemoryObservation]? = nil,
+        maturity: NoxMemoryMaturity? = nil
     ) {
         guard let environment else { return }
+        let observations = emerging ?? environment.memoryEmergence.emergingObservations
+        let resolvedMaturity = maturity ?? environment.memoryEmergence.maturity
         environment.capabilityRows = NoxCapabilityMatrix.rows(
             capabilities: capabilities,
             memoryReadiness: memoryReadiness,
@@ -592,13 +625,32 @@ final class NoxContextService {
             readiness: memoryReadiness,
             liveSignalCount: liveBuffer.signals.count,
             continuityNote: continuityNote,
-            maturity: maturity,
-            emergingObservations: emerging
+            maturity: resolvedMaturity,
+            emergingObservations: observations
         )
-        environment.memoryMaturity = maturity
+        environment.memoryMaturity = resolvedMaturity
         environment.semanticHint = latestSemanticInference.shouldSurface
             ? primarySemanticHint()
             : nil
+    }
+
+    private func periodScopedEmergence(
+        period: NoxMemoryPeriod,
+        range: (start: Date, end: Date),
+        threads: [NoxContinuityThread],
+        stats: NoxMemoryDayStats
+    ) async -> (observations: [NoxEmergingMemoryObservation], maturity: NoxMemoryMaturity) {
+        let spans = (try? await memoryCoordinator.semanticSpans(from: range.start, to: range.end)) ?? []
+        let includeLive = period == .today
+        let result = NoxEmergingMemoryEngine.observe(
+            semanticSpans: spans,
+            openSpan: includeLive ? memoryCoordinator.currentOpenSemanticSpan : nil,
+            threads: threads,
+            stats: stats,
+            liveSignalCount: includeLive ? liveBuffer.signals.count : 0,
+            continuitySeconds: includeLive ? signalTracker.observationContinuitySeconds() : 0
+        )
+        return (result.observations, result.maturity)
     }
 
     private func ingestInteractionEvent(_ event: NoxEvent) {
@@ -969,9 +1021,57 @@ final class NoxContextService {
 
     private func refreshPrimaryExplanation() {
         guard let environment else { return }
+        if let connector = NoxConnectorExplainability.inferenceReason(
+            for: environment.connectorSnapshot
+        ) {
+            environment.primaryExplanation = connector
+            return
+        }
         environment.primaryExplanation = NoxExplainabilityPresenter.whySeeingLiveContext(
             inference: latestSemanticInference,
             awareness: environment.awarenessSnapshot
+        )
+    }
+
+    func requestCalendarAccess() async {
+        _ = await NoxCalendarContextProvider.requestAccessIfNeeded()
+        await reloadMemoryView()
+    }
+
+    func clearConnectorContinuity() async {
+        try? await connectorControl.clearConnectorDerived()
+        guard let environment else { return }
+        environment.connectorSnapshot = .empty
+        await reloadMemoryView()
+    }
+
+    private func refreshConnectorLayer(
+        spans: [NoxActivitySpan],
+        stats: NoxMemoryDayStats,
+        focus: NoxFocusAnalysis?,
+        range: (start: Date, end: Date)
+    ) async -> NoxConnectorContinuitySnapshot {
+        let stored = (try? await connectorSignalStore.recentCadencePatterns()) ?? []
+        let previousKind = ambientState.lastConnectorFocusKind.flatMap(NoxFocusBlockKind.init(rawValue:))
+        let gapHours: Double
+        if let started = ambientState.observationStartedAt {
+            gapHours = max(0, Date().timeIntervalSince(started) / 3600)
+        } else {
+            gapHours = 0
+        }
+
+        return await NoxConnectorContinuityOrchestrator.refresh(
+            preferences: preferences.connectors,
+            stats: stats,
+            focus: focus,
+            spans: spans,
+            range: range,
+            storedPatterns: stored,
+            recentDailyDensity: ambientState.recentConnectorDensities,
+            previousFocusKind: previousKind,
+            observationGapHours: gapHours,
+            lastInterventionAt: ambientState.lastConnectorInterventionAt,
+            signalStore: connectorSignalStore
         )
     }
 }

@@ -66,6 +66,16 @@ enum NoxTrustContent {
                 "No coaching, scoring, or optimization language",
                 "You can pause continuity or enter a quiet mode"
             ]
+        ),
+        NoxTrustSection(
+            id: "connectors",
+            title: "Connector awareness",
+            lines: [
+                "Calendar and communication signals stay generalized",
+                "Meeting titles and message bodies are not stored",
+                "Each connector category can be disabled independently",
+                "Connector-derived continuity can be cleared locally"
+            ]
         )
     ]
 }

@@ -137,7 +137,9 @@ struct NoxRestartRecoveryTests {
             observationStartedAt: nil,
             lastShutdownAt: Date().addingTimeInterval(-3600),
             recentBundleIds: ["com.apple.Safari"],
-            continuityNote: nil
+            continuityNote: nil,
+            lastMorningSummaryAt: nil,
+            lastResurfacingShownAt: nil
         )
 
         let result = try await NoxRestartRecovery.recover(

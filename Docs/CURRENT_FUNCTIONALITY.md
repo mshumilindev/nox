@@ -228,25 +228,38 @@ It is not a chatbot, cloud assistant, productivity scorer, screenshot recorder, 
 
 ## Persistence
 
-- Local SQLite stores: timeline, spans, semantic spans, sessions, ambient state, rollups, typed memories, **reflections**.
-- `NoxAmbientState` tracks restart continuity, morning summary timing, and resurfacing cooldowns.
+- Local SQLite stores: timeline, spans, semantic spans, sessions, ambient state, rollups, typed memories, **reflections**, **connector cadence patterns**.
+- `NoxAmbientState` tracks restart continuity, morning summary timing, resurfacing cooldowns, and connector intervention cooldowns.
+
+## Phase 9 — Connector-aware ambient continuity
+
+- **Calendar context** (`NoxCalendarContextProvider`, classifier, pressure analyzer): read-only EventKit timing; generalized states only (no title persistence).
+- **Communication pressure** (`NoxCommunicationPressureEngine`, cadence model): metadata from local activity spans — not inbox AI.
+- **Cadence** (`NoxCadenceEngine`, `NoxRhythmDetector`): work/recovery oscillation, coordination rhythms, instability — not health scoring.
+- **Transitions** (`NoxTransitionEngine`): deep work entry/exit, fragmentation, return-after-absence, passive-media shifts.
+- **Recovery signals** (`NoxRecoveryInferenceEngine`): calm overload inference with observational copy.
+- **Orchestration** (`NoxConnectorContinuityOrchestrator`): confidence-gated snapshot wired into reflective continuity and long-horizon enrichment.
+- **Interventions** (`NoxAmbientInterventionEngine`): rare, 6-hour cooldown, non-demanding banners on Now.
+- **Trust** (`NoxConnectorTrustControls`): per-connector toggles, enrichment pause, clear connector-derived continuity.
+- **Explainability** (`NoxConnectorExplainability`): provenance for what was and was not collected.
+- **UI**: sparse cadence/pressure cards on Now; cadence enrichment on Patterns; connector rows in Trust.
 
 ## Testing
 
-- Unit tests cover presence, memory, continuity, context QA, and **reflective continuity** (morning copy, emerging memory, arcs, reflection cooldown).
+- Unit tests cover presence, memory, continuity, context QA, reflective continuity, and **Phase 9 connectors** (calendar generalization, communication copy, intervention cooldown, enrichment pause).
 - UI test files exist; product strategy avoids brittle layout UI tests as primary validation.
 
 ## Current Gaps And Risks
 
 - Reflection synthesis is deterministic only; optional LLM pass is not integrated.
 - Long-horizon surface may need visual density tuning as memory grows.
-- No external connector layer (calendar, mail, Jira, browser APIs beyond local inference).
+- Mail/Slack native metadata connectors are not integrated; communication pressure uses local activity proxies.
 - No cloud sync, encrypted export, or backup workflow.
-- Permission onboarding may still need product polish.
+- Calendar permission onboarding may still need product polish.
 
 ## Best Next-Step Candidates
 
 - Optional on-device reflective synthesis pass (still non-chat).
-- Connector intake as secondary signals.
+- Additional passive connectors (Mail/Slack metadata) with the same generalized-state contract.
 - Stronger permission/onboarding for awareness tiers.
 - Visual polish for semantic arc topology.

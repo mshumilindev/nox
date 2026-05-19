@@ -29,6 +29,17 @@ final class NoxMemoryCoordinator {
     }
 
     var continuity: NoxContinuityEngine { continuityEngine }
+    var currentOpenSemanticSpan: NoxSemanticMemorySpan? { semanticEngine.currentOpenSpan }
+
+    func semanticSpans(
+        from start: Date,
+        to end: Date
+    ) async throws -> [NoxSemanticMemorySpan] {
+        try await semanticEngine.loadSpans(from: start, to: end)
+            .filter { span in
+                !span.appNames.contains { NoxSelfExclusion.isExcluded(bundleId: nil, appName: $0) }
+            }
+    }
 
     func clearRecentActivity(from start: Date, to end: Date) async throws -> Int {
         try await memoryStore.deleteSpans(inRange: start, to: end)
@@ -142,11 +153,19 @@ final class NoxMemoryCoordinator {
         }
     }
 
+    func activitySpans(period: NoxMemoryPeriod) async throws -> [NoxActivitySpan] {
+        let range = period.dateRange()
+        let spans = try await memoryStore.spans(from: range.start, to: range.end)
+        return spans.filter {
+            !NoxSelfExclusion.isExcluded(bundleId: $0.bundleId, appName: $0.appName)
+        }
+    }
+
     func loadView(
         period: NoxMemoryPeriod,
         query: NoxMemoryQuery
     ) async throws -> (
-        blocks: [NoxTimelineBlockItem],
+        sections: [NoxTimelineSection],
         stats: NoxMemoryDayStats,
         focus: NoxFocusAnalysis,
         continuityThreads: [NoxContinuityThread]
@@ -179,7 +198,7 @@ final class NoxMemoryCoordinator {
         let storedBlocks = try await memoryStore.focusBlocks(from: range.start, to: range.end)
         try await continuityEngine.runDecayPass(at: range.end)
         let continuityThreads = try await continuityEngine.loadThreads(from: range.start, to: range.end)
-        let blocks = NoxTimelineBlockPresenter.makeBlocks(
+        let sections = NoxTimelineBlockPresenter.makeSections(
             spans: spans,
             focusBlocks: storedBlocks.isEmpty ? analysis.blocks : storedBlocks,
             interruptions: interruptions,
@@ -192,7 +211,7 @@ final class NoxMemoryCoordinator {
             focusBlocks: storedBlocks.isEmpty ? analysis.blocks : storedBlocks,
             interruptions: interruptions
         )
-        return (blocks, stats, analysis.live, continuityThreads)
+        return (sections, stats, analysis.live, continuityThreads)
     }
 
     func loadReflectiveContinuity(
@@ -206,6 +225,7 @@ final class NoxMemoryCoordinator {
         lastResurfacingShownAt: Date?,
         liveSignalCount: Int,
         continuitySeconds: TimeInterval,
+        connectorSnapshot: NoxConnectorContinuitySnapshot = .empty,
         at date: Date = Date()
     ) async throws -> NoxReflectiveContinuityBundle {
         let lookback = date.addingTimeInterval(-14 * 24 * 3600)
@@ -239,6 +259,7 @@ final class NoxMemoryCoordinator {
             lastResurfacingShownAt: lastResurfacingShownAt,
             liveSignalCount: liveSignalCount,
             continuitySeconds: continuitySeconds,
+            connectorSnapshot: connectorSnapshot,
             at: date
         )
     }

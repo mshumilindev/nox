@@ -55,6 +55,10 @@ enum NoxExplainabilityPresenter {
         )
     }
 
+    static func whyConnectorSignal(_ snapshot: NoxConnectorContinuitySnapshot) -> NoxInferenceReason? {
+        NoxConnectorExplainability.inferenceReason(for: snapshot)
+    }
+
     static func whyMemorySpan(_ span: NoxSemanticMemorySpan) -> NoxInferenceReason {
         let detail = span.sensitivityLevel != .normal
             ? NoxSemanticVisibilityPresenter.mode(for: span.sensitivityLevel).detail

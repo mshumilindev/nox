@@ -20,11 +20,13 @@ struct NoxPatternsSurfaceView: View {
                             VStack(alignment: .leading, spacing: NoxSpacing.xxs) {
                                 Text(pattern.title)
                                     .font(NoxTypography.continuityDetail)
-                                if let detail = pattern.detail {
-                                    Text(detail)
-                                        .noxMetadata()
-                                }
+                                    .lineLimit(1)
+                                NoxFixedLineText(
+                                    text: pattern.detail,
+                                    color: NoxDesignTokens.ColorRole.textSecondary.opacity(0.52)
+                                )
                             }
+                            .frame(minHeight: NoxSurfaceLayout.arcCardMinHeight, alignment: .topLeading)
                             .noxSurface(.standard)
                         }
                     }
@@ -51,6 +53,29 @@ struct NoxPatternsSurfaceView: View {
                     NoxCollapsibleSection(title: "Rhythms", defaultExpanded: false) {
                         ForEach(snapshot.behavioralRhythms) { rhythm in
                             NoxBehavioralRhythmCard(entity: rhythm)
+                        }
+                    }
+                }
+
+                if !snapshot.connectorCadencePatterns.isEmpty {
+                    NoxCollapsibleSection(title: "Cadence", defaultExpanded: false) {
+                        ForEach(snapshot.connectorCadencePatterns) { pattern in
+                            Text(pattern.label)
+                                .font(NoxTypography.continuityDetail)
+                                .lineLimit(2)
+                                .frame(minHeight: NoxSurfaceLayout.arcCardMinHeight, alignment: .topLeading)
+                                .frame(maxWidth: .infinity, alignment: .leading)
+                                .noxSurface(.standard)
+                        }
+                    }
+                }
+
+                if !snapshot.connectorEnrichmentNotes.isEmpty {
+                    NoxCollapsibleSection(title: "Continuity enrichment", defaultExpanded: false) {
+                        ForEach(snapshot.connectorEnrichmentNotes, id: \.self) { note in
+                            Text(note)
+                                .noxMetadata()
+                                .noxSurface(.soft)
                         }
                     }
                 }

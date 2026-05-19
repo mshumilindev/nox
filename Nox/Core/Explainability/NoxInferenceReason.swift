@@ -13,4 +13,5 @@ enum NoxExplanationSource: String, Sendable {
     case continuityThread
     case reflection
     case emergence
+    case connectorSignal
 }

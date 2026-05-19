@@ -30,4 +30,11 @@ enum NoxSpacing {
 enum NoxSurfaceLayout {
     static let contentMaxReadable: CGFloat = 520
     static let gridMinCell: CGFloat = 200
+
+    /// Semantic arc / pattern cards in a grid share this minimum height.
+    static let arcCardMinHeight: CGFloat = 96
+
+    /// Each timeline fragment reserves title + two metadata lines.
+    static let timelineFragmentMinHeight: CGFloat = 56
+    static let timelineMetadataLineHeight: CGFloat = 16
 }
