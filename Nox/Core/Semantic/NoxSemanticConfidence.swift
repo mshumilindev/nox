@@ -1,6 +1,6 @@
 import Foundation
 
-enum NoxSemanticConfidence {
+nonisolated enum NoxSemanticConfidence {
     static let surfaceThreshold = 0.45
     static let liveSignalThreshold = 0.62
     static let memorySpanThreshold = 0.38

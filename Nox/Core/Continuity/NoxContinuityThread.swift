@@ -1,6 +1,6 @@
 import Foundation
 
-struct NoxContinuityThread: Identifiable, Equatable, Sendable {
+nonisolated struct NoxContinuityThread: Identifiable, Equatable, Sendable {
     let id: String
     var semanticType: NoxContinuitySemanticType
     var title: String

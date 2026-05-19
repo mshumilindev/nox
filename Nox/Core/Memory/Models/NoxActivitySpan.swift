@@ -1,6 +1,6 @@
 import Foundation
 
-struct NoxActivitySpan: Identifiable, Equatable, Codable, Sendable {
+nonisolated struct NoxActivitySpan: Identifiable, Equatable, Codable, Sendable {
     let id: String
     var startedAt: Date
     var endedAt: Date?

@@ -10,7 +10,6 @@ nonisolated enum NoxDecompressionMaturityEngine {
         recovery: NoxRecoveryWindowModel
     ) -> NoxRecoveryQualityModel {
         let fragmented = focus?.kind == .fragmented || stats.fragmentedMs > stats.focusedMs
-        let passive = behavioral.signatures.contains { $0.kind == .passiveDecompression }
         let overload = behavioral.orchestration.signals.contains { $0.kind == .overloadRiskElevation }
 
         if base.overloadAfterCoordination && base.passiveCollapseLoop {

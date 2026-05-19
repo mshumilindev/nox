@@ -41,6 +41,7 @@ final class AppEnvironment {
     var connectorSnapshot: NoxConnectorContinuitySnapshot = .empty
     var behavioralSnapshot: NoxBehavioralIntelligenceSnapshot = .empty
     var ambientUtilitySnapshot: NoxAmbientUtilitySnapshot = .empty
+    var memoryEvolutionSnapshot: NoxMemoryEvolutionSnapshot = .neutral
 
     var activeAppName: String?
     var activeBundleId: String?
@@ -59,6 +60,7 @@ final class AppEnvironment {
 
     private let contextService = NoxContextService()
     private var didStart = false
+    private var startTask: Task<Void, Never>?
 
     init() {
         let bundle = Bundle.main
@@ -71,11 +73,26 @@ final class AppEnvironment {
     }
 
     func startIfNeeded() {
-        guard !didStart else { return }
+        guard startTask == nil else { return }
         didStart = true
-        Task {
+        startTask = Task { @MainActor in
             await contextService.start()
         }
+    }
+
+    /// Ensures persisted preferences (including window mode) are loaded before showing the dashboard.
+    func prepareForDashboard() async {
+        startIfNeeded()
+        await startTask?.value
+        syncDashboardWindowFrame(animated: false)
+    }
+
+    func syncDashboardWindowFrame(animated: Bool = false) {
+        NoxAppRuntime.panelState.applyWindowMode(
+            preferences.windowMode,
+            using: self,
+            animated: animated
+        )
     }
 
     func refreshPermissions() {
@@ -106,7 +123,7 @@ final class AppEnvironment {
 
     func setWindowMode(_ mode: NoxWindowMode) {
         mutatePreferences { $0.windowMode = mode }
-        NoxAppRuntime.panelState.applyWindowMode(mode, using: self)
+        NoxAppRuntime.panelState.applyWindowMode(mode, using: self, animated: true)
     }
 
     func setNavigationDestination(_ destination: NoxSemanticDestination) {

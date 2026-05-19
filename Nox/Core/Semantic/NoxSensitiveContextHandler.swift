@@ -1,6 +1,6 @@
 import Foundation
 
-enum NoxSensitiveContextHandler {
+nonisolated enum NoxSensitiveContextHandler {
   private static let adultHosts: Set<String> = [
     "pornhub.com", "xvideos.com", "xhamster.com", "redtube.com",
     "onlyfans.com", "chaturbate.com"

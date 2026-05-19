@@ -1,6 +1,6 @@
 import Foundation
 
-struct NoxAppClassifier {
+nonisolated struct NoxAppClassifier {
     func classify(bundleId: String, appName: String, windowTitle: String?) -> NoxActivityCategory {
         if NoxSelfExclusion.isExcluded(bundleId: bundleId, appName: appName) {
             return .systemInternal

@@ -1,6 +1,6 @@
 import Foundation
 
-enum NoxAmbientInterventionEngine {
+nonisolated enum NoxAmbientInterventionEngine {
 
     private static let cooldown: TimeInterval = 6 * 3600
 

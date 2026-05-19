@@ -1,6 +1,6 @@
 import Foundation
 
-struct NoxTitleClassifier {
+nonisolated struct NoxTitleClassifier {
     func refineBrowserCategory(title: String, defaultCategory: NoxActivityCategory) -> NoxActivityCategory {
         let lower = title.lowercased()
         if lower.contains("chatgpt") || lower.contains("openai") { return .research }

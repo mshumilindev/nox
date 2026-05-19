@@ -1,6 +1,6 @@
 import Foundation
 
-enum NoxTimelineActivityDeduper {
+nonisolated enum NoxTimelineActivityDeduper {
 
     /// Drops raw activity spans already represented by a semantic span on the same time window.
     static func filter(

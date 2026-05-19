@@ -18,10 +18,3 @@ nonisolated enum NoxBehavioralIntelligenceEnricher {
             .map { $0 }
     }
 }
-
-private extension Array where Element == String {
-    func uniqued() -> [String] {
-        var seen = Set<String>()
-        return filter { seen.insert($0).inserted }
-    }
-}

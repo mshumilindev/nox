@@ -1,6 +1,6 @@
 import Foundation
 
-struct NoxFocusAnalysis: Equatable, Sendable {
+nonisolated struct NoxFocusAnalysis: Equatable, Sendable {
     let kind: NoxFocusBlockKind?
     let uninterruptedMs: Int
     let switchCount: Int

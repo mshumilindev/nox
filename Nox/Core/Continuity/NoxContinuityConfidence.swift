@@ -1,6 +1,6 @@
 import Foundation
 
-enum NoxContinuityConfidence {
+nonisolated enum NoxContinuityConfidence {
     static let matchThreshold = 0.55
     static let attachThreshold = 0.62
     static let resurfaceThreshold = 0.72

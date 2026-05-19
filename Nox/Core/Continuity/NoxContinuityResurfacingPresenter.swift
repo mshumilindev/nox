@@ -1,6 +1,6 @@
 import Foundation
 
-enum NoxContinuityResurfacingPresenter {
+nonisolated enum NoxContinuityResurfacingPresenter {
 
     static func resurfacing(
         for thread: NoxContinuityThread,

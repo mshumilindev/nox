@@ -322,6 +322,22 @@ Calibration layer in `Nox/Core/AmbientUtility/Calibration/`:
 - **Long-horizon relevance** (`NoxLongHorizonRelevanceEngine`): cumulative thread/arc prioritization for long-horizon surfaces.
 - **Orchestration** (`NoxAmbientUtilityCalibrationOrchestrator`): runs after Phase 11 base refresh on every memory reload.
 
+## Phase 12 — Long-term memory evolution
+
+Module: `Nox/Core/MemoryEvolution/`
+
+- **Memory aging** (`NoxMemoryAgingEngine`, `NoxMemoryDecayModel`, `NoxTemporalDistanceModel`): gradual fade bands (active, fading, dormant, archival, resurfacing) with temporal distance — not static storage.
+- **Long-horizon continuity** (`NoxLongHorizonContinuityEngine`): multi-month recurring structures and cadence evolution.
+- **Identity consistency** (`NoxIdentityContinuityEngine`, `NoxBehavioralConsistencyModel`): stable rhythm and recovery tendencies — not personality typing.
+- **Era evolution** (`NoxEraEvolutionEngine`, `NoxEraTransitionModel`): soft overlapping era resonance from typed memories.
+- **Unresolved persistence** (`NoxUnresolvedPersistenceEngine`): long-gap continuity that stays open vs brief interruption.
+- **Memory ecology** (`NoxMemoryEcologyEngine`): cross-influence between strengthening and fading structures.
+- **Temporal weight evolution** (`NoxTemporalWeightEvolutionEngine`): importance accrues/decays over months from recurrence, resilience, and resurfacing.
+- **Continuity resilience** (`NoxContinuityResilienceEngine`): durability across interruptions and overload.
+- **Long-term resurfacing** (`NoxLongTermResurfacingEngine`): rare dormant-return notes (7-day cooldown) — quiet, meaningful.
+- **Temporal coherence** (`NoxTemporalCoherenceEngine`, `NoxMemoryEvolutionOrchestrator`): global sparse tuning pass; state persisted in `NoxAmbientState.memoryEvolution`.
+- **Integration**: runs after utility calibration; feeds long-horizon loader priorities, reflective resurfacing, and Patterns “Temporal continuity” section.
+
 ## Interaction & Hover
 
 - `NoxBorderlessPressStyle` — press feedback + ambient hover on **Button** labels only.

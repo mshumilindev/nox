@@ -13,7 +13,7 @@ struct NoxSemanticNavigationRail: View {
         .font(NoxTypography.wordmark)
         .foregroundStyle(NoxDesignTokens.ColorRole.textPrimary.opacity(0.88))
         .padding(.horizontal, NoxSpacing.md)
-        .padding(.top, NoxSpacing.md)
+        .padding(.top, NoxTitlebarLayout.chromeVerticalPadding(compact: false))
         .padding(.bottom, NoxSpacing.lg)
 
       navGroup(primary)
@@ -23,8 +23,6 @@ struct NoxSemanticNavigationRail: View {
       navGroup(system)
 
       Spacer(minLength: NoxSpacing.md)
-
-      localAnchor
     }
     .frame(width: NoxMaterials.railWidth)
     .background(NoxDesignTokens.ColorRole.rail)
@@ -94,12 +92,4 @@ struct NoxSemanticNavigationRail: View {
     .buttonStyle(.noxBorderless(hover: .row, isSelected: selected))
   }
 
-  private var localAnchor: some View {
-    Text("On device")
-      .font(NoxTypography.caption)
-      .foregroundStyle(NoxDesignTokens.ColorRole.textSecondary.opacity(0.48))
-      .padding(.horizontal, NoxSpacing.md)
-      .padding(.bottom, NoxSpacing.lg)
-      .allowsHitTesting(false)
-  }
 }

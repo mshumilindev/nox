@@ -18,6 +18,7 @@ nonisolated struct NoxAmbientState: Codable, Equatable, Sendable {
     var lastContextualNudgeAt: Date?
     var recentNotificationKinds: [String]
     var ambientTrust: NoxAmbientTrustState
+    var memoryEvolution: NoxMemoryEvolutionState
 
     init(
         lastPresence: String?,
@@ -36,7 +37,8 @@ nonisolated struct NoxAmbientState: Codable, Equatable, Sendable {
         lastAmbientNotificationAt: Date? = nil,
         lastContextualNudgeAt: Date? = nil,
         recentNotificationKinds: [String] = [],
-        ambientTrust: NoxAmbientTrustState = .initial
+        ambientTrust: NoxAmbientTrustState = .initial,
+        memoryEvolution: NoxMemoryEvolutionState = .initial
     ) {
         self.lastPresence = lastPresence
         self.lastActiveAppName = lastActiveAppName
@@ -55,6 +57,7 @@ nonisolated struct NoxAmbientState: Codable, Equatable, Sendable {
         self.lastContextualNudgeAt = lastContextualNudgeAt
         self.recentNotificationKinds = recentNotificationKinds
         self.ambientTrust = ambientTrust
+        self.memoryEvolution = memoryEvolution
     }
 
     static let empty = NoxAmbientState(
@@ -74,7 +77,8 @@ nonisolated struct NoxAmbientState: Codable, Equatable, Sendable {
         lastAmbientNotificationAt: nil,
         lastContextualNudgeAt: nil,
         recentNotificationKinds: [],
-        ambientTrust: .initial
+        ambientTrust: .initial,
+        memoryEvolution: .initial
     )
 
     init(from decoder: Decoder) throws {
@@ -96,6 +100,7 @@ nonisolated struct NoxAmbientState: Codable, Equatable, Sendable {
         lastContextualNudgeAt = try container.decodeIfPresent(Date.self, forKey: .lastContextualNudgeAt)
         recentNotificationKinds = try container.decodeIfPresent([String].self, forKey: .recentNotificationKinds) ?? []
         ambientTrust = try container.decodeIfPresent(NoxAmbientTrustState.self, forKey: .ambientTrust) ?? .initial
+        memoryEvolution = try container.decodeIfPresent(NoxMemoryEvolutionState.self, forKey: .memoryEvolution) ?? .initial
     }
 }
 

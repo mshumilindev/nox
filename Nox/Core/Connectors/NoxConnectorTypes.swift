@@ -20,7 +20,7 @@ nonisolated struct NoxConnectorPreferences: Codable, Equatable, Sendable {
     )
 }
 
-struct NoxGeneralizedSignal: Identifiable, Codable, Equatable, Sendable {
+nonisolated struct NoxGeneralizedSignal: Identifiable, Codable, Equatable, Sendable {
     let id: String
     let kind: NoxConnectorKind
     let label: String
@@ -28,7 +28,7 @@ struct NoxGeneralizedSignal: Identifiable, Codable, Equatable, Sendable {
     let observedAt: Date
 }
 
-struct NoxPressureSignal: Identifiable, Codable, Equatable, Sendable {
+nonisolated struct NoxPressureSignal: Identifiable, Codable, Equatable, Sendable {
     let id: String
     let kind: NoxConnectorKind
     let label: String
@@ -50,7 +50,7 @@ nonisolated struct NoxCadencePattern: Identifiable, Codable, Equatable, Sendable
     let horizonDays: Int
 }
 
-struct NoxTransitionEvent: Identifiable, Codable, Equatable, Sendable {
+nonisolated struct NoxTransitionEvent: Identifiable, Codable, Equatable, Sendable {
     let id: String
     let kind: NoxTransitionKind
     let label: String
@@ -69,21 +69,28 @@ enum NoxTransitionKind: String, Codable, Sendable {
     case travelLikeShift
 }
 
-struct NoxOverloadSignal: Identifiable, Codable, Equatable, Sendable {
+nonisolated struct NoxOverloadSignal: Identifiable, Codable, Equatable, Sendable {
     let id: String
     let label: String
     let confidence: Double
     let observedAt: Date
 }
 
-struct NoxConnectorExplainabilitySummary: Equatable, Sendable {
+nonisolated struct NoxConnectorExplainabilitySummary: Equatable, Sendable {
     let contributedCategories: [NoxConnectorKind]
     let collectedSummary: String
     let notCollectedSummary: String
     let provenanceLines: [String]
+
+    static let empty = NoxConnectorExplainabilitySummary(
+        contributedCategories: [],
+        collectedSummary: "No connector signals in this refresh.",
+        notCollectedSummary: "Email bodies, message text, and meeting titles are not stored.",
+        provenanceLines: []
+    )
 }
 
-struct NoxConnectorContinuitySnapshot: Equatable, Sendable {
+nonisolated struct NoxConnectorContinuitySnapshot: Equatable, Sendable {
     let generalizedSignals: [NoxGeneralizedSignal]
     let pressureSignals: [NoxPressureSignal]
     let cadencePatterns: [NoxCadencePattern]
@@ -105,16 +112,7 @@ struct NoxConnectorContinuitySnapshot: Equatable, Sendable {
     )
 }
 
-extension NoxConnectorExplainabilitySummary {
-    static let empty = NoxConnectorExplainabilitySummary(
-        contributedCategories: [],
-        collectedSummary: "No connector signals in this refresh.",
-        notCollectedSummary: "Email bodies, message text, and meeting titles are not stored.",
-        provenanceLines: []
-    )
-}
-
-struct NoxAmbientIntervention: Identifiable, Equatable, Sendable {
+nonisolated struct NoxAmbientIntervention: Identifiable, Equatable, Sendable {
     let id: String
     let label: String
     let detail: String

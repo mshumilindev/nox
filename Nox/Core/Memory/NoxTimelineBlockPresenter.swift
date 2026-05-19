@@ -1,6 +1,6 @@
 import Foundation
 
-enum NoxTimelineBlockPresenter {
+nonisolated enum NoxTimelineBlockPresenter {
 
     static func makeSections(
         spans: [NoxActivitySpan],

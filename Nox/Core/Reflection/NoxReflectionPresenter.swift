@@ -1,6 +1,6 @@
 import Foundation
 
-enum NoxReflectionPresenter {
+nonisolated enum NoxReflectionPresenter {
     static let defaultDetailLine = "Grounded in recent local memory — not advice."
 
     static func distinct(_ reflections: [NoxReflectionCandidate], limit: Int = 4) -> [NoxReflectionCandidate] {

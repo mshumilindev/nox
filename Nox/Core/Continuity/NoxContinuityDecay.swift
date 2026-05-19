@@ -1,6 +1,6 @@
 import Foundation
 
-enum NoxContinuityDecay {
+nonisolated enum NoxContinuityDecay {
     private static let activeHours: TimeInterval = 24 * 3600
     private static let fadingDays: TimeInterval = 7 * 24 * 3600
     private static let dormantDays: TimeInterval = 30 * 24 * 3600

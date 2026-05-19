@@ -1,7 +1,7 @@
 import Foundation
 
 /// Calm, human-facing semantic labels — memory, not telemetry.
-enum NoxSemanticLabelCatalog {
+nonisolated enum NoxSemanticLabelCatalog {
 
     // MARK: - Memory block titles
 

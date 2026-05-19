@@ -112,7 +112,7 @@ enum NoxAmbientUtilityCalibrationOrchestrator {
         var notificationDelivered = false
         var notificationSuppressed = base.notificationCandidate != nil && refined.notificationCandidate == nil
 
-        if var candidate = refined.notificationCandidate {
+        if let candidate = refined.notificationCandidate {
             let coordinator = NoxNotificationCooldownCoordinator(ambientState: ambientState)
             let cooldownMultiplier = NoxNotificationFatigueModel.cooldownMultiplier(
                 fatigue: fatigue,

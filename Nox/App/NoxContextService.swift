@@ -51,6 +51,7 @@ final class NoxContextService {
     )
     private let retentionPolicy = NoxMemoryRetentionPolicy.default
     private weak var environment: AppEnvironment?
+    private var eventBusSubscriptionID: UUID?
 
     func bind(environment: AppEnvironment) {
         self.environment = environment
@@ -74,6 +75,7 @@ final class NoxContextService {
             try await behavioralSignalStore.open()
             preferences = (try? await preferencesStore.loadPreferences()) ?? .default
             environment?.preferences = preferences
+            environment?.syncDashboardWindowFrame(animated: false)
             await hydrateFromPersistence()
             scheduleMemoryMaintenance()
         } catch {
@@ -82,7 +84,7 @@ final class NoxContextService {
             environment?.memoryReadiness = .observing
         }
 
-        _ = eventBus.subscribe { [weak self] event in
+        eventBusSubscriptionID = eventBus.subscribe { [weak self] event in
             Task { @MainActor in
                 await self?.handle(event)
             }
@@ -90,12 +92,12 @@ final class NoxContextService {
 
         activityObserver.start(
             onEvent: { [weak self] event in
-                Task { @MainActor in
+                Task { @MainActor [weak self] in
                     self?.eventBus.publish(event)
                 }
             },
             onSnapshot: { [weak self] snapshot in
-                Task { @MainActor in
+                Task { @MainActor [weak self] in
                     await self?.ingestSnapshot(snapshot)
                 }
             }
@@ -212,6 +214,16 @@ final class NoxContextService {
             )
             environment.ambientUtilitySnapshot = utilitySnapshot
 
+            let memoryEvolution = await refreshMemoryEvolutionLayer(
+                threads: view.continuityThreads,
+                arcs: continuityArcs,
+                behavioralSnapshot: behavioralSnapshot,
+                utilitySnapshot: utilitySnapshot,
+                focus: view.focus,
+                at: date
+            )
+            environment.memoryEvolutionSnapshot = memoryEvolution
+
             if !preferences.connectors.continuityEnrichmentPaused {
                 let intervention = utilitySnapshot.refinedIntervention
                     ?? behavioralSnapshot.recommendedIntervention
@@ -234,7 +246,8 @@ final class NoxContextService {
                 connectorSnapshot: connectorSnapshot,
                 behavioralSnapshot: behavioralSnapshot,
                 calmnessProfile: utilitySnapshot.calmness,
-                utilityCalibration: utilitySnapshot.calibration
+                utilityCalibration: utilitySnapshot.calibration,
+                memoryEvolution: memoryEvolution
             )
             environment.longHorizonSnapshot = reflective.longHorizon
             environment.morningSummary = reflective.morningSummary
@@ -1168,6 +1181,36 @@ final class NoxContextService {
         )
         ambientState.ambientTrust = trust
         return calibrated
+    }
+
+    private func refreshMemoryEvolutionLayer(
+        threads: [NoxContinuityThread],
+        arcs: [NoxSemanticArc],
+        behavioralSnapshot: NoxBehavioralIntelligenceSnapshot,
+        utilitySnapshot: NoxAmbientUtilitySnapshot,
+        focus: NoxFocusAnalysis?,
+        at date: Date
+    ) async -> NoxMemoryEvolutionSnapshot {
+        guard !preferences.connectors.continuityEnrichmentPaused else {
+            return .neutral
+        }
+
+        let typedMemories = (try? await memoryCoordinator.recentTypedMemories(limit: 40)) ?? []
+        var evolutionState = ambientState.memoryEvolution
+        let snapshot = NoxMemoryEvolutionOrchestrator.evolve(
+            threads: threads,
+            arcs: arcs,
+            typedMemories: typedMemories,
+            gravity: ambientState.ambientTrust.continuityGravity,
+            behavioral: behavioralSnapshot,
+            calibration: utilitySnapshot.calibration,
+            focus: focus,
+            stored: &evolutionState,
+            calmnessAllowsResurfacing: utilitySnapshot.calmness.allowsResurfacing,
+            at: date
+        )
+        ambientState.memoryEvolution = evolutionState
+        return snapshot
     }
 
     private func deliverAmbientNotificationIfNeeded(

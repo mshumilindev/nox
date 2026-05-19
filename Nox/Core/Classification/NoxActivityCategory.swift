@@ -1,6 +1,6 @@
 import Foundation
 
-enum NoxActivityCategory: String, Codable, CaseIterable, Sendable {
+nonisolated enum NoxActivityCategory: String, Codable, CaseIterable, Sendable {
     case productivity
     case development
     case research

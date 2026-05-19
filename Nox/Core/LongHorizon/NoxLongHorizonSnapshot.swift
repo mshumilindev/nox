@@ -23,6 +23,7 @@ struct NoxLongHorizonSnapshot: Equatable, Sendable {
     let temporalRhythmInsights: [NoxTemporalRhythmInsight]
     let lifeStructureCandidates: [NoxLifeStructureCandidate]
     let behavioralDrift: NoxBehavioralDriftInsight?
+    let memoryEvolution: NoxMemoryEvolutionSnapshot
 
     static let empty = NoxLongHorizonSnapshot(
         activeThreads: [],
@@ -39,6 +40,7 @@ struct NoxLongHorizonSnapshot: Equatable, Sendable {
         behavioralSignatures: [],
         temporalRhythmInsights: [],
         lifeStructureCandidates: [],
-        behavioralDrift: nil
+        behavioralDrift: nil,
+        memoryEvolution: .neutral
     )
 }

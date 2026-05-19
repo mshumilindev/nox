@@ -58,7 +58,7 @@ enum NoxAmbientUtilityOrchestrator {
             structural: structural
         )
 
-        var rawNudges = NoxContinuityNudgeEngine.build(
+        let rawNudges = NoxContinuityNudgeEngine.build(
             unfinished: unfinished,
             structural: structural,
             decompression: decompression,
@@ -130,7 +130,7 @@ enum NoxAmbientUtilityOrchestrator {
         receptiveness: NoxInterventionReceptiveness,
         preferSilence: Bool
     ) -> NoxAmbientIntervention? {
-        guard var proposed else { return nil }
+        guard let proposed else { return nil }
         if preferSilence { return nil }
         if !receptiveness.allowsIntervention { return nil }
         if calmness.interventionProbability < 0.35 { return nil }

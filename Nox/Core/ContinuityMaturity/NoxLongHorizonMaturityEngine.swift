@@ -76,14 +76,37 @@ nonisolated enum NoxLongHorizonMaturityEngine {
             behavioralSignatures: Array(humbledSignatures),
             temporalRhythmInsights: Array(snapshot.temporalRhythmInsights.prefix(2)),
             lifeStructureCandidates: Array(structures),
-            behavioralDrift: drift
+            behavioralDrift: drift,
+            memoryEvolution: matureEvolution(snapshot.memoryEvolution)
         )
     }
-}
 
-private extension Array where Element == String {
-    func uniqued() -> [String] {
-        var seen = Set<String>()
-        return filter { seen.insert($0.lowercased()).inserted }
+    private static func matureEvolution(_ evolution: NoxMemoryEvolutionSnapshot) -> NoxMemoryEvolutionSnapshot {
+        NoxMemoryEvolutionSnapshot(
+            agingProfiles: evolution.agingProfiles,
+            longHorizonStructures: evolution.longHorizonStructures
+                .map { NoxReflectiveLanguageSoftener.soften($0) },
+            identityInsights: evolution.identityInsights
+                .map { NoxIdentityContinuityInsight(line: NoxReflectiveLanguageSoftener.soften($0.line), confidence: $0.confidence) },
+            eraHints: evolution.eraHints,
+            unresolvedSignals: evolution.unresolvedSignals
+                .map { NoxUnresolvedContinuitySignal(
+                    subjectId: $0.subjectId,
+                    persistenceScore: $0.persistenceScore,
+                    detail: NoxReflectiveLanguageSoftener.soften($0.detail)
+                ) },
+            ecologyNotes: evolution.ecologyNotes
+                .map { NoxReflectiveLanguageSoftener.soften($0) },
+            temporalWeights: evolution.temporalWeights,
+            resilienceScores: evolution.resilienceScores,
+            longTermResurfacingNotes: evolution.longTermResurfacingNotes
+                .map { NoxBehavioralHumilityLayer.softenResurfacingNote($0) }
+                .filter { !$0.isEmpty },
+            temporalCoherenceLine: evolution.temporalCoherenceLine
+                .map { NoxReflectiveLanguageSoftener.soften($0) },
+            prioritizedThreadIds: evolution.prioritizedThreadIds,
+            prioritizedArcIds: evolution.prioritizedArcIds,
+            preferSparseSurfaces: evolution.preferSparseSurfaces
+        )
     }
 }

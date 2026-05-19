@@ -1,6 +1,6 @@
 import Foundation
 
-struct NoxReflectionCandidate: Identifiable, Equatable, Sendable, Codable {
+nonisolated struct NoxReflectionCandidate: Identifiable, Equatable, Sendable, Codable {
     let id: String
     let text: String
     let detailLine: String
@@ -25,7 +25,7 @@ struct NoxReflectionCandidate: Identifiable, Equatable, Sendable, Codable {
     }
 }
 
-struct NoxReflectionInput: Equatable, Sendable {
+nonisolated struct NoxReflectionInput: Equatable, Sendable {
     let periodLabel: String
     let semanticThemes: [String]
     let continuityResumptions: Int

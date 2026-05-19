@@ -7,6 +7,16 @@ struct NoxPatternsSurfaceView: View {
         environment.longHorizonSnapshot
     }
 
+    private var memoryEvolution: NoxMemoryEvolutionSnapshot {
+        snapshot.memoryEvolution
+    }
+
+    private var showsTemporalContinuity: Bool {
+        memoryEvolution.temporalCoherenceLine != nil
+            || !memoryEvolution.longHorizonStructures.isEmpty
+            || !memoryEvolution.identityInsights.isEmpty
+    }
+
     var body: some View {
         NoxSurfacePage {
             if snapshot.emergingPatterns.isEmpty
@@ -114,6 +124,32 @@ struct NoxPatternsSurfaceView: View {
                             Text(note)
                                 .noxMetadata()
                                 .noxSurface(.soft)
+                        }
+                    }
+                }
+
+                if showsTemporalContinuity {
+                    NoxCollapsibleSection(title: "Temporal continuity", defaultExpanded: false) {
+                        if let line = memoryEvolution.temporalCoherenceLine {
+                            NoxFixedLineText(
+                                text: line,
+                                color: NoxDesignTokens.ColorRole.textSecondary.opacity(0.52)
+                            )
+                            .noxSurface(.soft)
+                        }
+                        ForEach(memoryEvolution.longHorizonStructures, id: \.self) { structure in
+                            NoxFixedLineText(
+                                text: structure,
+                                color: NoxDesignTokens.ColorRole.textSecondary.opacity(0.52)
+                            )
+                            .noxSurface(.standard)
+                        }
+                        ForEach(memoryEvolution.identityInsights, id: \.line) { insight in
+                            NoxFixedLineText(
+                                text: insight.line,
+                                color: NoxDesignTokens.ColorRole.textSecondary.opacity(0.52)
+                            )
+                            .noxSurface(.standard)
                         }
                     }
                 }

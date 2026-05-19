@@ -16,13 +16,17 @@ enum NoxLongHorizonLoader {
         connectorEnrichmentNotes: [String] = [],
         behavioral: NoxBehavioralIntelligenceSnapshot = .empty,
         utilityCalibration: NoxAmbientUtilityCalibration = .neutral,
+        memoryEvolution: NoxMemoryEvolutionSnapshot = .neutral,
         at date: Date = Date()
     ) -> NoxLongHorizonSnapshot {
         let filteredThreads = threads
             .filter { $0.decayState == .active || $0.currentStatus == .resumed }
         let threadPriority = mergedPriority(
-            primary: utilityCalibration.prioritizedThreadIds,
-            secondary: behavioral.prioritizedThreadIds
+            primary: memoryEvolution.prioritizedThreadIds,
+            secondary: mergedPriority(
+                primary: utilityCalibration.prioritizedThreadIds,
+                secondary: behavioral.prioritizedThreadIds
+            )
         )
         let activeThreads = orderThreads(
             filteredThreads,
@@ -53,8 +57,11 @@ enum NoxLongHorizonLoader {
             .map { NoxContinuityResurfacingPresenter.threadDisplayTitle($0) }
 
         let arcPriority = mergedPriority(
-            primary: utilityCalibration.prioritizedArcIds,
-            secondary: behavioral.prioritizedArcIds
+            primary: memoryEvolution.prioritizedArcIds,
+            secondary: mergedPriority(
+                primary: utilityCalibration.prioritizedArcIds,
+                secondary: behavioral.prioritizedArcIds
+            )
         )
         let orderedArcs = orderArcs(arcs, prioritizedIds: arcPriority)
 
@@ -81,7 +88,8 @@ enum NoxLongHorizonLoader {
                 confidence: \.confidence,
                 limit: 3
             ),
-            behavioralDrift: behavioral.drift
+            behavioralDrift: behavioral.drift,
+            memoryEvolution: memoryEvolution
         )
     }
 

@@ -22,6 +22,7 @@ The old day-by-day MVP checklist has been retired. Nox is now tracked by shipped
 | 10.5 | Shipped in code | Continuity maturity: reflection naturalization, gravity/salience, suppression, contextual relevance, behavioral humility, long-horizon maturity, intervention subtlety |
 | 11 | Shipped in code | Ambient utility: contextual nudging, decompression/silence, receptiveness, adaptive calmness, macOS ambient notifications (opt-in) |
 | 11.5 | Shipped in code | Utility calibration: notification fatigue/trust, gravity evolution, interruption cost, silence refinement, long-horizon relevance |
+| 12 | Shipped in code | Memory evolution: aging, long-horizon continuity, identity consistency, era evolution, ecology, temporal weights, long-term resurfacing |
 
 ## Current Product Boundary
 

@@ -13,30 +13,17 @@ struct NoxAmbientShellView: View {
     }
 
     var body: some View {
-        VStack(spacing: 0) {
-            NoxShellChrome(destination: activeDestination, compact: isCompact)
-
-            if isCompact {
-                NoxCompactNavigationBar()
-            }
-
-            HStack(alignment: .top, spacing: 0) {
-                if showsRail {
-                    NoxSemanticNavigationRail()
-                }
-
-                contentWell
-                    .layoutPriority(1)
-            }
-        }
-        .frame(
-            width: environment.preferences.windowMode.size.width,
-            height: environment.preferences.windowMode.size.height
-        )
+        let windowSize = environment.preferences.windowMode.size
+        shellBody
+            .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .top)
+        .frame(width: windowSize.width, height: windowSize.height)
         .background(
             NoxAtmosphereBackground(density: environment.memoryDensity)
         )
         .preferredColorScheme(.dark)
+        .onChange(of: environment.preferences.windowMode) { _, _ in
+            environment.syncDashboardWindowFrame(animated: false)
+        }
         .task {
             environment.startIfNeeded()
             showOnboarding = !environment.preferences.hasSeenTrustOnboarding
@@ -44,6 +31,30 @@ struct NoxAmbientShellView: View {
         .sheet(isPresented: $showOnboarding) {
             NoxPermissionOnboardingView()
         }
+    }
+
+    @ViewBuilder
+    private var shellBody: some View {
+        VStack(spacing: 0) {
+            if isCompact {
+                NoxShellChrome(destination: activeDestination, compact: true)
+                NoxCompactNavigationBar()
+                contentWell
+            } else {
+                HStack(alignment: .top, spacing: 0) {
+                    if showsRail {
+                        NoxSemanticNavigationRail()
+                    }
+
+                    VStack(spacing: 0) {
+                        NoxShellChrome(destination: activeDestination, compact: false)
+                        contentWell
+                    }
+                    .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .top)
+                }
+            }
+        }
+        .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .top)
     }
 
     private var showsRail: Bool {
@@ -56,7 +67,7 @@ struct NoxAmbientShellView: View {
                 .padding(NoxMaterials.contentPadding)
                 .frame(minWidth: 0, maxWidth: .infinity, alignment: .topLeading)
         }
-        .frame(minWidth: 200, maxWidth: .infinity, maxHeight: .infinity)
+        .frame(minWidth: 0, maxWidth: .infinity, maxHeight: .infinity)
         .background(NoxDesignTokens.ColorRole.canvas.opacity(0.35))
         .animation(.easeInOut(duration: NoxDesignTokens.Animation.surfaceFade), value: activeDestination)
     }

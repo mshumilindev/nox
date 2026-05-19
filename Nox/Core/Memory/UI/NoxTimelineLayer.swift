@@ -1,6 +1,6 @@
 import Foundation
 
-enum NoxTimelineLayer: String, CaseIterable, Sendable {
+nonisolated enum NoxTimelineLayer: String, CaseIterable, Sendable {
     case continuity
     case semantic
     case focus

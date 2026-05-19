@@ -58,6 +58,10 @@ final class NoxMemoryCoordinator {
         )
     }
 
+    func recentTypedMemories(limit: Int = 40) async throws -> [NoxTypedMemoryEntity] {
+        try await typedMemoryStore.recent(limit: limit)
+    }
+
     func clearRecentActivity(from start: Date, to end: Date) async throws -> Int {
         try await memoryStore.deleteSpans(inRange: start, to: end)
     }
@@ -276,6 +280,7 @@ final class NoxMemoryCoordinator {
         behavioralSnapshot: NoxBehavioralIntelligenceSnapshot = .empty,
         calmnessProfile: NoxAdaptiveCalmnessProfile = .balanced,
         utilityCalibration: NoxAmbientUtilityCalibration = .neutral,
+        memoryEvolution: NoxMemoryEvolutionSnapshot = .neutral,
         at date: Date = Date()
     ) async throws -> NoxReflectiveContinuityBundle {
         let lookback = date.addingTimeInterval(-14 * 24 * 3600)
@@ -313,6 +318,7 @@ final class NoxMemoryCoordinator {
             behavioralSnapshot: behavioralSnapshot,
             calmnessProfile: calmnessProfile,
             utilityCalibration: utilityCalibration,
+            memoryEvolution: memoryEvolution,
             at: date
         )
     }

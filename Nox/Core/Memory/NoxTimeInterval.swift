@@ -1,6 +1,6 @@
 import Foundation
 
-struct NoxTimeInterval: Equatable, Sendable {
+nonisolated struct NoxTimeInterval: Equatable, Sendable {
     let start: Date
     let end: Date
 
@@ -34,7 +34,7 @@ struct NoxTimeInterval: Equatable, Sendable {
     }
 }
 
-enum NoxTimeIntervalMerge {
+nonisolated enum NoxTimeIntervalMerge {
     static func union(
         activitySpans: [NoxActivitySpan],
         semanticSpans: [NoxSemanticMemorySpan],

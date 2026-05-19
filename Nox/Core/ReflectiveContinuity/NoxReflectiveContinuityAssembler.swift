@@ -31,6 +31,7 @@ enum NoxReflectiveContinuityAssembler {
         behavioralSnapshot: NoxBehavioralIntelligenceSnapshot = .empty,
         calmnessProfile: NoxAdaptiveCalmnessProfile = .balanced,
         utilityCalibration: NoxAmbientUtilityCalibration = .neutral,
+        memoryEvolution: NoxMemoryEvolutionSnapshot = .neutral,
         at date: Date = Date()
     ) async throws -> NoxReflectiveContinuityBundle {
         let arcs = NoxSemanticArcEngine.buildArcs(spans: semanticSpans, threads: threads, at: date)
@@ -128,6 +129,14 @@ enum NoxReflectiveContinuityAssembler {
         }
         resurfacingNotes = NoxContinuityMaturityOrchestrator.matureResurfacingNotes(resurfacingNotes)
 
+        if calmnessProfile.allowsResurfacing,
+           !memoryEvolution.preferSparseSurfaces {
+            for note in memoryEvolution.longTermResurfacingNotes where !resurfacingNotes.contains(note) {
+                resurfacingNotes.append(note)
+            }
+        }
+        resurfacingNotes = Array(resurfacingNotes.prefix(memoryEvolution.preferSparseSurfaces ? 2 : 3))
+
         var longHorizon = NoxLongHorizonLoader.load(
             threads: threads,
             semanticSpans: semanticSpans,
@@ -141,7 +150,8 @@ enum NoxReflectiveContinuityAssembler {
             connectorCadencePatterns: connectorSnapshot.cadencePatterns,
             connectorEnrichmentNotes: connectorEnrichmentNotes,
             behavioral: behavioralSnapshot,
-            utilityCalibration: utilityCalibration
+            utilityCalibration: utilityCalibration,
+            memoryEvolution: memoryEvolution
         )
         longHorizon = NoxLongHorizonMaturityEngine.mature(
             snapshot: longHorizon,

@@ -23,7 +23,7 @@ struct NoxMenuBarActionsView: View {
         Button {
             closeMenuBarPanel()
             Task { @MainActor in
-                panelState.openDashboard(using: environment)
+                await panelState.openDashboard(using: environment)
             }
         } label: {
             actionLabel(title: "Open Nox", symbolName: "macwindow")

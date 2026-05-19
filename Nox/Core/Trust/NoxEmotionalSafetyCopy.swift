@@ -1,7 +1,7 @@
 import Foundation
 
 /// Guardrails against manipulative or surveillance-toned product copy.
-enum NoxEmotionalSafetyCopy {
+nonisolated enum NoxEmotionalSafetyCopy {
 
     static let forbiddenSubstrings = [
         "productive",

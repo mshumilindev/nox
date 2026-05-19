@@ -1,7 +1,7 @@
 import Foundation
 
 /// Merges nearby semantic spans into coherent memory sessions for display and persistence continuity.
-enum NoxSemanticSpanStitcher {
+nonisolated enum NoxSemanticSpanStitcher {
     private static let maxGapSeconds: TimeInterval = 30 * 60
 
     static func stitch(_ spans: [NoxSemanticMemorySpan]) -> [NoxSemanticMemorySpan] {
