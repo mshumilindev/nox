@@ -1,70 +1,50 @@
 # Nox Roadmap
 
-Each day ships **one major capability** and **one visible wow-effect** (see `PROJECT_RULES.md`).
+Last updated: 2026-05-19
 
-## MVP sequence
+The old day-by-day MVP checklist has been retired. Nox is now tracked by shipped capability phases and current gaps. `Docs/CURRENT_FUNCTIONALITY.md` remains the source of truth for what exists in code today.
 
-| Day | Name |
-|-----|------|
-| 1 | Birth of Nox |
-| 2 | Floating Presence |
-| 3 | Nox Sees Applications |
-| 4 | Timeline Memory |
-| 5 | Idle & Attention Detection |
-| 6 | Project Detection |
-| 7 | Work Sessions |
-| 8 | Calendar Awareness |
-| 9 | Browser Intelligence v1 |
-| 10 | Focus Mode Awareness |
-| 11 | Reflection Timeline UI |
-| 12 | Reflection Engine |
-| 13 | Morning Engine |
-| 14 | Jira Connector |
-| 15 | Mail Pressure Layer |
-| 16 | Apple Music Context |
-| 17 | Context Graph |
-| 18 | Gentle Interventions |
-| 19 | Ambient Presence Polish |
-| 20 | MVP Consolidation |
+## Shipped Phases
 
----
+| Phase | Status | Shipped capability |
+| --- | --- | --- |
+| 1 | Shipped | Native menu-bar identity, local-first product rules, calm presence language |
+| 2 | Shipped | Floating panel, single-window orchestration, menu actions |
+| 3 | Shipped | Local activity observation, permissions, SQLite event timeline, derived presence |
+| 4 | Shipped | Structured memory: spans, interruptions, focus blocks, classification, search |
+| 5 | Shipped | Interaction semantics, sensitive-context handling, semantic inference |
+| 6 | Shipped | Context acquisition framework, adapter registry, explainability, scenario QA |
+| 7 | Shipped | Reflective continuity: morning summaries, emerging memory, arcs, reflections |
+| 8 | Shipped | Adaptive ambient shell, semantic navigation, trust surfaces, memory controls |
+| 8.5-8.7 | Shipped | Human UI pass: surface hierarchy, layered timeline, calmer trust and Now surfaces |
+| 9 | Shipped in code | Connector-aware ambient continuity: calendar timing, communication pressure proxies, cadence, transitions, recovery signals, rare interventions |
 
-## Day 1 — Birth of Nox ✅
+## Current Product Boundary
 
-**Capability:** Native menu bar app with honest presence states and Quit.
+Nox currently works as a local deterministic ambient memory layer. It observes local activity metadata, derives semantic context, builds structured memory, and surfaces continuity without chat, cloud sync, productivity scoring, screenshots, clipboard capture, or typed text storage.
 
-**Wow-effect:** Nox feels like a real macOS presence—not a template or fake AI demo.
+Phase 9 connector functionality is implemented, but calendar access should receive release-level sandbox/entitlement validation before being treated as fully production-proven.
 
-**Shipped:** `MenuBarExtra`, presence enum, design tokens, disabled Open/Settings placeholders, docs and rules.
+## Next Candidates
 
----
+| Priority | Candidate | Why |
+| --- | --- | --- |
+| P0 | Validate Calendar permission and entitlement flow | Calendar code exists; release packaging needs confidence |
+| P1 | Update permission onboarding for awareness tiers and Calendar | Current capability is stronger than the first-launch explanation |
+| P1 | Add native Mail/Slack metadata connectors | Communication pressure currently uses local activity proxies |
+| P1 | Tune long-horizon density on real memory | Long-horizon surfaces can grow crowded as rollups accumulate |
+| P2 | Add encrypted local export/backup | Current storage is local-only without portability |
+| P2 | Optional on-device reflective enhancement | Could improve reflections without introducing chat/cloud behavior |
+| P2 | Make full settings rows tappable | Current controls only toggle via switch/picker |
 
-## Day 2 — Floating Presence ✅
+## Non-Goals
 
-**Capability:** Native floating dashboard panel from menu bar; single-window orchestration.
+- Cloud sync as a primary memory source
+- Chatbot UI
+- Productivity scores, streaks, badges, or coercive coaching
+- Raw screen replay, screenshots, clipboard history, or keystroke logging
+- Full inbox/message/browser-page ingestion
 
-**Wow-effect:** Nox feels like an ambient system entity on macOS—not only a dropdown.
+## Documentation Policy
 
-**Shipped:** `NoxWindowController`, `NoxPanelState`, dashboard shell, Open Nox + ⌘O, timeline/system placeholders.
-
----
-
-## Day 3 — Nox Sees Applications ✅
-
-**Capability:** Local activity awareness, permissions, SQLite timeline, derived presence, sessions.
-
-**Wow-effect:** Nox reads real macOS context—live timeline, honest limited mode, presence that moves.
-
-**Shipped:** Activity observer, event bus, timeline store, presence engine, session detector, live timeline UI.
-
----
-
-## Day 4 — Timeline Memory ✅
-
-**Capability:** Structured memory — spans, focus blocks, interruptions, classification, history, search.
-
-**Wow-effect:** Timeline feels like memory playback, not a raw event log.
-
----
-
-Days 5–20 follow the table above. Details are defined at the start of each day—not earlier.
+Historical acceptance files were removed once they stopped reflecting the current product surface. Future phase acceptance criteria should either live in this roadmap while active or be folded into `CURRENT_FUNCTIONALITY.md` after shipping.

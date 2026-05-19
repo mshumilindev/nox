@@ -1,4 +1,4 @@
-# Dev identity & permissions
+# Dev Identity And Permissions
 
 Nox uses a stable bundle identifier: **`dev.nox.Nox`**.
 
@@ -8,10 +8,10 @@ Grant macOS privacy permissions to the **same binary you run**, or context will 
 
 | Mode | Permission target | Recommended for |
 | --- | --- | --- |
-| Xcode Run (⌘R) | Often Xcode or a transient helper | Quick UI edits |
+| Xcode Run (Cmd-R) | Often Xcode or a transient helper | Quick UI edits |
 | Standalone `Nox.app` | `dev.nox.Nox` in DerivedData or `/Applications` | **Permission testing, context QA** |
 
-**For Iteration 6A (context reliability): use standalone builds.** TCC (Transparency, Consent, and Control) attaches permissions to the app path you launched. Switching between Xcode Run and Finder launch splits permissions across identities.
+For context reliability work, use standalone builds. TCC (Transparency, Consent, and Control) attaches permissions to the app path you launched. Switching between Xcode Run and Finder launch splits permissions across identities.
 
 ## Standalone build
 
@@ -31,13 +31,16 @@ Drag to `/Applications` or always launch from the same path so TCC remembers the
 | --- | --- |
 | **Accessibility** | Window titles, browser URL (`kAXDocument`), focused roles |
 | **Screen Recording** | Optional window-title fallback via `CGWindowList` |
-| **Automation** | Not integrated in this build (shown as missing in dev explainability) |
+| **Calendar** | Optional EventKit timing profile for generalized coordination context |
+| **Automation** | Not integrated in this build |
 
-System Settings → Privacy & Security → Accessibility / Screen Recording → enable **Nox** (`dev.nox.Nox`).
+System Settings -> Privacy & Security -> Accessibility / Screen Recording / Calendars -> enable **Nox** (`dev.nox.Nox`) as needed.
 
 After changing permissions, **quit and relaunch** Nox (standalone recommended).
 
-## Developer explainability (DEBUG only)
+Calendar support is implemented in code. Because the app is sandboxed, validate the final release entitlement profile before treating Calendar as production-proven.
+
+## Developer Explainability (Debug Only)
 
 When running a **Debug** build, the dashboard includes **Context evidence (dev)**:
 

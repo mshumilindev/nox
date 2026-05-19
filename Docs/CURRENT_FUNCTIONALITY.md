@@ -12,7 +12,7 @@ It is not a chatbot, cloud assistant, productivity scorer, screenshot recorder, 
 
 ## App Shell
 
-- Native SwiftUI macOS app with `MenuBarExtra`.
+- Native SwiftUI macOS app with an AppKit-backed `NSStatusItem` menu bar item.
 - Agent-style app using `LSUIElement`; it lives in the menu bar without a Dock-first experience.
 - Floating dashboard is owned by `NoxWindowController` through `NoxPanelState`, with single-window open/focus behavior.
 - Runtime singletons are centralized in `NoxAppRuntime`.
@@ -280,7 +280,7 @@ It is not a chatbot, cloud assistant, productivity scorer, screenshot recorder, 
 - Long-horizon surface may need visual density tuning as memory grows.
 - Mail/Slack native metadata connectors are not integrated; communication pressure uses local activity proxies.
 - No cloud sync, encrypted export, or backup workflow.
-- Calendar permission onboarding may still need product polish.
+- Calendar permission onboarding may still need product polish, and the final sandbox entitlement flow should be validated before release.
 - Settings row labels are not tap-to-toggle (only the switch/picker is interactive).
 
 ## Best Next-Step Candidates

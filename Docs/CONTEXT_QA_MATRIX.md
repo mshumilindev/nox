@@ -1,4 +1,4 @@
-# Context QA Matrix (Iteration 6A)
+# Context QA Matrix
 
 Validation is organized by **scenario class**, not by specific apps or sites. Use concrete apps only as optional samples when manually testing.
 
@@ -38,7 +38,7 @@ For each class, confirm:
 8. **Persistence safety** — only `NoxPersistableContextSnapshot` fields stored long-term
 9. **Explainability** — DEBUG panel shows evidence chain
 
-## Adapters (6A registry)
+## Adapter Registry
 
 | Adapter ID | Role |
 | --- | --- |

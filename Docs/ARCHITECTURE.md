@@ -1,158 +1,183 @@
 # Nox Architecture
 
-## Product intent
+Last updated: 2026-05-19
 
-Nox is a **local-first ambient personal intelligence layer** for macOS. It observes local context over time, stores metadata—not raw surveillance by default—and surfaces calm presence in the menu bar. It must never feel like a chatbot, dashboard, or generic AI assistant.
+## Product Intent
 
-## Why native SwiftUI
+Nox is a local-first ambient memory layer for macOS. It observes local context over time, stores metadata and derived summaries instead of raw surveillance content, and surfaces calm continuity in the menu bar and floating panel.
 
-| Reason | Detail |
-|--------|--------|
-| System fit | Menu bar apps should feel native; `MenuBarExtra` is the Apple-intended path. |
-| Performance | No Electron/Tauri overhead; low idle footprint. |
-| Privacy posture | Local-first logic stays on-device; no web runtime in the hot path. |
-| Long-term | Event timeline, app tracking, and reflection can use AppKit/Swift where needed without a wrapper. |
+Nox is not a chatbot, cloud assistant, productivity scorer, screenshot recorder, clipboard tracker, or keystroke logger.
 
-## Current stack (Days 1–2)
+## Current Stack
 
-| Layer | Choice |
-|-------|--------|
+| Layer | Current choice |
+| --- | --- |
 | Language | Swift 5 |
-| UI | SwiftUI + AppKit window bridge |
-| Lifecycle | SwiftUI `App` |
-| Menu bar | `MenuBarExtra` (`.window` style) |
-| Floating panel | `NoxWindowController` (`NSWindow` + `NSHostingController`) |
-| State | `@Observable` `AppEnvironment`, `NoxPanelState` |
-| Platform | macOS 14+ only |
+| UI | SwiftUI surfaces with AppKit bridges |
+| Lifecycle | SwiftUI `App` plus `NoxAppDelegate` |
+| Menu bar | `NSStatusItem` through `NoxStatusBarController` |
+| Dropdown | `NSPanel` hosting `NoxMenuBarView` |
+| Floating dashboard | `NoxWindowController` + `NoxPanelState` |
+| Runtime state | `@Observable` `AppEnvironment`, centralized in `NoxAppRuntime` |
+| Persistence | Local SQLite stores under the app container |
+| Platform | macOS 14+ |
 | Sandboxing | App Sandbox enabled |
-| Agent mode | `LSUIElement` (no Dock icon) |
+| Agent mode | `LSUIElement`, no Dock-first experience |
 
-No third-party runtime dependencies.
+No third-party runtime dependencies are currently used.
 
-## Folder structure
-
-```
-Nox/
-  App/
-    NoxApp.swift              @main, MenuBarExtra
-    AppEnvironment.swift      presence + version metadata
-    NoxPanelState.swift       dashboard open/focus API
-  Core/
-    DesignSystem/             tokens, typography, spacing
-    Models/                   NoxPresenceState
-    Windowing/
-      NoxWindowController.swift   single floating NSWindow
-  Features/
-    MenuBar/                  dropdown UI
-    Dashboard/                floating panel UI
-  Resources/
-    Assets.xcassets           semantic colors, app icon
-  SupportingFiles/
-    Info.plist                LSUIElement, display name
-Docs/                         rules, architecture, roadmap
-NoxTests/                     model tests
-```
-
-## Structured memory (Day 4+)
+## Runtime Flow
 
 ```
-timeline_events (raw)
-       ↓
-NoxMemoryAggregator → activity_spans, interruptions
-       ↓
-NoxFocusInterruptionEngine → focus_blocks
-       ↓
-NoxSemanticMemoryEngine → semantic_spans (stitched)
-       ↓
-NoxTimelineBlockPresenter → human-readable memory blocks
+NoxApp
+  -> NoxAppDelegate
+  -> NoxAppRuntime
+  -> NoxStatusBarController
+  -> AppEnvironment
+  -> NoxContextService
 ```
 
-- **Classification:** `NoxAppClassifier`, `NoxTitleClassifier`, `NoxDomainClassifier`
-- **Metadata:** `NoxMetadataExtractor` + `NoxTitleSanitizer`
-- **Semantic inference:** `NoxSemanticInferenceEngine` + `NoxSemanticLabelCatalog` (deterministic, local)
-- **Continuity:** `NoxSemanticSpanStitcher` merges nearby spans with compatible workflow keys
-- **Day framing:** `NoxDaySemanticFraming` — one calm sentence at top of Today
-- **Query:** `NoxMemoryQuery` + `NoxMemoryStore.searchSpans`
-- **Compression:** hourly → daily → weekly → monthly → quarterly → yearly → **era** rollups
-- **Typed memory:** `NoxTypedMemoryStore` for long-horizon entities (patterns, rhythms, workflows)
-- **Stats:** `NoxBehavioralStatistics` (internal only — not surfaced as productivity metrics)
+`NoxContextService` is the runtime coordinator. On startup it opens local stores, hydrates persisted state, starts local observation, samples interaction aggregates, runs semantic heartbeat evaluation, refreshes memory views, and schedules memory maintenance.
 
-## Semantic & privacy (Day 5)
-
-- **Interaction semantics:** typing/scroll/mouse aggregates — never keystroke content
-- **Live signals:** `NoxSemanticLiveSignalPresenter` — 120s cooldown, context fingerprint dedup, raised confidence threshold
-- **Sensitive contexts:** banking, adult, private browsing — generalized titles, minimal storage
-- **Self-exclusion:** `NoxSelfExclusion` — Nox never enters its own behavioral memory (`systemInternal` category)
-- **Product copy:** UI shows memory-shaped language; qualifiers like “Likely” stay internal (`NoxSemanticConfidence`)
-
-## Local awareness (Day 3)
+## Observation Pipeline
 
 ```
-NoxActivityObserver → NoxEventBus → NoxContextService
-                         ↓              ↓
-                  NoxTimelineStore   AppEnvironment → SwiftUI
-                         ↓
-              NoxPresenceEngine + NoxSessionDetector
+NoxActivityObserver
+  -> NoxEventBus
+  -> NoxContextService
+  -> timeline / memory / semantic / presence pipelines
+  -> AppEnvironment
+  -> SwiftUI surfaces
 ```
 
-- **Observer:** `NSWorkspace` notifications + 2s idle/window poll (not UI-driven).
-- **Permissions:** `NoxPermissionService` — Accessibility required for full window context.
-- **Events:** Typed `NoxEvent` / `NoxEventPayload` — no stringly-typed payloads.
-- **Store:** SQLite (`timeline.db`) in app container — metadata only in display text.
-- **Presence:** Rule-based `NoxPresenceEngine` — no ML, no hardcoded UI labels.
-- **Sessions:** `NoxSessionDetector` — productivity app focus, rule-based confidence.
+- `NoxActivityObserver` uses `NSWorkspace` notifications, idle polling, AX focus monitoring when available, wake/sleep notifications, and screen lock notifications.
+- `NoxWindowContextReader` reads focused window title and browser document URL only when permissions allow.
+- `NoxInteractionSignalCollector` samples timing aggregates from system input state: typing activity, scroll activity, pointer activity, active/idle interaction windows, and burst density. It does not read typed content.
+- `NoxSelfExclusion` prevents Nox from entering its own behavioral memory.
 
-## Floating window (Day 2)
+## Permissions
 
-**Approach:** `NoxPanelState` exposes `openDashboard(using:)` to the menu bar. It delegates to `NoxWindowController`, which owns at most one `NSWindow`.
+| Permission | Purpose |
+| --- | --- |
+| Accessibility | Focused window title, browser URL via AX document, focused UI role hints |
+| Screen Recording | Optional window-title fallback via window metadata |
+| Calendar | Optional read-only EventKit timing profile for generalized coordination context |
 
-**Why AppKit:** `MenuBarExtra` apps do not use a `WindowGroup` for auxiliary UI. A small `NSWindow` bridge gives native materials, title bar hiding, floating level, and focus behavior without Electron or scene hacks.
+Calendar support is implemented in code and guarded by user preference and EventKit authorization. Because the app is sandboxed, release validation should confirm the final entitlement profile for calendar access before describing it as production-ready.
 
-**Duplicate prevention:** `NoxWindowController` keeps a single optional `window` reference. `openOrFocus` calls `makeKeyAndOrderFront` if the window exists; otherwise it creates one. `windowWillClose` clears the reference so a later open creates a fresh window.
+## Context And Semantics
 
-## State ownership
+The context layer is deterministic and local:
 
-- `AppEnvironment` owns `presence` (default `.quiet`) and version strings.
-- `NoxPanelState` owns floating window orchestration (`isDashboardOpen`, open/close).
-- Views read via `@Environment`; no DI frameworks or manager sprawl.
+- `NoxContextAcquisitionPipeline` builds evidence from app identity, window metadata, document URL, permissions, interaction aggregates, stable duration, recent switching, and adapters.
+- Adapters cover browser-like, editor-like, terminal-like, communication-like, creative-like, media-like, game, file transfer, generic app, and unknown fallback contexts.
+- `NoxSemanticInferenceEngine` classifies local context into human-facing semantic states such as development, research, travel planning, AI-assisted work, passive media, writing, fragmented workflow, and sensitive/private contexts.
+- `NoxSemanticLiveSignalPresenter` gates semantic pulses with cooldowns and deduplication.
+- `NoxContextDebugSnapshot` exposes reasoning in Debug builds only.
 
-## Design system
+## Memory Architecture
 
-- **Spacing:** `xs` / `sm` / `md` / `lg` / `xl` via `NoxSpacing`
-- **Radius:** `sm` / `md` / `lg` via `NoxDesignTokens.Radius`
-- **Opacity:** disabled, subtle, secondary, divider via `NoxDesignTokens.Opacity`
-- **Typography:** wordmark, presence line, body, caption, actions via `NoxTypography`
-- **Symbols:** sizes via `NoxDesignTokens.SymbolSize`
-- **Colors:** asset catalog + `NoxDesignTokens.ColorRole`
+```
+timeline_events
+  -> NoxMemoryAggregator
+  -> activity_spans + interruptions
+  -> NoxFocusInterruptionEngine
+  -> focus_blocks
+  -> NoxSemanticMemoryEngine
+  -> semantic_spans
+  -> NoxContinuityEngine
+  -> continuity_threads
+  -> NoxMemoryMaintenanceCoordinator
+  -> rollups + typed memories + reflections
+```
 
-## Current non-goals
+Memory is layered:
 
-- Cloud sync, LLM summaries, chatbot UI, coaching, gamification
-- Productivity scores, streaks, badges, recommendation engines
-- Keystroke logging, clipboard, screenshots, surveillance replay
-- Fake or demo intelligence data in UI
+- Hot: in-memory signals and current inference state.
+- Warm: recent timeline events and activity spans, pruned by retention policy.
+- Cold: semantic spans, sessions, continuity threads, rollups, typed memories, and reflections.
 
-## Future (optional, not started)
+The visible memory timeline is layered by continuity, semantic memory, focus, activity, and interruptions. Raw activity spans are deduped when they are already covered by semantic spans.
 
-- Connector layer (calendar, mail, browser) as secondary inputs
-- Optional encrypted backup export
-- On-device reflection only if explicitly designed — never faked in UI
+## Long-Horizon And Reflection
 
-## Dependencies
+The reflective continuity layer is deterministic:
 
-**Day 1:** none (optional SwiftLint).
+- `NoxMorningContinuityEngine` creates calm morning or return summaries when cooldown and timing rules allow.
+- `NoxEmergingMemoryEngine` describes early memory maturity before durable patterns exist.
+- `NoxSemanticArcEngine` groups semantic spans into evolving arcs.
+- `NoxReflectiveSynthesisEngine` creates low-frequency reflection candidates from deterministic memory inputs.
+- `NoxReflectionStore` persists reflection candidates locally.
+- `NoxLongHorizonLoader` assembles threads, arcs, rhythms, era candidates, rollup narratives, resurfacing notes, connector notes, and reflections for long-horizon surfaces.
 
-Every future dependency must be recorded here with purpose, alternative considered, and privacy impact.
+There is no integrated LLM pass, assistant chat surface, or cloud reflection service.
 
-## Testing strategy
+## Connector-Aware Continuity
 
-- Unit-test models (`NoxPresenceState`, `AppEnvironment` defaults)
-- Keep logic out of SwiftUI views as features grow
-- Skip brittle UI tests for static Day 1 menu layout
+Phase 9 adds connector-aware ambient continuity without turning connectors into primary memory:
 
-## Security & privacy baseline
+- Calendar context uses EventKit timing and generalized day shape only. Event titles are not persisted.
+- Communication pressure is inferred from local activity spans and app cadence, not inbox contents.
+- Cadence detects work/recovery oscillation and coordination rhythms.
+- Transitions detect deep-work entry/exit, fragmentation, return-after-absence, and passive-media shifts.
+- Recovery signals describe overload-like conditions observationally, not as health scoring.
+- Interventions are rare, cooldown-protected, and non-demanding.
+- Trust controls expose connector toggles, enrichment pause, and local clearing of connector-derived continuity.
 
-- App Sandbox on
-- No permission prompts on Day 1
-- No network on Day 1
-- UI copy avoids surveillance language; future states use honest “later step” wording
+## Persistence
+
+Local SQLite stores include:
+
+- timeline events
+- activity spans and interruptions
+- focus blocks
+- semantic spans
+- sessions
+- continuity threads
+- ambient state
+- preferences
+- rollups
+- typed memory entities
+- reflections
+- connector cadence patterns
+
+No cloud sync, encrypted export, or backup workflow exists yet.
+
+## Privacy Baseline
+
+Nox must not persist:
+
+- screenshots or screen replay
+- clipboard history
+- typed text or keystroke content
+- raw browser page contents
+- full email/message bodies
+- passwords or authentication contents
+
+Sensitive contexts are generalized before display or storage, and product copy should describe local signals without surveillance language.
+
+## Testing Strategy
+
+Tests focus on deterministic logic outside SwiftUI:
+
+- presence and stabilization
+- permission/capability matrices
+- context scenario QA
+- classification and semantic inference
+- sensitive-context redaction
+- live signal deduplication
+- memory aggregation, search, retention, compression
+- semantic spans, continuity, resurfacing
+- reflective continuity
+- connector Phase 9 logic
+- persistence round trips
+
+UI tests exist, but the product strategy intentionally avoids brittle layout tests as the main validation path.
+
+## Known Architecture Risks
+
+- Calendar access should be validated against the final sandbox entitlement setup.
+- Long-horizon surfaces may need density tuning as real memory grows.
+- Native Mail/Slack metadata connectors are not implemented; current communication pressure uses local activity proxies.
+- Optional encrypted export/backup is not implemented.
+- Optional on-device reflection enhancement is not implemented.
