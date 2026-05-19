@@ -14,6 +14,8 @@ struct NoxTrustCenterView: View {
 
       NoxConnectorTrustControls()
 
+      NoxAmbientUtilityTrustControls()
+
       NoxMemoryControlCenter()
     }
   }

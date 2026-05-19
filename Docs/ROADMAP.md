@@ -20,6 +20,7 @@ The old day-by-day MVP checklist has been retired. Nox is now tracked by shipped
 | 9 | Shipped in code | Connector-aware ambient continuity: calendar timing, communication pressure proxies, cadence, transitions, recovery signals, rare interventions |
 | 10 | Shipped in code | Emergent behavioral intelligence: pattern engine, expectations, adaptive continuity weighting, temporal rhythm, life structures, drift, adaptive intervention timing, memory prioritization, orchestration substrate |
 | 10.5 | Shipped in code | Continuity maturity: reflection naturalization, gravity/salience, suppression, contextual relevance, behavioral humility, long-horizon maturity, intervention subtlety |
+| 11 | Shipped in code | Ambient utility: contextual nudging, decompression/silence, receptiveness, adaptive calmness, macOS ambient notifications (opt-in) |
 
 ## Current Product Boundary
 

@@ -7,6 +7,7 @@ nonisolated struct NoxAmbientPreferences: Codable, Equatable, Sendable {
     var pauseState: NoxAmbientPauseState
     var hasSeenTrustOnboarding: Bool
     var connectors: NoxConnectorPreferences
+    var ambientUtility: NoxAmbientUtilityPreferences
 
     init(
         windowMode: NoxWindowMode,
@@ -14,7 +15,8 @@ nonisolated struct NoxAmbientPreferences: Codable, Equatable, Sendable {
         surfaceDensity: NoxSurfaceDensity,
         pauseState: NoxAmbientPauseState,
         hasSeenTrustOnboarding: Bool,
-        connectors: NoxConnectorPreferences = .default
+        connectors: NoxConnectorPreferences = .default,
+        ambientUtility: NoxAmbientUtilityPreferences = .default
     ) {
         self.windowMode = windowMode
         self.navigationDestination = navigationDestination
@@ -22,6 +24,7 @@ nonisolated struct NoxAmbientPreferences: Codable, Equatable, Sendable {
         self.pauseState = pauseState
         self.hasSeenTrustOnboarding = hasSeenTrustOnboarding
         self.connectors = connectors
+        self.ambientUtility = ambientUtility
     }
 
     static let `default` = NoxAmbientPreferences(
@@ -30,7 +33,8 @@ nonisolated struct NoxAmbientPreferences: Codable, Equatable, Sendable {
         surfaceDensity: .calm,
         pauseState: .active,
         hasSeenTrustOnboarding: false,
-        connectors: .default
+        connectors: .default,
+        ambientUtility: .default
     )
 
     init(from decoder: Decoder) throws {
@@ -41,5 +45,6 @@ nonisolated struct NoxAmbientPreferences: Codable, Equatable, Sendable {
         pauseState = try container.decode(NoxAmbientPauseState.self, forKey: .pauseState)
         hasSeenTrustOnboarding = try container.decode(Bool.self, forKey: .hasSeenTrustOnboarding)
         connectors = try container.decodeIfPresent(NoxConnectorPreferences.self, forKey: .connectors) ?? .default
+        ambientUtility = try container.decodeIfPresent(NoxAmbientUtilityPreferences.self, forKey: .ambientUtility) ?? .default
     }
 }

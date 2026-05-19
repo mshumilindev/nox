@@ -183,17 +183,39 @@ final class NoxContextService {
                 focus: view.focus,
                 range: range
             )
+            let date = Date()
+            let lookback = date.addingTimeInterval(-14 * 24 * 3600)
+            let semanticSpans = (try? await memoryCoordinator.semanticSpans(from: lookback, to: date)) ?? []
+            let continuityArcs = NoxSemanticArcEngine.buildArcs(
+                spans: semanticSpans,
+                threads: view.continuityThreads,
+                at: date
+            )
             let behavioralSnapshot = await refreshBehavioralLayer(
                 connectorSnapshot: connectorSnapshot,
                 spans: spans,
                 stats: view.stats,
                 focus: view.focus,
-                threads: view.continuityThreads
+                threads: view.continuityThreads,
+                semanticSpans: semanticSpans,
+                arcs: continuityArcs,
+                at: date
             )
+            let utilitySnapshot = await refreshAmbientUtilityLayer(
+                connectorSnapshot: connectorSnapshot,
+                behavioralSnapshot: behavioralSnapshot,
+                stats: view.stats,
+                focus: view.focus,
+                threads: view.continuityThreads,
+                arcs: continuityArcs,
+                at: date
+            )
+            environment.ambientUtilitySnapshot = utilitySnapshot
+
             if !preferences.connectors.continuityEnrichmentPaused {
-                connectorSnapshot = connectorSnapshot.replacingIntervention(
-                    behavioralSnapshot.recommendedIntervention
-                )
+                let intervention = utilitySnapshot.refinedIntervention
+                    ?? behavioralSnapshot.recommendedIntervention
+                connectorSnapshot = connectorSnapshot.replacingIntervention(intervention)
             }
             environment.connectorSnapshot = connectorSnapshot
             environment.behavioralSnapshot = behavioralSnapshot
@@ -210,7 +232,8 @@ final class NoxContextService {
                 liveSignalCount: liveBuffer.signals.count,
                 continuitySeconds: signalTracker.observationContinuitySeconds(),
                 connectorSnapshot: connectorSnapshot,
-                behavioralSnapshot: behavioralSnapshot
+                behavioralSnapshot: behavioralSnapshot,
+                calmnessProfile: utilitySnapshot.calmness
             )
             environment.longHorizonSnapshot = reflective.longHorizon
             environment.morningSummary = reflective.morningSummary
@@ -231,6 +254,13 @@ final class NoxContextService {
             }
             if connectorSnapshot.intervention != nil {
                 ambientState.lastConnectorInterventionAt = Date()
+            }
+            if utilitySnapshot.primaryNudge != nil {
+                ambientState.lastContextualNudgeAt = Date()
+            }
+            if let notification = utilitySnapshot.notificationCandidate,
+               preferences.ambientUtility.ambientNotificationsEnabled {
+                await deliverAmbientNotificationIfNeeded(notification)
             }
             ambientState.lastConnectorFocusKind = view.focus.kind?.rawValue
             var densities = ambientState.recentConnectorDensities
@@ -1060,7 +1090,12 @@ final class NoxContextService {
         guard let environment else { return }
         environment.connectorSnapshot = .empty
         environment.behavioralSnapshot = .empty
+        environment.ambientUtilitySnapshot = .empty
         await reloadMemoryView()
+    }
+
+    func requestAmbientNotificationAuthorization() async {
+        _ = await NoxAmbientNotificationEngine.requestAuthorizationIfNeeded()
     }
 
     private func refreshBehavioralLayer(
@@ -1068,16 +1103,11 @@ final class NoxContextService {
         spans: [NoxActivitySpan],
         stats: NoxMemoryDayStats,
         focus: NoxFocusAnalysis?,
-        threads: [NoxContinuityThread]
+        threads: [NoxContinuityThread],
+        semanticSpans: [NoxSemanticMemorySpan],
+        arcs: [NoxSemanticArc],
+        at date: Date
     ) async -> NoxBehavioralIntelligenceSnapshot {
-        let date = Date()
-        let lookback = date.addingTimeInterval(-14 * 24 * 3600)
-        let semanticSpans = (try? await memoryCoordinator.semanticSpans(from: lookback, to: date)) ?? []
-        let arcs = NoxSemanticArcEngine.buildArcs(
-            spans: semanticSpans,
-            threads: threads,
-            at: date
-        )
         let weekly = (try? await memoryCoordinator.weeklyRollups(endingAt: date)) ?? []
         let monthly = (try? await memoryCoordinator.monthlyRollups(endingAt: date)) ?? []
 
@@ -1096,6 +1126,41 @@ final class NoxContextService {
             signalStore: behavioralSignalStore,
             at: date
         )
+    }
+
+    private func refreshAmbientUtilityLayer(
+        connectorSnapshot: NoxConnectorContinuitySnapshot,
+        behavioralSnapshot: NoxBehavioralIntelligenceSnapshot,
+        stats: NoxMemoryDayStats,
+        focus: NoxFocusAnalysis?,
+        threads: [NoxContinuityThread],
+        arcs: [NoxSemanticArc],
+        at date: Date
+    ) async -> NoxAmbientUtilitySnapshot {
+        NoxAmbientUtilityOrchestrator.refresh(
+            paused: preferences.connectors.continuityEnrichmentPaused,
+            preferences: preferences.ambientUtility,
+            stats: stats,
+            focus: focus,
+            threads: threads,
+            arcs: arcs,
+            connectorSnapshot: connectorSnapshot,
+            behavioralSnapshot: behavioralSnapshot,
+            proposedIntervention: behavioralSnapshot.recommendedIntervention,
+            lastNudgeAt: ambientState.lastContextualNudgeAt,
+            ambientState: ambientState,
+            at: date
+        )
+    }
+
+    private func deliverAmbientNotificationIfNeeded(
+        _ candidate: NoxAmbientNotificationCandidate
+    ) async {
+        guard preferences.ambientUtility.ambientNotificationsEnabled else { return }
+        guard await NoxAmbientNotificationEngine.requestAuthorizationIfNeeded() else { return }
+        var state = ambientState
+        await NoxAmbientNotificationEngine.deliver(candidate: candidate, ambientState: &state)
+        ambientState = state
     }
 
     private func refreshConnectorLayer(

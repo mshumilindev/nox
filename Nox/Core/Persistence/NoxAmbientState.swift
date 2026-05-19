@@ -14,6 +14,9 @@ nonisolated struct NoxAmbientState: Codable, Equatable, Sendable {
     var lastConnectorInterventionAt: Date?
     var lastConnectorFocusKind: String?
     var recentConnectorDensities: [Double]
+    var lastAmbientNotificationAt: Date?
+    var lastContextualNudgeAt: Date?
+    var recentNotificationKinds: [String]
 
     init(
         lastPresence: String?,
@@ -28,7 +31,10 @@ nonisolated struct NoxAmbientState: Codable, Equatable, Sendable {
         lastResurfacingShownAt: Date?,
         lastConnectorInterventionAt: Date? = nil,
         lastConnectorFocusKind: String? = nil,
-        recentConnectorDensities: [Double] = []
+        recentConnectorDensities: [Double] = [],
+        lastAmbientNotificationAt: Date? = nil,
+        lastContextualNudgeAt: Date? = nil,
+        recentNotificationKinds: [String] = []
     ) {
         self.lastPresence = lastPresence
         self.lastActiveAppName = lastActiveAppName
@@ -43,6 +49,9 @@ nonisolated struct NoxAmbientState: Codable, Equatable, Sendable {
         self.lastConnectorInterventionAt = lastConnectorInterventionAt
         self.lastConnectorFocusKind = lastConnectorFocusKind
         self.recentConnectorDensities = recentConnectorDensities
+        self.lastAmbientNotificationAt = lastAmbientNotificationAt
+        self.lastContextualNudgeAt = lastContextualNudgeAt
+        self.recentNotificationKinds = recentNotificationKinds
     }
 
     static let empty = NoxAmbientState(
@@ -58,7 +67,10 @@ nonisolated struct NoxAmbientState: Codable, Equatable, Sendable {
         lastResurfacingShownAt: nil,
         lastConnectorInterventionAt: nil,
         lastConnectorFocusKind: nil,
-        recentConnectorDensities: []
+        recentConnectorDensities: [],
+        lastAmbientNotificationAt: nil,
+        lastContextualNudgeAt: nil,
+        recentNotificationKinds: []
     )
 
     init(from decoder: Decoder) throws {
@@ -76,6 +88,9 @@ nonisolated struct NoxAmbientState: Codable, Equatable, Sendable {
         lastConnectorInterventionAt = try container.decodeIfPresent(Date.self, forKey: .lastConnectorInterventionAt)
         lastConnectorFocusKind = try container.decodeIfPresent(String.self, forKey: .lastConnectorFocusKind)
         recentConnectorDensities = try container.decodeIfPresent([Double].self, forKey: .recentConnectorDensities) ?? []
+        lastAmbientNotificationAt = try container.decodeIfPresent(Date.self, forKey: .lastAmbientNotificationAt)
+        lastContextualNudgeAt = try container.decodeIfPresent(Date.self, forKey: .lastContextualNudgeAt)
+        recentNotificationKinds = try container.decodeIfPresent([String].self, forKey: .recentNotificationKinds) ?? []
     }
 }
 

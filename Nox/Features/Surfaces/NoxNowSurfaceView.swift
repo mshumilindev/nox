@@ -31,6 +31,8 @@ struct NoxNowSurfaceView: View {
 
       if let intervention = environment.connectorSnapshot.intervention {
         NoxConnectorInterventionBanner(intervention: intervention)
+      } else if let nudge = environment.ambientUtilitySnapshot.primaryNudge {
+        NoxContextualNudgeBanner(nudge: nudge)
       }
 
       NoxConnectorPressureCard(snapshot: environment.connectorSnapshot)

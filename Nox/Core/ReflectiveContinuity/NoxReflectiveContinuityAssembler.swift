@@ -29,6 +29,7 @@ enum NoxReflectiveContinuityAssembler {
         continuitySeconds: TimeInterval,
         connectorSnapshot: NoxConnectorContinuitySnapshot = .empty,
         behavioralSnapshot: NoxBehavioralIntelligenceSnapshot = .empty,
+        calmnessProfile: NoxAdaptiveCalmnessProfile = .balanced,
         at date: Date = Date()
     ) async throws -> NoxReflectiveContinuityBundle {
         let arcs = NoxSemanticArcEngine.buildArcs(spans: semanticSpans, threads: threads, at: date)
@@ -61,7 +62,11 @@ enum NoxReflectiveContinuityAssembler {
             at: date
         )
 
-        if NoxReflectiveSynthesisEngine.shouldSynthesize(lastReflectionAt: lastReflection, at: date) {
+        if NoxReflectiveSynthesisEngine.shouldSynthesize(
+            lastReflectionAt: lastReflection,
+            calmness: calmnessProfile,
+            at: date
+        ) {
             let raw = NoxReflectiveSynthesisEngine.synthesize(input: reflectionInput, at: date)
             let fresh = NoxContinuityMaturityOrchestrator.matureReflections(
                 raw,
@@ -94,12 +99,15 @@ enum NoxReflectiveContinuityAssembler {
             at: date
         )
 
-        var resurfacingNotes = NoxContinuityResurfacingOrchestrator.resurfacingNotes(
-            threads: threads,
-            arcs: arcs,
-            lastShownAt: lastResurfacingShownAt,
-            at: date
-        )
+        var resurfacingNotes: [String] = []
+        if calmnessProfile.allowsResurfacing {
+            resurfacingNotes = NoxContinuityResurfacingOrchestrator.resurfacingNotes(
+                threads: threads,
+                arcs: arcs,
+                lastShownAt: lastResurfacingShownAt,
+                at: date
+            )
+        }
         for note in NoxContinuityMaturityOrchestrator.matureEnrichmentNotes(connectorEnrichmentNotes)
             where !resurfacingNotes.contains(note) {
             resurfacingNotes.append(note)

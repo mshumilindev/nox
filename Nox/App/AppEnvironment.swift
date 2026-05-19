@@ -40,6 +40,7 @@ final class AppEnvironment {
     var primaryExplanation: NoxInferenceReason?
     var connectorSnapshot: NoxConnectorContinuitySnapshot = .empty
     var behavioralSnapshot: NoxBehavioralIntelligenceSnapshot = .empty
+    var ambientUtilitySnapshot: NoxAmbientUtilitySnapshot = .empty
 
     var activeAppName: String?
     var activeBundleId: String?
@@ -168,5 +169,12 @@ final class AppEnvironment {
 
     func clearConnectorContinuity() async {
         await contextService.clearConnectorContinuity()
+    }
+
+    func setAmbientNotificationsEnabled(_ enabled: Bool) {
+        mutatePreferences { $0.ambientUtility.ambientNotificationsEnabled = enabled }
+        if enabled {
+            Task { await contextService.requestAmbientNotificationAuthorization() }
+        }
     }
 }

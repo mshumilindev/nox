@@ -6,9 +6,15 @@ enum NoxReflectiveSynthesisEngine {
     static let minimumConfidence = 0.52
     static let displayLimit = 4
 
-    static func shouldSynthesize(lastReflectionAt: Date?, at date: Date = Date()) -> Bool {
+    static func shouldSynthesize(
+        lastReflectionAt: Date?,
+        calmness: NoxAdaptiveCalmnessProfile = .balanced,
+        at date: Date = Date()
+    ) -> Bool {
+        guard calmness.reflectionDensity >= 0.38 else { return false }
         guard let last = lastReflectionAt else { return true }
-        return date.timeIntervalSince(last) >= cooldownSeconds
+        let adjustedCooldown = cooldownSeconds / max(0.45, calmness.reflectionDensity)
+        return date.timeIntervalSince(last) >= adjustedCooldown
     }
 
     static func synthesize(input: NoxReflectionInput, at date: Date = Date()) -> [NoxReflectionCandidate] {

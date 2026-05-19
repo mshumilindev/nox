@@ -292,6 +292,21 @@ Refinement layer in `Nox/Core/ContinuityMaturity/` (no new product surfaces):
 - **Intervention subtlety** (`NoxInterventionSubtletyPass`): rarer triggers, extended fragmented cooldown, calmer copy, decompression-aware silence.
 - **Orchestration** (`NoxContinuityMaturityOrchestrator`): wired through reflective assembly, long-horizon load, and adaptive interventions.
 
+## Phase 11 — Ambient utility, intervention & notification maturity
+
+Module: `Nox/Core/AmbientUtility/`
+
+- **Continuity nudging** (`NoxContinuityNudgeEngine`, `NoxNudgeSuppressionModel`): gentle in-app nudges for unfinished continuity, recovery windows, fragmentation — never task/reminder language.
+- **Life-priority topology** (`NoxPriorityTopologyEngine`, `NoxStructuralContinuityModel`): structural weighting for recurring, unresolved, and stabilizing continuity (not task prioritization).
+- **Decompression** (`NoxDecompressionEngine`, `NoxRecoveryWindowModel`): passive-collapse and overload-after-coordination awareness; prefers silence when needed.
+- **Adaptive calmness** (`NoxAdaptiveCalmnessEngine`): adjusts reflection density, resurfacing, intervention/notification probability from overload, focus, fragmentation, decompression.
+- **Unfinished threads** (`NoxUnfinishedThreadEngine`, `NoxContinuityPersistenceModel`): resurfacing-worthy interrupted structures across time.
+- **Receptiveness** (`NoxInterventionReceptivenessModel`): interruption sensitivity, deep focus, recovery openness — gates interventions and notifications.
+- **Attention balance** (`NoxAttentionBalanceEngine`): subtle imbalance observations without scoring.
+- **Ambient silence** (`NoxAmbientSilenceEngine`): intentional suppression during overload, fragmentation, decompression, deep focus.
+- **Notifications** (`NoxAmbientNotificationEngine`, cooldown/relevance/suppression models): local macOS `UserNotifications` only; opt-in via Trust; 4h global / 12h per-kind cooldowns; calm copy only.
+- **Integration**: `AppEnvironment.ambientUtilitySnapshot`; utility runs after behavioral layer; refines connector interventions; calmness passed to reflective assembly; optional `NoxContextualNudgeBanner` on Now when no intervention.
+
 ## Interaction & Hover
 
 - `NoxBorderlessPressStyle` — press feedback + ambient hover on **Button** labels only.
