@@ -45,7 +45,7 @@ struct NoxCollapsibleSection<Content: View>: View {
                 }
                 .noxHitTarget(minHeight: 36)
             }
-            .buttonStyle(.noxBorderless)
+            .buttonStyle(.noxBorderless(hover: .row))
 
             if isExpanded {
                 VStack(alignment: .leading, spacing: NoxSpacing.cardStack) {

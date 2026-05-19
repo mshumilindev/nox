@@ -1592,6 +1592,41 @@ struct NoxTimelineBlockPresenterTests {
         #expect(filtered.isEmpty)
     }
 
+    @Test func activityDedupUsesTimeOverlapNotText() {
+        let base = Date(timeIntervalSince1970: 1_700_000_000)
+        let semantic = NoxSemanticMemorySpan(
+            id: "sem-1",
+            startedAt: base,
+            endedAt: base.addingTimeInterval(600),
+            title: "Development",
+            subtitle: "Apps",
+            interactionStyle: "",
+            semanticState: .sustainedInteraction,
+            fusionLabel: .likelyWorkRelated,
+            sensitivityLevel: .normal,
+            confidence: 0.7,
+            appNames: ["Xcode"],
+            reasonsJson: nil
+        )
+        let activity = NoxActivitySpan(
+            id: "act-1",
+            startedAt: base.addingTimeInterval(120),
+            endedAt: base.addingTimeInterval(180),
+            appName: "Xcode",
+            bundleId: "com.apple.dt.Xcode",
+            windowTitle: nil,
+            contextLabel: nil,
+            category: .development,
+            interruptions: 0,
+            focusScore: 0.5,
+            metadataJson: nil
+        )
+        let intervalA = NoxTimeInterval(start: activity.startedAt, end: activity.endedAt!)
+        let intervalB = NoxTimeInterval(start: semantic.startedAt, end: semantic.endedAt!)
+        #expect(intervalA.overlaps(intervalB))
+        #expect(NoxTimelineActivityDeduper.filter(activitySpans: [activity], semanticSpans: [semantic], at: base.addingTimeInterval(600)).isEmpty)
+    }
+
     @Test func sectionsGroupByLayer() {
         let base = Date()
         let sections = NoxTimelineBlockPresenter.makeSections(

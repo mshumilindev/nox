@@ -91,7 +91,7 @@ struct NoxSemanticNavigationRail: View {
       }
       .noxHitTarget(minHeight: 36)
     }
-    .buttonStyle(.noxBorderless)
+    .buttonStyle(.noxBorderless(hover: .row, isSelected: selected))
   }
 
   private var localAnchor: some View {

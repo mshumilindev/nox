@@ -106,33 +106,41 @@ struct NoxMemoryTimelineView: View {
   ) -> some View {
     HStack(alignment: .top, spacing: NoxSpacing.md) {
       timelineMarker(for: block, isFirst: isFirst, isLast: isLast)
+        .frame(height: NoxTimelineMarkerLayout.rowHeight)
 
-      VStack(alignment: .leading, spacing: NoxSpacing.xxs) {
-        HStack(alignment: .firstTextBaseline, spacing: NoxSpacing.sm) {
-          Text(block.title)
-            .font(NoxTypography.continuityDetail)
-            .foregroundStyle(NoxDesignTokens.ColorRole.textPrimary.opacity(0.92))
-            .lineLimit(1)
-            .layoutPriority(1)
-
-          if let durationText = block.durationText {
-            Text(durationText)
-              .font(NoxTypography.timelineStamp)
-              .foregroundStyle(NoxDesignTokens.ColorRole.textSecondary.opacity(0.45))
-              .lineLimit(1)
-              .fixedSize(horizontal: true, vertical: false)
-          }
-        }
-
-        NoxFixedLineText(text: block.subtitle)
-        NoxFixedLineText(
-          text: block.detailLine,
-          color: NoxDesignTokens.ColorRole.textSecondary.opacity(0.48)
-        )
-      }
-      .frame(minHeight: NoxSurfaceLayout.timelineFragmentMinHeight, alignment: .topLeading)
-      .padding(.vertical, NoxSpacing.sm)
+      fragmentBody(block)
+        .frame(height: NoxTimelineMarkerLayout.rowHeight, alignment: .topLeading)
     }
+  }
+
+  private func fragmentBody(_ block: NoxTimelineBlockItem) -> some View {
+    VStack(alignment: .leading, spacing: NoxSpacing.xxs) {
+      HStack(alignment: .firstTextBaseline, spacing: NoxSpacing.sm) {
+        Text(block.title)
+          .font(NoxTypography.continuityDetail)
+          .foregroundStyle(NoxDesignTokens.ColorRole.textPrimary.opacity(0.92))
+          .lineLimit(1)
+          .layoutPriority(1)
+
+        if let durationText = block.durationText {
+          Text(durationText)
+            .font(NoxTypography.timelineStamp)
+            .foregroundStyle(NoxDesignTokens.ColorRole.textSecondary.opacity(0.45))
+            .lineLimit(1)
+            .fixedSize(horizontal: true, vertical: false)
+        }
+      }
+      .frame(height: NoxTimelineMarkerLayout.titleLineHeight, alignment: .topLeading)
+
+      NoxFixedLineText(text: block.subtitle)
+      NoxFixedLineText(
+        text: block.detailLine,
+        color: NoxDesignTokens.ColorRole.textSecondary.opacity(0.48)
+      )
+    }
+    .frame(minHeight: NoxSurfaceLayout.timelineFragmentMinHeight, alignment: .topLeading)
+    .padding(.top, NoxTimelineMarkerLayout.rowVerticalPadding)
+    .padding(.bottom, NoxTimelineMarkerLayout.rowVerticalPadding)
   }
 
   private func timelineMarker(
@@ -141,24 +149,32 @@ struct NoxMemoryTimelineView: View {
     isLast: Bool
   ) -> some View {
     let lineColor = NoxDesignTokens.ColorRole.border.opacity(0.14)
-    return VStack(spacing: 0) {
-      Rectangle()
-        .fill(lineColor)
-        .frame(width: 1)
-        .frame(maxHeight: .infinity)
-        .opacity(isFirst ? 0 : 1)
+    let dotY = NoxTimelineMarkerLayout.dotCenterY
+    let dotRadius = NoxTimelineMarkerLayout.dotDiameter / 2
+    return ZStack(alignment: .top) {
+      Canvas { context, size in
+        let x = size.width / 2
+        var path = Path()
+        if !isFirst {
+          path.move(to: CGPoint(x: x, y: 0))
+          path.addLine(to: CGPoint(x: x, y: dotY - dotRadius))
+        }
+        if !isLast {
+          path.move(to: CGPoint(x: x, y: dotY + dotRadius))
+          path.addLine(to: CGPoint(x: x, y: size.height))
+        }
+        context.stroke(path, with: .color(lineColor), lineWidth: 1)
+      }
 
       Circle()
         .fill(markerColor(for: block).opacity(0.75))
-        .frame(width: 5, height: 5)
-
-      Rectangle()
-        .fill(lineColor)
-        .frame(width: 1)
-        .frame(maxHeight: .infinity)
-        .opacity(isLast ? 0 : 1)
+        .frame(width: NoxTimelineMarkerLayout.dotDiameter, height: NoxTimelineMarkerLayout.dotDiameter)
+        .position(
+          x: NoxTimelineMarkerLayout.railWidth / 2,
+          y: dotY
+        )
     }
-    .frame(width: 12)
+    .frame(width: NoxTimelineMarkerLayout.railWidth)
   }
 
   private func markerColor(for block: NoxTimelineBlockItem) -> Color {

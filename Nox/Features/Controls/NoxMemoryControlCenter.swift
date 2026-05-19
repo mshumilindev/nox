@@ -63,6 +63,7 @@ struct NoxMemoryControlCenter: View {
           .fixedSize(horizontal: false, vertical: true)
       }
       .frame(maxWidth: .infinity, alignment: .leading)
+      .allowsHitTesting(false)
 
       Picker("", selection: quietBinding) {
         ForEach(NoxQuietMode.allCases, id: \.self) { mode in
@@ -72,9 +73,9 @@ struct NoxMemoryControlCenter: View {
       .labelsHidden()
       .pickerStyle(.menu)
       .frame(width: 132, alignment: .trailing)
+      .noxInteractiveChrome(.chip)
     }
     .padding(.vertical, NoxSpacing.sm)
-    .noxPointerCursor()
   }
 
   private var quietBinding: Binding<NoxQuietMode> {
@@ -100,14 +101,15 @@ struct NoxMemoryControlCenter: View {
           .fixedSize(horizontal: false, vertical: true)
       }
       .frame(maxWidth: .infinity, alignment: .leading)
+      .allowsHitTesting(false)
 
       Toggle("", isOn: Binding(get: { isOn }, set: onChange))
         .labelsHidden()
         .toggleStyle(.switch)
         .padding(.top, 1)
+        .noxInteractiveChrome(.row)
     }
     .padding(.vertical, NoxSpacing.sm)
-    .noxPointerCursor()
   }
 
   private func actionButton(_ title: String, action: @escaping () -> Void) -> some View {

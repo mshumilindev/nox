@@ -16,7 +16,7 @@ It is not a chatbot, cloud assistant, productivity scorer, screenshot recorder, 
 - Agent-style app using `LSUIElement`; it lives in the menu bar without a Dock-first experience.
 - Floating dashboard is owned by `NoxWindowController` through `NoxPanelState`, with single-window open/focus behavior.
 - Runtime singletons are centralized in `NoxAppRuntime`.
-- `AppEnvironment` owns UI-facing state for presence, permissions, preferences, awareness snapshots, explainability, live signals, timeline blocks, semantic context, search, memory period, long-horizon memory, morning continuity, reflections, memory maturity, and active app context.
+- `AppEnvironment` owns UI-facing state for presence, permissions, preferences, awareness snapshots, explainability, live signals, **layered timeline sections** (`timelineSections`), semantic context, search, memory period, long-horizon memory, morning continuity, reflections, memory maturity, **connector continuity snapshot**, and active app context.
 - App lifecycle can checkpoint memory and session state before termination through `NoxLifecycleCoordinator` and `NoxContextService`.
 
 ## Menu Bar Experience
@@ -36,11 +36,12 @@ It is not a chatbot, cloud assistant, productivity scorer, screenshot recorder, 
 ### Phase 8.7 — Human UI pass
 - **Three surface levels:** `major` (rare hero), `standard` (entities), `soft` (metadata/controls) — replaces uniform mega-cards.
 - **`noxGroup`** replaces heavy `noxCluster` wrappers; readable width cap (~520pt) on surfaces.
-- **Memory timeline:** continuity fragments with rail + hairline dividers (not admin log rows in one slab).
+- **Memory timeline:** layered sections (Continuity → Semantic → Focus → Activity → Interruptions), fixed row heights, markers aligned to title line.
 - **Trust:** single composed boundaries list; calmer memory controls (toggle alignment, menu picker, quiet links).
 - **Now:** flat vertical composition — one `standard` presence block, `soft` live context, `major` morning only.
 - **Sidebar:** left-aligned rows, semantic grouping, accent bar selection (not icon-column template).
 - **Mode control:** underline selection, no glossy segmented pill.
+- **Interaction:** `NoxAmbientHover` on buttons/chips only; `noxInteractiveChrome` on toggles/pickers; pointer cursor via push/pop stack (not on labels, timeline, or search field).
 
 ## Visual Identity (Phase 8.5 + 8.6)
 
@@ -206,6 +207,16 @@ It is not a chatbot, cloud assistant, productivity scorer, screenshot recorder, 
 - `NoxDaySemanticFraming` creates a calm overview of today.
 - `NoxReflectiveContinuityAssembler` bundles long-horizon, morning, emerging, and reflection outputs for the dashboard.
 
+### Memory timeline (layered + deduped)
+
+- `NoxTimelineBlockPresenter.makeSections()` builds **five layers** instead of one mixed feed:
+  - Continuity → Semantic memory → Focus → Activity → Interruptions.
+- Within each layer, items sort newest-first; empty layers are hidden.
+- **`NoxTimelineActivityDeduper`** drops raw activity spans when their **time interval** overlaps a semantic span (`NoxTimeInterval`: ≥30s overlap, ≥50% of shorter interval, or fully contained).
+- **`NoxMemorySearchScope`** — when Filter memory is active, all layers narrow to search hits and shared time windows (no full-day semantic list + filtered activity).
+- **Historical periods** (Yesterday, Last 7 days) use static empty copy — live open-span emergence does not bleed into past days.
+- **Emergence for Today only** — `periodScopedEmergence` uses `openSpan` and live signals only when `memoryPeriod == .today`.
+
 ## Semantic Memory And Continuity
 
 - `NoxSemanticMemoryEngine` opens, continues, closes, and persists semantic memory spans.
@@ -244,9 +255,17 @@ It is not a chatbot, cloud assistant, productivity scorer, screenshot recorder, 
 - **Explainability** (`NoxConnectorExplainability`): provenance for what was and was not collected.
 - **UI**: sparse cadence/pressure cards on Now; cadence enrichment on Patterns; connector rows in Trust.
 
+## Interaction & Hover
+
+- `NoxBorderlessPressStyle` — press feedback + ambient hover + pointer on **Button** labels only.
+- `NoxAmbientHover` styles: `row`, `chip`, `card`, `inset` — suppressed when `isSelected`.
+- `noxInteractiveChrome()` — hover + pointer on **Toggle** and **Picker** only; row labels use `.allowsHitTesting(false)`.
+- `NoxPointerCursorModifier` — `onContinuousHover` with `NSCursor.push` / `pop` (avoids arrow reset flicker).
+- No pointer or hover on: timeline fragments, semantic arc cards, section headers, search field, or descriptive text.
+
 ## Testing
 
-- Unit tests cover presence, memory, continuity, context QA, reflective continuity, and **Phase 9 connectors** (calendar generalization, communication copy, intervention cooldown, enrichment pause).
+- Unit tests cover presence, memory, continuity, context QA, reflective continuity, **Phase 9 connectors**, **timeline dedup by time overlap**, **layered sections**, and **historical empty copy**.
 - UI test files exist; product strategy avoids brittle layout UI tests as primary validation.
 
 ## Current Gaps And Risks
@@ -256,10 +275,12 @@ It is not a chatbot, cloud assistant, productivity scorer, screenshot recorder, 
 - Mail/Slack native metadata connectors are not integrated; communication pressure uses local activity proxies.
 - No cloud sync, encrypted export, or backup workflow.
 - Calendar permission onboarding may still need product polish.
+- Settings row labels are not tap-to-toggle (only the switch/picker is interactive).
 
 ## Best Next-Step Candidates
 
 - Optional on-device reflective synthesis pass (still non-chat).
 - Additional passive connectors (Mail/Slack metadata) with the same generalized-state contract.
 - Stronger permission/onboarding for awareness tiers.
-- Visual polish for semantic arc topology.
+- Tap entire settings row to toggle (optional UX improvement).
+- Subtle focus ring on Filter memory field (without pointer hand).

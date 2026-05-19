@@ -47,7 +47,7 @@ struct NoxWindowModeControl: View {
           }
         }
     }
-    .buttonStyle(.noxBorderless)
+    .buttonStyle(.noxBorderless(hover: .chip, isSelected: selected))
   }
 }
 

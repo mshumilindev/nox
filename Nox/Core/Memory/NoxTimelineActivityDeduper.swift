@@ -2,38 +2,27 @@ import Foundation
 
 enum NoxTimelineActivityDeduper {
 
-    /// Drops raw activity spans already represented by a semantic span on a overlapping interval.
+    /// Drops raw activity spans already represented by a semantic span on the same time window.
     static func filter(
         activitySpans: [NoxActivitySpan],
         semanticSpans: [NoxSemanticMemorySpan],
         at date: Date = Date()
     ) -> [NoxActivitySpan] {
         guard !semanticSpans.isEmpty else { return activitySpans }
+        let semanticIntervals = semanticSpans.map {
+            NoxTimeInterval(start: $0.startedAt, end: $0.endedAt ?? date)
+        }
         return activitySpans.filter { activity in
-            !semanticSpans.contains { semantic in
-                isCovered(activity: activity, semantic: semantic, at: date)
-            }
+            let activityInterval = NoxTimeInterval(start: activity.startedAt, end: activity.endedAt ?? date)
+            return !semanticIntervals.contains { activityInterval.overlaps($0) }
         }
     }
 
-    private static func isCovered(
-        activity: NoxActivitySpan,
-        semantic: NoxSemanticMemorySpan,
-        at date: Date
-    ) -> Bool {
-        let activityEnd = activity.endedAt ?? date
-        let semanticEnd = semantic.endedAt ?? date
-        let overlapStart = max(activity.startedAt, semantic.startedAt)
-        let overlapEnd = min(activityEnd, semanticEnd)
-        guard overlapEnd > overlapStart else { return false }
-
-        let overlapSeconds = overlapEnd.timeIntervalSince(overlapStart)
-        let activitySeconds = max(activityEnd.timeIntervalSince(activity.startedAt), 1)
-        let overlapRatio = overlapSeconds / activitySeconds
-
-        let contained = activity.startedAt >= semantic.startedAt
-            && activityEnd <= semanticEnd.addingTimeInterval(30)
-
-        return overlapRatio >= 0.5 || contained
+    static func unionTimeWindows(
+        activitySpans: [NoxActivitySpan],
+        semanticSpans: [NoxSemanticMemorySpan],
+        at date: Date = Date()
+    ) -> [NoxTimeInterval] {
+        NoxTimeIntervalMerge.union(activitySpans: activitySpans, semanticSpans: semanticSpans, at: date)
     }
 }

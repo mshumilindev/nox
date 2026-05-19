@@ -38,3 +38,18 @@ enum NoxSurfaceLayout {
     static let timelineFragmentMinHeight: CGFloat = 56
     static let timelineMetadataLineHeight: CGFloat = 16
 }
+
+enum NoxTimelineMarkerLayout {
+    static let railWidth: CGFloat = 12
+    static let dotDiameter: CGFloat = 5
+    static let rowVerticalPadding: CGFloat = NoxSpacing.sm
+    static let titleLineHeight: CGFloat = 16
+
+    static var dotCenterY: CGFloat {
+        rowVerticalPadding + titleLineHeight / 2
+    }
+
+    static var rowHeight: CGFloat {
+        rowVerticalPadding * 2 + NoxSurfaceLayout.timelineFragmentMinHeight
+    }
+}

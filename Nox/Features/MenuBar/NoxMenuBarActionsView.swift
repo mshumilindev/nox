@@ -6,20 +6,16 @@ struct NoxMenuBarActionsView: View {
     @Environment(\.noxMenuBarDismiss) private var closeMenuBar
     @Environment(AppEnvironment.self) private var environment
     @Environment(NoxPanelState.self) private var panelState
-    @State private var openHovered = false
-    @State private var quitHovered = false
 
     var body: some View {
         VStack(spacing: 0) {
             openAction
-                .onHover { openHovered = $0 }
 
             Divider()
                 .opacity(NoxDesignTokens.Opacity.divider)
                 .padding(.vertical, NoxSpacing.sm)
 
             quitAction
-                .onHover { quitHovered = $0 }
         }
     }
 
@@ -31,10 +27,8 @@ struct NoxMenuBarActionsView: View {
             }
         } label: {
             actionLabel(title: "Open Nox", symbolName: "macwindow")
-                .background(rowBackground(hovered: openHovered))
         }
-        .buttonStyle(.plain)
-        .noxPointerCursor()
+        .buttonStyle(.noxBorderless(hover: .row))
         .foregroundStyle(NoxDesignTokens.ColorRole.textPrimary)
         .keyboardShortcut("o", modifiers: .command)
         .accessibilityLabel("Open Nox")
@@ -46,10 +40,8 @@ struct NoxMenuBarActionsView: View {
             NSApplication.shared.terminate(nil)
         } label: {
             actionLabel(title: "Quit Nox", symbolName: "power")
-                .background(rowBackground(hovered: quitHovered))
         }
-        .buttonStyle(.plain)
-        .noxPointerCursor()
+        .buttonStyle(.noxBorderless(hover: .row))
         .foregroundStyle(NoxDesignTokens.ColorRole.textPrimary)
         .accessibilityLabel("Quit Nox")
         .accessibilityHint("Closes the Nox menu bar app.")
@@ -73,15 +65,6 @@ struct NoxMenuBarActionsView: View {
     private func closeMenuBarPanel() {
         closeMenuBar?()
         dismiss()
-    }
-
-    private func rowBackground(hovered: Bool) -> some View {
-        RoundedRectangle(cornerRadius: NoxDesignTokens.Radius.sm, style: .continuous)
-            .fill(
-                hovered
-                    ? NoxDesignTokens.ColorRole.surfaceElevated.opacity(NoxDesignTokens.Opacity.secondary)
-                    : Color.clear
-            )
     }
 }
 

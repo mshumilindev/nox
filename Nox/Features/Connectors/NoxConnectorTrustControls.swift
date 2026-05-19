@@ -49,7 +49,6 @@ struct NoxConnectorTrustControls: View {
                 .font(NoxTypography.caption)
                 .buttonStyle(.noxBorderless)
             }
-            .noxPointerCursor()
         }
         .noxSurface(.soft, padding: NoxSpacing.lg)
     }
@@ -76,11 +75,12 @@ struct NoxConnectorTrustControls: View {
                     .fixedSize(horizontal: false, vertical: true)
             }
             .frame(maxWidth: .infinity, alignment: .leading)
+            .allowsHitTesting(false)
 
             Toggle("", isOn: Binding(get: { isOn }, set: onChange))
                 .labelsHidden()
+                .noxInteractiveChrome(.row)
         }
         .padding(.vertical, NoxSpacing.sm)
-        .noxPointerCursor()
     }
 }

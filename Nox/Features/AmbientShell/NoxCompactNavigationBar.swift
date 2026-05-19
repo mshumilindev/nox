@@ -56,6 +56,6 @@ struct NoxCompactNavigationBar: View {
             }
             .noxHitTarget(minHeight: 44)
         }
-        .buttonStyle(.noxBorderless)
+        .buttonStyle(.noxBorderless(hover: .chip, isSelected: selected))
     }
 }

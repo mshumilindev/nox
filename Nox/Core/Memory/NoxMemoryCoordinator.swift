@@ -180,24 +180,54 @@ final class NoxMemoryCoordinator {
                 !span.appNames.contains { NoxSelfExclusion.isExcluded(bundleId: nil, appName: $0) }
             }
 
-        if !query.isEmpty, !query.matches(period: period) {
-            spans = try await memoryStore.searchSpans(from: range.start, to: range.end, query: query.normalizedText)
-            let semanticHits = try await semanticEngine.searchSpans(
+        var interruptions = try await memoryStore.interruptions(from: range.start, to: range.end)
+        var continuityThreads: [NoxContinuityThread] = []
+
+        if NoxMemorySearchScope.isActive(query: query, period: period) {
+            spans = try await memoryStore.searchSpans(
                 from: range.start,
                 to: range.end,
                 query: query.normalizedText
             )
-            semanticSpans = mergeSemanticSpans(semanticSpans, semanticHits)
+            semanticSpans = try await semanticEngine.searchSpans(
+                from: range.start,
+                to: range.end,
+                query: query.normalizedText
+            )
+            let windows = NoxTimelineActivityDeduper.unionTimeWindows(
+                activitySpans: spans,
+                semanticSpans: semanticSpans
+            )
+            interruptions = interruptions.filter {
+                NoxMemorySearchScope.interruptionMatches($0, query: query.normalizedText)
+            }
+            try await continuityEngine.runDecayPass(at: range.end)
+            let loadedThreads = try await continuityEngine.loadThreads(from: range.start, to: range.end)
+            continuityThreads = loadedThreads.filter {
+                NoxMemorySearchScope.continuityMatches($0, query: query.normalizedText, windows: windows)
+            }
+        } else {
+            try await continuityEngine.runDecayPass(at: range.end)
+            continuityThreads = try await continuityEngine.loadThreads(from: range.start, to: range.end)
         }
-        let interruptions = try await memoryStore.interruptions(from: range.start, to: range.end)
+
         let analysis = focusEngine.analyze(spans: spans, interruptions: interruptions, range: range)
         try await memoryStore.clearFocusBlocks(from: range.start, to: range.end)
         for block in analysis.blocks {
             try await memoryStore.insertFocusBlock(block)
         }
-        let storedBlocks = try await memoryStore.focusBlocks(from: range.start, to: range.end)
-        try await continuityEngine.runDecayPass(at: range.end)
-        let continuityThreads = try await continuityEngine.loadThreads(from: range.start, to: range.end)
+        var storedBlocks = try await memoryStore.focusBlocks(from: range.start, to: range.end)
+
+        if NoxMemorySearchScope.isActive(query: query, period: period) {
+            let windows = NoxTimelineActivityDeduper.unionTimeWindows(
+                activitySpans: spans,
+                semanticSpans: semanticSpans
+            )
+            storedBlocks = storedBlocks.filter { NoxMemorySearchScope.focusMatches($0, windows: windows) }
+            if storedBlocks.isEmpty {
+                storedBlocks = analysis.blocks.filter { NoxMemorySearchScope.focusMatches($0, windows: windows) }
+            }
+        }
         let sections = NoxTimelineBlockPresenter.makeSections(
             spans: spans,
             focusBlocks: storedBlocks.isEmpty ? analysis.blocks : storedBlocks,

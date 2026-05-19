@@ -29,7 +29,10 @@ struct NoxMemoryPeriodPicker: View {
             )
             .noxHitTarget(minHeight: 32)
         }
-        .buttonStyle(.noxBorderless)
+        .buttonStyle(.noxBorderless(
+            hover: .chip,
+            isSelected: environment.memoryPeriod == period
+        ))
       }
     }
   }
