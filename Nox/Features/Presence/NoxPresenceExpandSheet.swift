@@ -3,6 +3,7 @@ import SwiftUI
 struct NoxPresenceExpandSheet: View {
     let deviceName: String
     let deviceKind: NoxPresenceDeviceKind
+    let hardwareIdentity: NoxPresenceHardwareIdentity
     let onBeginExpansion: () -> Void
     let onInviteNearbyMac: () -> Void
     let onCopySetupLink: () -> Void
@@ -11,7 +12,7 @@ struct NoxPresenceExpandSheet: View {
     var body: some View {
         VStack(alignment: .leading, spacing: NoxSpacing.lg) {
             HStack(spacing: NoxSpacing.lg) {
-                NoxPresenceDeviceVisual(kind: deviceKind, tone: .nearby)
+                NoxPresenceDeviceVisual(identity: hardwareIdentity, tone: .nearby, large: true)
                 VStack(alignment: .leading, spacing: NoxSpacing.xs) {
                     Text("Expand Nox Here")
                         .font(.system(size: 18, weight: .semibold))

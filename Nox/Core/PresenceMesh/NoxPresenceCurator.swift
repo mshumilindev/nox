@@ -64,11 +64,16 @@ nonisolated enum NoxPresenceCurator {
     }
 
     static func resolvedDeviceKind(for node: NoxDiscoveredNode) -> NoxPresenceDeviceKind? {
+        let nameKind = resolvedDeviceKind(for: node.deviceName)
         if let rawKind = node.presenceToken.split(separator: ":").last,
            let kind = NoxPresenceDeviceKind(rawValue: String(rawKind)) {
+            if let nameKind,
+               isAppleMediaModelMismatch(tokenKind: kind, nameKind: nameKind) {
+                return nameKind
+            }
             return kind
         }
-        return resolvedDeviceKind(for: node.deviceName)
+        return nameKind
     }
 
     static func appleDisplayName(
@@ -107,6 +112,23 @@ nonisolated enum NoxPresenceCurator {
     private static func isValidMeshDeviceId(_ id: String) -> Bool {
         guard !id.isEmpty, !id.hasPrefix("sim-"), !id.hasPrefix("apple-") else { return false }
         return UUID(uuidString: id) != nil
+    }
+
+    private static func isAppleMediaModelMismatch(
+        tokenKind: NoxPresenceDeviceKind,
+        nameKind: NoxPresenceDeviceKind
+    ) -> Bool {
+        guard isMacFamily(nameKind) else { return false }
+        return tokenKind == .appleTV || tokenKind == .homePod
+    }
+
+    private static func isMacFamily(_ kind: NoxPresenceDeviceKind) -> Bool {
+        switch kind {
+        case .iMac, .macBookPro, .macBookAir, .macStudio, .macMini, .mac:
+            return true
+        case .iPhone, .iPad, .appleWatch, .appleTV, .homePod:
+            return false
+        }
     }
 
     private static func isLowQualityNetworkLabel(_ name: String) -> Bool {

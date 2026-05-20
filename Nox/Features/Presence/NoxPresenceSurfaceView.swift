@@ -41,6 +41,7 @@ struct NoxPresenceSurfaceView: View {
             NoxPresenceExpandSheet(
                 deviceName: target.deviceName,
                 deviceKind: target.kind,
+                hardwareIdentity: target.hardwareIdentity,
                 onBeginExpansion: {
                     Task { await mesh.expandToDevice(target.node) }
                 },
@@ -58,17 +59,14 @@ struct NoxPresenceSurfaceView: View {
         return NoxPresenceDeviceCard(
             deviceName: name,
             kind: kind,
+            hardwareIdentity: NoxPresenceHardwareIdentityResolver.hardwareIdentityForLocalMac(deviceName: name),
             tone: .trusted,
             onExpand: nil,
             onTrust: nil,
             onDecline: nil,
-            onPulse: nil
+            onPulse: nil,
+            isPrimaryEnvironment: true
         )
-        .overlay(alignment: .topLeading) {
-            Text("Your environment")
-                .noxSectionLabel()
-                .padding(NoxSpacing.lg)
-        }
         .onTapGesture(count: 5) {
             #if DEBUG
             showDeveloperTools.toggle()
@@ -88,12 +86,22 @@ struct NoxPresenceSurfaceView: View {
             } else {
                 ForEach(mesh.ambientNearbyNodes) { node in
                     if let kind = resolvedKind(for: node) {
+                        let hardwareIdentity = NoxPresenceHardwareIdentityResolver.hardwareIdentity(
+                            for: node,
+                            expectedKind: kind
+                        )
                         NoxPresenceDeviceCard(
                             deviceName: node.deviceName,
                             kind: kind,
+                            hardwareIdentity: hardwareIdentity,
                             tone: cardTone(for: node),
                             onExpand: node.state == .unavailable ? nil : {
-                                expandTarget = ExpandTarget(node: node, deviceName: node.deviceName, kind: kind)
+                                expandTarget = ExpandTarget(
+                                    node: node,
+                                    deviceName: node.deviceName,
+                                    kind: kind,
+                                    hardwareIdentity: hardwareIdentity
+                                )
                             },
                             onTrust: nil,
                             onDecline: nil,
@@ -122,6 +130,7 @@ struct NoxPresenceSurfaceView: View {
                         NoxPresenceDeviceCard(
                             deviceName: node.trustedDeviceName,
                             kind: kind,
+                            hardwareIdentity: trustedHardwareIdentity(name: node.trustedDeviceName, kind: kind),
                             tone: .trusted,
                             onExpand: nil,
                             onTrust: nil,
@@ -168,6 +177,7 @@ struct NoxPresenceSurfaceView: View {
         NoxPresenceDeviceCard(
             deviceName: pending.deviceName,
             kind: kind,
+            hardwareIdentity: NoxPresenceHardwareIdentityResolver.hardwareIdentity(for: pending, expectedKind: kind),
             tone: .awaitingTrust,
             onExpand: nil,
             onTrust: { Task { await mesh.trustPendingDevice() } },
@@ -186,6 +196,32 @@ struct NoxPresenceSurfaceView: View {
         NoxPresenceCurator.resolvedDeviceKind(for: node)
     }
 
+    private func trustedHardwareIdentity(
+        name: String,
+        kind: NoxPresenceDeviceKind
+    ) -> NoxPresenceHardwareIdentity {
+        if let inferred = NoxPresenceDeviceKind.confidentlyInfer(from: name),
+           let key = NoxPresenceFamilyArtwork.imageKey(for: inferred) {
+            return NoxPresenceHardwareIdentity(
+                confidence: .family,
+                deviceKey: key,
+                colorKey: NoxPresenceFamilyArtwork.defaultColor(for: key),
+                fallbackKind: inferred,
+                showsConcreteAppleDevice: true
+            )
+        }
+        if let key = NoxPresenceFamilyArtwork.imageKey(for: kind) {
+            return NoxPresenceHardwareIdentity(
+                confidence: .family,
+                deviceKey: key,
+                colorKey: NoxPresenceFamilyArtwork.defaultColor(for: key),
+                fallbackKind: kind,
+                showsConcreteAppleDevice: true
+            )
+        }
+        return .generic(fallbackKind: kind)
+    }
+
     private func cardTone(for node: NoxDiscoveredNode) -> NoxPresenceCardTone {
         if node.state == .pairingRequested { return .expanding }
         if node.state == .unavailable { return .unavailable }
@@ -195,6 +231,9 @@ struct NoxPresenceSurfaceView: View {
     private func subtitle(for node: NoxDiscoveredNode, kind: NoxPresenceDeviceKind) -> String? {
         if kind == .homePod, isGroupedDevice(node) {
             return "Stereo pair nearby"
+        }
+        if node.state == .unavailable {
+            return "Nearby Apple ecosystem presence"
         }
         return nil
     }
@@ -222,6 +261,7 @@ private struct ExpandTarget: Identifiable {
     let node: NoxDiscoveredNode
     let deviceName: String
     let kind: NoxPresenceDeviceKind
+    let hardwareIdentity: NoxPresenceHardwareIdentity
     var id: String { node.deviceId }
 }
 

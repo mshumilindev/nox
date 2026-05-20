@@ -4,6 +4,7 @@ import SwiftUI
 struct NoxPresenceDeviceCard: View {
     let deviceName: String
     let kind: NoxPresenceDeviceKind
+    let hardwareIdentity: NoxPresenceHardwareIdentity
     let tone: NoxPresenceCardTone
     let onExpand: (() -> Void)?
     let onTrust: (() -> Void)?
@@ -11,32 +12,47 @@ struct NoxPresenceDeviceCard: View {
     let onPulse: (() -> Void)?
     var subtitleOverride: String?
     var isGroupedDevice = false
+    var isPrimaryEnvironment = false
 
     @State private var appeared = false
 
     var body: some View {
-        HStack(spacing: NoxSpacing.lg) {
-            NoxPresenceDeviceVisual(kind: kind, tone: tone, large: false, isGroupedDevice: isGroupedDevice)
-                .frame(width: 132, height: 104)
+        HStack(spacing: isPrimaryEnvironment ? NoxSpacing.lg : NoxSpacing.md) {
+            NoxPresenceDeviceVisual(
+                identity: hardwareIdentity,
+                tone: tone,
+                large: false,
+                isGroupedDevice: isGroupedDevice
+            )
+                .id(hardwareIdentity.cacheKey)
+                .frame(width: isPrimaryEnvironment ? 104 : 78, height: isPrimaryEnvironment ? 78 : 62)
                 .padding(.leading, NoxSpacing.md)
-            VStack(alignment: .leading, spacing: NoxSpacing.xs) {
+            VStack(alignment: .leading, spacing: isPrimaryEnvironment ? NoxSpacing.xs : 3) {
+                if isPrimaryEnvironment {
+                    Text("This environment")
+                        .font(.system(size: 10, weight: .semibold))
+                        .foregroundStyle(NoxDesignTokens.ColorRole.accent.opacity(0.76))
+                        .textCase(.uppercase)
+                        .tracking(1.4)
+                }
                 Text(deviceName)
-                    .font(.system(size: 18, weight: .semibold))
+                    .font(.system(size: isPrimaryEnvironment ? 18 : 16, weight: .semibold))
                     .foregroundStyle(NoxDesignTokens.ColorRole.textPrimary)
                 Text(subtitleOverride ?? NoxPresenceDeviceCopy.subtitle(for: kind, tone: tone))
-                    .font(.system(size: 13))
+                    .font(.system(size: isPrimaryEnvironment ? 13 : 12))
                     .foregroundStyle(NoxDesignTokens.ColorRole.textSecondary.opacity(0.82))
             }
             Spacer(minLength: NoxSpacing.md)
             rowActions
                 .padding(.trailing, NoxSpacing.lg)
         }
-        .padding(.vertical, NoxSpacing.md)
-        .frame(maxWidth: .infinity, minHeight: 132, alignment: .leading)
+        .padding(.vertical, isPrimaryEnvironment ? NoxSpacing.md : NoxSpacing.sm)
+        .frame(maxWidth: .infinity, alignment: .leading)
+        .frame(minHeight: isPrimaryEnvironment ? 104 : 84, alignment: .leading)
         .background(cardBackground)
         .overlay(cardBorder)
         .clipShape(RoundedRectangle(cornerRadius: NoxDesignTokens.Radius.md, style: .continuous))
-        .shadow(color: glowColor.opacity(appeared ? 0.28 : 0), radius: tone == .trusted ? 10 : 18, y: 6)
+        .shadow(color: glowColor.opacity(appeared ? (isPrimaryEnvironment ? 0.18 : 0.24) : 0), radius: tone == .trusted ? 8 : 14, y: 5)
         .scaleEffect(appeared ? 1 : 0.97)
         .opacity(appeared ? 1 : 0)
         .onTapGesture(count: 1) {
@@ -93,12 +109,12 @@ struct NoxPresenceDeviceCard: View {
                 .fill(
                     RadialGradient(
                         colors: [
-                            glowColor.opacity(tone == .trusted ? 0.1 : 0.16),
+                            glowColor.opacity(isPrimaryEnvironment ? 0.2 : (tone == .trusted ? 0.1 : 0.16)),
                             .clear,
                         ],
-                        center: .top,
+                        center: isPrimaryEnvironment ? .leading : .top,
                         startRadius: 20,
-                        endRadius: 280
+                        endRadius: isPrimaryEnvironment ? 220 : 280
                     )
                 )
         }
@@ -107,7 +123,7 @@ struct NoxPresenceDeviceCard: View {
     private var cardBorder: some View {
         RoundedRectangle(cornerRadius: NoxDesignTokens.Radius.md, style: .continuous)
             .strokeBorder(
-                NoxDesignTokens.ColorRole.accent.opacity(0.12),
+                NoxDesignTokens.ColorRole.accent.opacity(isPrimaryEnvironment ? 0.2 : 0.12),
                 lineWidth: 0.5
             )
     }

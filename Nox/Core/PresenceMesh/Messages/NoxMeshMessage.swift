@@ -88,6 +88,7 @@ nonisolated struct NoxDiscoveredNode: Identifiable, Equatable, Sendable {
     var appleGroupIdentifier: String?
     var appleGroupName: String?
     var appleGroupMemberNames: [String] = []
+    var appleDiscoverySource: NoxAppleDiscoverySource?
 
     var id: String { deviceId }
 

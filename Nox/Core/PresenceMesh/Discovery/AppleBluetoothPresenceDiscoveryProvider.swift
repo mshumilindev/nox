@@ -63,7 +63,8 @@ final class AppleBluetoothPresenceDiscoveryProvider: NSObject, @unchecked Sendab
             pairingPort: 0,
             state: .unavailable,
             lastSeenAt: Date(),
-            hostName: nil
+            hostName: nil,
+            appleDiscoverySource: .bluetoothContinuity
         )
         nodes[node.deviceId] = node
         emit()

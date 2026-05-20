@@ -84,23 +84,9 @@ enum NoxPresenceDeviceCopy {
     static func subtitle(for kind: NoxPresenceDeviceKind, tone: NoxPresenceCardTone) -> String {
         switch tone {
         case .nearby:
-            switch kind {
-            case .iMac, .macStudio, .macMini:
-                return "Available to extend your Nox environment"
-            case .iPhone, .iPad:
-                return "Nearby Apple device with Nox presence"
-            default:
-                return "Nearby Nox presence detected"
-            }
+            return "Ready to extend your Nox environment"
         case .unavailable:
-            switch kind {
-            case .iMac, .macBookPro, .macBookAir, .macStudio, .macMini, .mac:
-                return "Nox is not paired here yet"
-            case .iPhone, .iPad:
-                return "Available for a Nox setup invite"
-            case .appleTV, .homePod, .appleWatch:
-                return "Nearby Apple ecosystem presence"
-            }
+            return "Nearby Apple ecosystem presence"
         case .awaitingTrust:
             return "Waiting for your approval"
         case .trusted:

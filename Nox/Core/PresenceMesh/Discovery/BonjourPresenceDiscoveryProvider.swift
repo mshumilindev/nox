@@ -168,6 +168,8 @@ final class BonjourPresenceDiscoveryProvider: NSObject, PresenceDiscoveryProvide
         )
         let existing = nodes[deviceId]
         let memberNames = mergedMemberNames(existing: existing, serviceName: rawName)
+        let incoming = NoxAppleDiscoverySource(bonjourServiceType: service.type)
+        let source = incoming?.merged(with: existing?.appleDiscoverySource) ?? existing?.appleDiscoverySource
         let node = NoxDiscoveredNode(
             deviceId: deviceId,
             deviceName: bestDisplayName(existing: existing?.deviceName, incoming: displayName, kind: candidate.1),
@@ -182,7 +184,8 @@ final class BonjourPresenceDiscoveryProvider: NSObject, PresenceDiscoveryProvide
             appleDeviceIdentifier: fields["deviceid"] ?? existing?.appleDeviceIdentifier,
             appleGroupIdentifier: groupId ?? existing?.appleGroupIdentifier,
             appleGroupName: fields["gpn"] ?? existing?.appleGroupName,
-            appleGroupMemberNames: memberNames
+            appleGroupMemberNames: memberNames,
+            appleDiscoverySource: source
         )
         guard NoxPresenceCurator.isPresentableApplePresence(node) else { return }
         nodes[node.deviceId] = node
