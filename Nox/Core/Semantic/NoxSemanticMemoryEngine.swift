@@ -135,8 +135,8 @@ final class NoxSemanticMemoryEngine {
         return closed
     }
 
-    func loadSpans(from start: Date, to end: Date) async throws -> [NoxSemanticMemorySpan] {
-        let raw = try await store.spans(from: start, to: end)
+    func loadSpans(from start: Date, to end: Date, limit: Int = 24) async throws -> [NoxSemanticMemorySpan] {
+        let raw = try await store.spans(from: start, to: end, limit: limit)
         return NoxSemanticSpanStitcher.stitch(raw)
     }
 

@@ -117,7 +117,7 @@ actor NoxSemanticMemoryStore {
         )
     }
 
-    func spans(from start: Date, to end: Date) throws -> [NoxSemanticMemorySpan] {
+    func spans(from start: Date, to end: Date, limit: Int = 24) throws -> [NoxSemanticMemorySpan] {
         try fetchSpans(
             sql: """
             SELECT id, started_at, ended_at, title, subtitle, interaction_style, semantic_state,
@@ -125,9 +125,13 @@ actor NoxSemanticMemoryStore {
             FROM semantic_spans
             WHERE started_at < ? AND (ended_at IS NULL OR ended_at >= ?)
             ORDER BY started_at DESC
-            LIMIT 24;
+            LIMIT ?;
             """,
-            bindings: [.double(end.timeIntervalSince1970), .double(start.timeIntervalSince1970)]
+            bindings: [
+                .double(end.timeIntervalSince1970),
+                .double(start.timeIntervalSince1970),
+                .int(limit)
+            ]
         )
     }
 
@@ -136,6 +140,7 @@ actor NoxSemanticMemoryStore {
         case textOptional(String?)
         case double(Double)
         case doubleOptional(Double?)
+        case int(Int)
     }
 
     private func fetchSpans(sql: String, bindings: [Binding]) throws -> [NoxSemanticMemorySpan] {
@@ -248,6 +253,8 @@ actor NoxSemanticMemoryStore {
                 } else {
                     sqlite3_bind_null(statement, i)
                 }
+            case .int(let value):
+                sqlite3_bind_int(statement, i, Int32(value))
             }
         }
     }

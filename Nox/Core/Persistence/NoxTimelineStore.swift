@@ -64,6 +64,20 @@ actor NoxTimelineStore {
             """, bindings: [.int(limit)])
     }
 
+    func events(from start: Date, to end: Date, limit: Int = 20_000) throws -> [NoxTimelineRecord] {
+        try fetch(sql: """
+            SELECT id, type, timestamp, source, app_name, bundle_id, window_title, duration_ms, metadata_json, display_text
+            FROM timeline_events
+            WHERE timestamp >= ? AND timestamp < ?
+            ORDER BY timestamp ASC
+            LIMIT ?;
+            """, bindings: [
+                .double(start.timeIntervalSince1970),
+                .double(end.timeIntervalSince1970),
+                .int(limit)
+            ])
+    }
+
     @discardableResult
     func deleteEvents(from start: Date, to end: Date) throws -> Int {
         try execute(

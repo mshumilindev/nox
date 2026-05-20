@@ -34,12 +34,28 @@ final class NoxMemoryCoordinator {
 
     func semanticSpans(
         from start: Date,
-        to end: Date
+        to end: Date,
+        limit: Int = 24
     ) async throws -> [NoxSemanticMemorySpan] {
-        try await semanticEngine.loadSpans(from: start, to: end)
+        try await semanticEngine.loadSpans(from: start, to: end, limit: limit)
             .filter { span in
                 !span.appNames.contains { NoxSelfExclusion.isExcluded(bundleId: nil, appName: $0) }
             }
+    }
+
+    func activitySpans(from start: Date, to end: Date) async throws -> [NoxActivitySpan] {
+        let spans = try await memoryStore.spans(from: start, to: end)
+        return spans.filter {
+            !NoxSelfExclusion.isExcluded(bundleId: $0.bundleId, appName: $0.appName)
+        }
+    }
+
+    func focusBlocks(from start: Date, to end: Date) async throws -> [NoxFocusBlock] {
+        try await memoryStore.focusBlocks(from: start, to: end)
+    }
+
+    func interruptions(from start: Date, to end: Date) async throws -> [NoxInterruption] {
+        try await memoryStore.interruptions(from: start, to: end)
     }
 
     func weeklyRollups(endingAt date: Date = Date()) async throws -> [NoxMemoryRollupSnapshot] {

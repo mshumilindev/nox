@@ -24,6 +24,10 @@ final class NoxContextService {
 
     private var sessionDetector = NoxSessionDetector()
     private var signalTracker = NoxActivitySignalTracker()
+    private var engagementStabilizer = NoxEngagementStabilizer()
+    private var latestEngagementState: NoxEngagementState?
+    private var lastDurableSnapshot: NoxActivitySnapshot?
+    private var lastWanderingIngestAt: Date?
     private var recentBundleIds: [String] = []
     private var latestSemanticInference = NoxSemanticInference.hidden
     private var lastSnapshot: NoxActivitySnapshot?
@@ -45,6 +49,10 @@ final class NoxContextService {
     )
     private let connectorSignalStore = NoxConnectorSignalStore()
     private let behavioralSignalStore = NoxBehavioralIntelligenceSignalStore()
+    private lazy var observatoryProvider = NoxObservatoryDataProvider(
+        timelineStore: timelineStore,
+        memoryCoordinator: memoryCoordinator
+    )
     private lazy var connectorControl = NoxConnectorControlCoordinator(
         signalStore: connectorSignalStore,
         behavioralSignalStore: behavioralSignalStore
@@ -231,6 +239,14 @@ final class NoxContextService {
                 at: date
             )
             environment.memoryEvolutionSnapshot = memoryEvolution
+            environment.observatorySnapshot = await observatoryProvider.snapshot(
+                range: environment.observatoryRange,
+                behavioralSnapshot: behavioralSnapshot,
+                utilitySnapshot: utilitySnapshot,
+                memoryEvolutionSnapshot: memoryEvolution,
+                connectorSnapshot: connectorSnapshot,
+                at: date
+            )
             environment.timelineSections = NoxTemporalMemoryRowPresenter.enrich(
                 sections: view.sections,
                 threads: view.continuityThreads,
@@ -324,6 +340,18 @@ final class NoxContextService {
 
     func refreshPermissionState() {
         refreshPermissionState(force: false)
+    }
+
+    func refreshObservatory(range: NoxObservatoryTimeRange? = nil) async {
+        guard let environment else { return }
+        let selected = range ?? environment.observatoryRange
+        environment.observatorySnapshot = await observatoryProvider.snapshot(
+            range: selected,
+            behavioralSnapshot: environment.behavioralSnapshot,
+            utilitySnapshot: environment.ambientUtilitySnapshot,
+            memoryEvolutionSnapshot: environment.memoryEvolutionSnapshot,
+            connectorSnapshot: environment.connectorSnapshot
+        )
     }
 
     func requestAccessibilityAccess() {
@@ -473,7 +501,10 @@ final class NoxContextService {
     }
 
     private func shouldPersistToTimeline(_ event: NoxEvent) -> Bool {
-        !NoxForbiddenMemoryContent.mustNotPersistToWarmTimeline(eventType: event.type)
+        if event.type == .appChanged || event.type == .windowChanged {
+            return false
+        }
+        return !NoxForbiddenMemoryContent.mustNotPersistToWarmTimeline(eventType: event.type)
     }
 
     private func persist(_ event: NoxEvent) async {
@@ -513,8 +544,15 @@ final class NoxContextService {
         ) {
             metricsAggregator.applyPassivePlaybackMode()
         }
+        let engagement = engagementStabilizer.ingest(
+            snapshot: snapshot,
+            metrics: metricsAggregator.snapshot(at: snapshot.capturedAt)
+        )
+        latestEngagementState = engagement.state
         appendLiveSignalsFromSnapshot(snapshot, previous: previous, evidence: contextEvidence)
-        signalTracker.recordSnapshot(snapshot)
+        if engagement.becameHard {
+            signalTracker.recordSnapshot(snapshot)
+        }
 
         lastSnapshot = snapshot
         environment?.activeAppName = snapshot.appName
@@ -528,27 +566,59 @@ final class NoxContextService {
             bundleId: snapshot.bundleId,
             windowTitle: snapshot.windowTitle
         )
-        _ = sessionDetector.ingest(snapshot: snapshot, isProductive: isProductive) { [weak self] event in
-            Task { @MainActor in
-                self?.eventBus.publish(event)
+        if engagement.state.isHardStabilized {
+            if engagement.becameHard {
+                sessionDetector.recordAppSwitch()
             }
+            _ = sessionDetector.ingest(snapshot: snapshot, isProductive: isProductive) { [weak self] event in
+                Task { @MainActor in
+                    self?.eventBus.publish(event)
+                }
+            }
+            await persistActiveSessionIfNeeded()
         }
         environment?.sessionSummary = sessionDetector.currentSession?.summaryLine
-        await persistActiveSessionIfNeeded()
-        trackRecentBundle(snapshot.bundleId)
+        if engagement.becameHard {
+            trackRecentBundle(snapshot.bundleId)
+        }
         await evaluateSemantics(at: snapshot.capturedAt)
         recalculatePresence()
 
         if NoxQuietModeEngine.shouldIngestTimeline(preferences.pauseState) {
             Task {
-                if let previous, previous.bundleId != snapshot.bundleId {
-                    try? await memoryCoordinator.ingestAppChange(from: previous, to: snapshot)
-                } else {
-                    try? await memoryCoordinator.ingestSnapshot(snapshot)
+                if engagement.becameHard {
+                    let durableSnapshot = stabilizedSnapshot(from: snapshot, state: engagement.state)
+                    if let durable = lastDurableSnapshot, durable.bundleId != durableSnapshot.bundleId {
+                        try? await memoryCoordinator.ingestAppChange(from: durable, to: durableSnapshot)
+                    } else {
+                        try? await memoryCoordinator.ingestSnapshot(durableSnapshot)
+                    }
+                    lastDurableSnapshot = durableSnapshot
+                } else if let wandering = engagement.wanderingState,
+                          shouldIngestWandering(at: wandering.observedAt) {
+                    try? await memoryCoordinator.ingestSnapshot(
+                        wanderingSnapshot(from: wandering)
+                    )
                 }
                 await reloadMemoryView()
             }
         }
+    }
+
+    private func stabilizedSnapshot(
+        from snapshot: NoxActivitySnapshot,
+        state: NoxEngagementState
+    ) -> NoxActivitySnapshot {
+        NoxActivitySnapshot(
+            appName: snapshot.appName,
+            bundleId: snapshot.bundleId,
+            windowTitle: snapshot.windowTitle,
+            documentURL: snapshot.documentURL,
+            processId: snapshot.processId,
+            idleSeconds: snapshot.idleSeconds,
+            isUserIdle: snapshot.isUserIdle,
+            capturedAt: state.foregroundStartedAt
+        )
     }
 
     private func appendLiveSignal(from event: NoxEvent) {
@@ -616,8 +686,6 @@ final class NoxContextService {
             guard !NoxSelfExclusion.isExcluded(bundleId: payload.bundleId, appName: payload.appName) else {
                 return
             }
-            sessionDetector.recordAppSwitch()
-            trackRecentBundle(payload.bundleId)
             environment?.activeAppName = payload.appName
             environment?.activeBundleId = payload.bundleId
             environment?.activeWindowTitle = payload.windowTitle
@@ -670,7 +738,7 @@ final class NoxContextService {
             currentBundleId: snapshot?.bundleId ?? environment?.activeBundleId,
             currentAppName: snapshot?.appName ?? environment?.activeAppName,
             currentWindowTitle: snapshot?.windowTitle ?? environment?.activeWindowTitle,
-            timeInCurrentApp: signalTracker.timeInCurrentApp(),
+            timeInCurrentApp: latestEngagementState?.foregroundDuration ?? signalTracker.timeInCurrentApp(),
             recentSwitchCount: signalTracker.recentSwitchCount(),
             hasEnoughSignals: signalTracker.hasEnoughSignals || !liveBuffer.signals.isEmpty,
             focusAnalysis: latestFocusAnalysis
@@ -759,6 +827,28 @@ final class NoxContextService {
         recalculatePresence()
     }
 
+    private func shouldIngestWandering(at date: Date) -> Bool {
+        if let lastWanderingIngestAt,
+           date.timeIntervalSince(lastWanderingIngestAt) < 20 {
+            return false
+        }
+        lastWanderingIngestAt = date
+        return true
+    }
+
+    private func wanderingSnapshot(from state: NoxEngagementState) -> NoxActivitySnapshot {
+        NoxActivitySnapshot(
+            appName: "Fragmented navigation",
+            bundleId: "dev.nox.navigation.wandering",
+            windowTitle: "Unstable context traversal",
+            documentURL: nil,
+            processId: 0,
+            idleSeconds: state.snapshot.idleSeconds,
+            isUserIdle: state.snapshot.isUserIdle,
+            capturedAt: state.observedAt
+        )
+    }
+
     private func evaluateSemantics(at date: Date = Date()) async {
         if let snapshot = lastSnapshot, NoxSelfExclusion.shouldIgnore(snapshot: snapshot) {
             return
@@ -779,7 +869,7 @@ final class NoxContextService {
             windowTitle: sanitizedWindowTitle(),
             domain: resolvedDomain(from: lastSnapshot),
             metrics: metricsAggregator.snapshot(at: date),
-            timeInCurrentApp: signalTracker.timeInCurrentApp(at: date),
+            timeInCurrentApp: latestEngagementState?.foregroundDuration ?? signalTracker.timeInCurrentApp(at: date),
             recentSwitchCount: signalTracker.recentSwitchCount(at: date),
             isUserIdle: lastSnapshot?.isUserIdle ?? environment?.isUserIdle ?? false,
             idleSeconds: lastSnapshot?.idleSeconds ?? environment?.idleSeconds ?? 0,
@@ -790,7 +880,9 @@ final class NoxContextService {
             browserCategory: browser.category,
             dominantContextType: dominantEvidence?.safeOutput.dominantContextType,
             dominantContextConfidence: dominantEvidence?.semantic.dominanceScore ?? 0,
-            fragmentationSwitchCount: signalTracker.fragmentationSwitchCount(at: date)
+            fragmentationSwitchCount: latestEngagementState?.isHardStabilized == true
+                ? signalTracker.fragmentationSwitchCount(at: date)
+                : 0
         )
 
         latestSemanticInference = semanticEngine.infer(context: context)
@@ -817,7 +909,8 @@ final class NoxContextService {
             publishLiveSignals()
         }
 
-        if NoxQuietModeEngine.shouldIngestSemanticMemory(preferences.pauseState) {
+        if NoxQuietModeEngine.shouldIngestSemanticMemory(preferences.pauseState),
+           latestEngagementState?.isHardStabilized == true {
             let resurfacing = try? await memoryCoordinator.ingestSemantic(
                 inference: latestSemanticInference,
                 appName: context.appName,

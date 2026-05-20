@@ -6,7 +6,7 @@ This document is the living inventory of what Nox actually implements today. Upd
 
 ## Product State
 
-Nox is currently a native macOS menu bar app with an adaptive ambient shell, local activity awareness, trust surfaces, memory controls, deterministic context inference, structured memory, continuity detection, reflective continuity, **local macOS system-state contradictions (Phase 13)**, and local persistence.
+Nox is currently a native macOS menu bar app with an adaptive ambient shell, local activity awareness, trust surfaces, memory controls, deterministic context inference, structured memory, stabilized engagement filtering, continuity detection, reflective continuity, **local macOS system-state contradictions (Phase 13)**, **Observatory**, and local persistence.
 
 It is not a chatbot, cloud assistant, productivity scorer, screenshot recorder, clipboard tracker, or keystroke logger.
 
@@ -16,7 +16,7 @@ It is not a chatbot, cloud assistant, productivity scorer, screenshot recorder, 
 - Agent-style app using `LSUIElement`; it lives in the menu bar without a Dock-first experience.
 - Floating dashboard is owned by `NoxWindowController` through `NoxPanelState`, with single-window open/focus behavior.
 - Runtime singletons are centralized in `NoxAppRuntime`.
-- `AppEnvironment` owns UI-facing state for presence, permissions, preferences, awareness snapshots, explainability, live signals, **layered timeline sections** (`timelineSections`), semantic context, search, memory period, long-horizon memory (`longHorizonSnapshot`), **memory evolution** (`memoryEvolutionSnapshot`), morning continuity, reflections, memory maturity, **connector / behavioral / ambient utility snapshots**, optional **`systemTrayHint`** (one-line calm note when a system contradiction is active), and active app context.
+- `AppEnvironment` owns UI-facing state for presence, permissions, preferences, awareness snapshots, explainability, live signals, **layered timeline sections** (`timelineSections`), semantic context, search, memory period, long-horizon memory (`longHorizonSnapshot`), **memory evolution** (`memoryEvolutionSnapshot`), **Observatory** (`observatorySnapshot` / `observatoryRange`), morning continuity, reflections, memory maturity, **connector / behavioral / ambient utility snapshots**, optional **`systemTrayHint`** (one-line calm note when a system contradiction is active), and active app context.
 - App lifecycle can checkpoint memory and session state before termination through `NoxLifecycleCoordinator` and `NoxContextService`.
 
 ## Menu Bar Experience
@@ -94,6 +94,7 @@ Procedural Canvas aurora was **removed**. Current stack:
   - **Threads** — continuity threads with “why” cards;
   - **Memory** — timeline and search;
   - **Patterns** — arcs, emerging patterns, rhythms;
+  - **Observatory** — one unified local signal graph and confidence-gated continuity observations;
   - **Reflections** — calm reflection cards;
   - **Local** — local-first transparency and capability ladder;
   - **Trust** — privacy boundaries and memory controls.
@@ -194,8 +195,18 @@ Weekly/monthly rollup narratives and rare resurfacing notes are assembled into t
 - `NoxEventBus` routes typed `NoxEvent` values.
 - Events include app changes, window changes, idle transitions, permission changes, presence changes, session transitions, and interaction aggregates.
 - Warm timeline persistence stores events in SQLite through `NoxTimelineStore`.
-- Duplicate app-change events are suppressed within a short window.
+- Raw app/window foreground changes feed live context, but do **not** directly persist as warm timeline rows.
 - Forbidden memory content rules prevent certain event types from entering the warm timeline.
+
+## Engagement Stabilization
+
+- `Nox/Core/EngagementStabilization/` separates **raw foreground state** from **meaningful engagement**.
+- `NoxEngagementStabilizer` applies multi-stage stabilization: raw foreground → transient traversal / soft stabilization → hard stabilization / wandering.
+- `NoxTransientTraversalFilter` presumes sub-~1.5s, near-zero-interaction foreground visits are traversal when another app immediately follows.
+- `NoxForegroundIntentModel` gives utilities and launchers longer stabilization windows, while IDEs, terminals, writing apps, design tools, and sustained research contexts stabilize faster.
+- `NoxContinuityStabilizationWindow` absorbs brief traversal between matching hard-stabilized contexts so micro app hops do not split continuity.
+- `NoxWanderingAggregationEngine` preserves real instability by aggregating extended un-stabilized traversal into a single higher-level “Fragmented navigation” state instead of many tiny rows.
+- Semantic memory, timeline ingestion, sessions, behavioral continuity, and Observatory intake consume hard-stabilized engagement rather than raw foreground switches. Debug builds print raw/soft/hard/transient/wandering transitions through `[NoxEngagement]` logs.
 
 ## Presence
 
@@ -207,6 +218,7 @@ Weekly/monthly rollup narratives and rare resurfacing notes are assembled into t
 ## Sessions
 
 - `NoxSessionDetector` detects rule-based work sessions from productive app focus and activity continuity.
+- Session app-switch detection is based on hard-stabilized engagement, not raw command-tab traversal.
 - Current session summary is surfaced in menu bar and dashboard.
 - Active and ended sessions are persisted through `NoxSessionStore`.
 - Restart recovery can resume or close interrupted sessions.
@@ -228,6 +240,7 @@ Weekly/monthly rollup narratives and rare resurfacing notes are assembled into t
 
 - `NoxSemanticInferenceEngine` performs deterministic local semantic inference.
 - `NoxSemanticLiveSignalPresenter` applies cooldowns and deduplication before showing semantic pulses.
+- Semantic memory persistence is gated behind hard-stabilized engagement so brief foreground traversal does not create semantic spans.
 - Browser context classification can identify categories such as development, research, AI tools, travel, and passive media.
 
 ## Privacy And Sensitive Contexts
@@ -423,6 +436,19 @@ Presentation layer in `Nox/Core/Memory/Presentation/` (no new dashboards or anal
 
 **Focus API note:** macOS exposes authorized `INFocusStatus.isFocused` (boolean), not Sleep vs Work Focus names — copy stays low-certainty (“appears active”).
 
+## Observatory
+
+Module: `Nox/Core/Observatory/` plus `Nox/Features/Observatory/`
+
+- Dedicated **Observatory** destination sits after Patterns and before Reflections.
+- `NoxObservatoryDataProvider` loads local timeline, semantic spans, sessions, connector cadence, behavioral, ambient utility, memory evolution, and rollup signals where available. It normalizes into bucketed temporal series without exposing raw text, browser titles, clipboard, or communication content.
+- Supported ranges: Today, 24h, 7d, 30d, All. Bucket sizing follows 15m / 30m / 2h / 1d thresholds.
+- `NoxObservatoryMaturityLevel` gates confidence: gathering (<6h), weak (6–24h), tentative (1–3d), normal (3–7d), long horizon (7d+). It does not fake confidence.
+- Signals: focus continuity, deep work, fragmentation, context switching, recovery, passive decompression, coordination load, overload pressure, interruption density, rhythm stability.
+- UI renders **one unified graph only** (`NoxUnifiedSignalGraphView`), with smoothed percentile-normalized lines and grouped display fields to reduce visual noise.
+- Current visible graph groups: Focus field, Strain field, Recovery field, Coordination field, Rhythm field. The legend controls grouped raw signals without turning the surface into a dashboard.
+- `NoxObservatoryObservationEngine` produces practical, confidence-gated continuity observations with restrained tough-love copy. No exports, CSV/XLSX, scores, achievements, cloud sync, reporting, or coach behavior.
+
 ## Interaction & Hover
 
 - `NoxBorderlessPressStyle` — press feedback + ambient hover on **Button** labels only.
@@ -432,7 +458,7 @@ Presentation layer in `Nox/Core/Memory/Presentation/` (no new dashboards or anal
 
 ## Testing
 
-- Unit tests cover presence, memory, continuity, context QA, reflective continuity, **Phase 9 connectors**, **Phase 10 behavioral intelligence**, **Phase 12 memory evolution**, **Phase 12.5 presentation copy/aging**, **Phase 13 system contradictions & caffeinate safety**, **timeline dedup by time overlap**, **layered sections**, **historical empty copy**, and **activity classification** (e.g. ChatGPT → Research, legacy `unknown` resolution).
+- Unit tests cover presence, memory, continuity, context QA, reflective continuity, **engagement stabilization**, **Phase 9 connectors**, **Phase 10 behavioral intelligence**, **Phase 12 memory evolution**, **Phase 12.5 presentation copy/aging**, **Phase 13 system contradictions & caffeinate safety**, **timeline dedup by time overlap**, **layered sections**, **historical empty copy**, and **activity classification** (e.g. ChatGPT → Research, legacy `unknown` resolution).
 - UI test files exist; product strategy avoids brittle layout UI tests as primary validation.
 
 ## Current Gaps And Risks
@@ -443,6 +469,7 @@ Presentation layer in `Nox/Core/Memory/Presentation/` (no new dashboards or anal
 - Night aurora is a **static image plate**, not reactive to memory density or live presence (density only affects base haze slightly).
 - Mail/Slack native metadata connectors are not integrated; communication pressure uses local activity proxies.
 - No cloud sync, encrypted export, or backup workflow.
+- Observatory intentionally has no export/reporting path.
 - Calendar permission onboarding may still need product polish; sandbox entitlement flow should be validated before release.
 - Settings row labels are not tap-to-toggle (only the switch/picker is interactive).
 - Phase 13 Focus detection is coarse (`isFocused` only); Sleep/Work/DND distinction depends on what Apple exposes to `INFocusStatusCenter`.

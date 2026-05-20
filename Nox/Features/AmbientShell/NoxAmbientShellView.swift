@@ -106,6 +106,8 @@ struct NoxAmbientShellView: View {
         switch destination {
         case .patterns:
             NoxDeepPatternsSurfaceView()
+        case .observatory:
+            NoxObservatoryView()
         case .reflections:
             NoxDeepReflectionSurfaceView()
         default:
@@ -124,6 +126,8 @@ struct NoxAmbientShellView: View {
             NoxMemorySurfaceView()
         case .patterns:
             NoxPatternsSurfaceView()
+        case .observatory:
+            NoxObservatoryView()
         case .reflections:
             NoxReflectionsSurfaceView()
         case .local:

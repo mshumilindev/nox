@@ -6,6 +6,7 @@ nonisolated enum NoxSemanticDestination: String, CaseIterable, Identifiable, Cod
     case threads
     case memory
     case patterns
+    case observatory
     case reflections
     case local
     case trust
@@ -18,6 +19,7 @@ nonisolated enum NoxSemanticDestination: String, CaseIterable, Identifiable, Cod
         case .threads: "Threads"
         case .memory: "Memory"
         case .patterns: "Patterns"
+        case .observatory: "Observatory"
         case .reflections: "Reflections"
         case .local: "Local"
         case .trust: "Trust"
@@ -30,6 +32,7 @@ nonisolated enum NoxSemanticDestination: String, CaseIterable, Identifiable, Cod
         case .threads: "link"
         case .memory: "clock.arrow.circlepath"
         case .patterns: "square.grid.3x3"
+        case .observatory: "scope"
         case .reflections: "text.quote"
         case .local: "internaldrive"
         case .trust: "shield.lefthalf.filled"

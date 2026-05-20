@@ -65,6 +65,7 @@ struct NoxShellChrome: View {
     case .threads: "Continuity across time"
     case .memory: "Structured local memory"
     case .patterns: "Semantic arcs and rhythms"
+    case .observatory: "Unified continuity signals"
     case .reflections: "Calm local observations"
     case .local: "On-device only"
     case .trust: "Boundaries and control"

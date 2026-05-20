@@ -42,6 +42,8 @@ final class AppEnvironment {
     var behavioralSnapshot: NoxBehavioralIntelligenceSnapshot = .empty
     var ambientUtilitySnapshot: NoxAmbientUtilitySnapshot = .empty
     var memoryEvolutionSnapshot: NoxMemoryEvolutionSnapshot = .neutral
+    var observatorySnapshot: NoxObservatorySnapshot = .empty
+    var observatoryRange: NoxObservatoryTimeRange = .last24Hours
     var systemTrayHint: String?
     var lastSystemActionMessage: String?
 
@@ -130,6 +132,11 @@ final class AppEnvironment {
 
     func setNavigationDestination(_ destination: NoxSemanticDestination) {
         mutatePreferences { $0.navigationDestination = destination }
+    }
+
+    func setObservatoryRange(_ range: NoxObservatoryTimeRange) {
+        observatoryRange = range
+        Task { await contextService.refreshObservatory(range: range) }
     }
 
     func setSurfaceDensity(_ density: NoxSurfaceDensity) {

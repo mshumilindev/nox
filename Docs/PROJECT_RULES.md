@@ -128,3 +128,9 @@ Each phase should ship a coherent capability with an observable product effect. 
 After every development phase, update `Docs/CURRENT_FUNCTIONALITY.md` to match the functionality that actually exists in code.
 
 The ledger must describe shipped behavior, persistence, privacy boundaries, UI surfaces, tests, and known gaps. It must not become a roadmap, wishlist, or aspirational feature list.
+
+## 17. Development Session Shutdown Rule
+
+After every development session, stop all running Nox app instances started for build, test, preview, or manual verification.
+
+Do not terminate unrelated tools that merely reference the Nox workspace, such as editors, extension hosts, or shell sessions.
