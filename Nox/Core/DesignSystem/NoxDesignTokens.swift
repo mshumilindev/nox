@@ -61,8 +61,7 @@ nonisolated enum NoxDesignTokens {
     }
 
     enum Icon {
-        static let menuBarSymbol = "moon.stars.fill"
-        static let brandSymbol = "moon.stars"
+        static let brandAsset = "NoxTriskelionMark"
     }
 
     enum ColorRole {

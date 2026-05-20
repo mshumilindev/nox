@@ -9,9 +9,19 @@ struct NoxSemanticNavigationRail: View {
 
   var body: some View {
     VStack(alignment: .leading, spacing: 0) {
-      Text("Nox")
-        .font(NoxTypography.wordmark)
-        .foregroundStyle(NoxDesignTokens.ColorRole.textPrimary.opacity(0.88))
+      HStack(spacing: NoxSpacing.sm) {
+        Image("NoxTriskelionMark")
+          .resizable()
+          .renderingMode(.template)
+          .scaledToFit()
+          .frame(width: 16, height: 16)
+          .foregroundStyle(NoxDesignTokens.ColorRole.accent)
+          .accessibilityHidden(true)
+
+        Text("Nox")
+          .font(NoxTypography.wordmark)
+          .foregroundStyle(NoxDesignTokens.ColorRole.textPrimary.opacity(0.88))
+      }
         .padding(.horizontal, NoxSpacing.md)
         .padding(.top, NoxTitlebarLayout.chromeVerticalPadding(compact: false))
         .padding(.bottom, NoxSpacing.lg)

@@ -2,6 +2,7 @@ import SwiftUI
 
 struct NoxAmbientShellView: View {
     @Environment(AppEnvironment.self) private var environment
+    @Environment(\.colorScheme) private var colorScheme
     @State private var showOnboarding = false
 
     private var activeDestination: NoxSemanticDestination {
@@ -12,25 +13,41 @@ struct NoxAmbientShellView: View {
         environment.preferences.windowMode == .compact
     }
 
+    private var contentAtmosphereOpacity: Double {
+        switch atmosphericState {
+        case .day: 0.18
+        case .evening: 0.42
+        case .night: 0.40
+        case .deepReflection: 0.38
+        }
+    }
+
+    private var atmosphericState: NoxAtmosphericState {
+        if environment.preferences.windowMode == .deepReflection, colorScheme == .dark {
+            return .deepReflection
+        }
+
+        return colorScheme == .light ? .day : .night
+    }
+
     var body: some View {
         let windowSize = environment.preferences.windowMode.size
         shellBody
             .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .top)
-        .frame(width: windowSize.width, height: windowSize.height)
-        .background(
-            NoxAtmosphereBackground(density: environment.memoryDensity)
-        )
-        .preferredColorScheme(.dark)
-        .onChange(of: environment.preferences.windowMode) { _, _ in
-            environment.syncDashboardWindowFrame(animated: false)
-        }
-        .task {
-            environment.startIfNeeded()
-            showOnboarding = !environment.preferences.hasSeenTrustOnboarding
-        }
-        .sheet(isPresented: $showOnboarding) {
-            NoxPermissionOnboardingView()
-        }
+            .frame(width: windowSize.width, height: windowSize.height)
+            .background(
+                NoxAtmosphereBackground(density: environment.memoryDensity, state: atmosphericState)
+            )
+            .onChange(of: environment.preferences.windowMode) { _, _ in
+                environment.syncDashboardWindowFrame(animated: false)
+            }
+            .task {
+                environment.startIfNeeded()
+                showOnboarding = !environment.preferences.hasSeenTrustOnboarding
+            }
+            .sheet(isPresented: $showOnboarding) {
+                NoxPermissionOnboardingView()
+            }
     }
 
     @ViewBuilder
@@ -68,7 +85,7 @@ struct NoxAmbientShellView: View {
                 .frame(minWidth: 0, maxWidth: .infinity, alignment: .topLeading)
         }
         .frame(minWidth: 0, maxWidth: .infinity, maxHeight: .infinity)
-        .background(NoxDesignTokens.ColorRole.canvas.opacity(0.35))
+        .background(NoxDesignTokens.ColorRole.canvas.opacity(contentAtmosphereOpacity))
         .animation(.easeInOut(duration: NoxDesignTokens.Animation.surfaceFade), value: activeDestination)
     }
 

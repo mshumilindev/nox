@@ -5,6 +5,8 @@ import SwiftUI
 @MainActor
 final class NoxWindowController: NSObject, NSWindowDelegate {
   private var window: NSWindow?
+  private var isApplyingProgrammaticFrame = false
+  private var usesDefaultTopTrailingPlacement = true
 
   private enum WindowPlacement {
     case preserveCenter
@@ -41,6 +43,7 @@ final class NoxWindowController: NSObject, NSWindowDelegate {
     newWindow.delegate = self
     newWindow.alphaValue = 0
     window = newWindow
+    usesDefaultTopTrailingPlacement = true
     applyWindowMode(mode, to: newWindow, animate: false, placement: .topTrailing)
     newWindow.makeKeyAndOrderFront(nil)
     NSApp.activate(ignoringOtherApps: true)
@@ -62,6 +65,13 @@ final class NoxWindowController: NSObject, NSWindowDelegate {
 
   func windowWillClose(_ notification: Notification) {
     window = nil
+    usesDefaultTopTrailingPlacement = true
+  }
+
+  func windowDidMove(_ notification: Notification) {
+    guard !isApplyingProgrammaticFrame else { return }
+    guard let window = notification.object as? NSWindow else { return }
+    usesDefaultTopTrailingPlacement = isAtDefaultTopTrailing(window.frame)
   }
 
   private func applyWindowMode(
@@ -77,13 +87,39 @@ final class NoxWindowController: NSObject, NSWindowDelegate {
     ).size
     var frame = window.frame
     frame.size = targetFrameSize
+    let effectivePlacement = resolvedPlacement(
+      placement,
+      for: window.frame
+    )
     frame.origin = origin(
       for: frame.size,
       currentFrame: window.frame,
-      placement: placement
+      placement: effectivePlacement
     )
+    frame.origin = clampedOrigin(
+      frame.origin,
+      for: frame.size,
+      visibleFrame: visibleFrame(for: window.frame)
+    )
+    isApplyingProgrammaticFrame = true
     window.setFrame(frame, display: true, animate: animate)
+    isApplyingProgrammaticFrame = false
+    usesDefaultTopTrailingPlacement = effectivePlacement == .topTrailing
     layoutWindowContent(window)
+  }
+
+  private func resolvedPlacement(
+    _ placement: WindowPlacement,
+    for currentFrame: NSRect
+  ) -> WindowPlacement {
+    switch placement {
+    case .topTrailing:
+      return .topTrailing
+    case .preserveCenter:
+      return usesDefaultTopTrailingPlacement || isAtDefaultTopTrailing(currentFrame)
+        ? .topTrailing
+        : .preserveCenter
+    }
   }
 
   private func origin(
@@ -99,12 +135,23 @@ final class NoxWindowController: NSObject, NSWindowDelegate {
         y: center.y - frameSize.height / 2
       )
     case .topTrailing:
-      let visibleFrame = targetScreenVisibleFrame()
+      let visibleFrame = visibleFrame(for: currentFrame)
       return NSPoint(
         x: visibleFrame.maxX - frameSize.width - NoxSpacing.lg,
         y: visibleFrame.maxY - frameSize.height - NoxSpacing.lg
       )
     }
+  }
+
+  private func visibleFrame(for frame: NSRect) -> NSRect {
+    let center = NSPoint(x: frame.midX, y: frame.midY)
+    if let screen = NSScreen.screens.first(where: { $0.frame.contains(center) }) {
+      return screen.visibleFrame
+    }
+    if let screen = NSScreen.screens.first(where: { $0.frame.intersects(frame) }) {
+      return screen.visibleFrame
+    }
+    return targetScreenVisibleFrame()
   }
 
   private func targetScreenVisibleFrame() -> NSRect {
@@ -113,6 +160,28 @@ final class NoxWindowController: NSObject, NSWindowDelegate {
       ?? NSScreen.main
       ?? NSScreen.screens.first
     return screen?.visibleFrame ?? .zero
+  }
+
+  private func isAtDefaultTopTrailing(_ frame: NSRect) -> Bool {
+    let visibleFrame = visibleFrame(for: frame)
+    let expected = NSPoint(
+      x: visibleFrame.maxX - frame.width - NoxSpacing.lg,
+      y: visibleFrame.maxY - frame.height - NoxSpacing.lg
+    )
+    let tolerance: CGFloat = 8
+    return abs(frame.minX - expected.x) <= tolerance
+      && abs(frame.minY - expected.y) <= tolerance
+  }
+
+  private func clampedOrigin(
+    _ origin: NSPoint,
+    for frameSize: NSSize,
+    visibleFrame: NSRect
+  ) -> NSPoint {
+    NSPoint(
+      x: min(max(origin.x, visibleFrame.minX), visibleFrame.maxX - frameSize.width),
+      y: min(max(origin.y, visibleFrame.minY), visibleFrame.maxY - frameSize.height)
+    )
   }
 
   private func configureHostingController(_ hosting: NSHostingController<AnyView>) {

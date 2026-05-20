@@ -23,24 +23,24 @@ enum NoxMaterials {
   static func fill(for tier: NoxSurfaceTier) -> Color {
     switch tier {
     case .major:
-      NoxDesignTokens.ColorRole.reflectionFill.opacity(0.92)
+      NoxDesignTokens.ColorRole.reflectionFill.opacity(0.74)
     case .standard:
-      NoxDesignTokens.ColorRole.surfaceElevated.opacity(0.55)
+      NoxDesignTokens.ColorRole.surfaceElevated.opacity(0.48)
     case .soft:
-      NoxDesignTokens.ColorRole.surface.opacity(0.22)
+      NoxDesignTokens.ColorRole.surface.opacity(0.18)
     case .inset:
-      NoxDesignTokens.ColorRole.canvas.opacity(0.5)
+      NoxDesignTokens.ColorRole.canvas.opacity(0.42)
     }
   }
 
   static func stroke(for tier: NoxSurfaceTier) -> Color {
     switch tier {
     case .major:
-      NoxDesignTokens.ColorRole.reflectionStroke.opacity(0.35)
+      NoxDesignTokens.ColorRole.reflectionStroke.opacity(0.28)
     case .standard:
-      NoxDesignTokens.ColorRole.border.opacity(0.22)
+      NoxDesignTokens.ColorRole.border.opacity(0.16)
     case .soft, .inset:
-      NoxDesignTokens.ColorRole.border.opacity(0.12)
+      NoxDesignTokens.ColorRole.border.opacity(0.10)
     }
   }
 

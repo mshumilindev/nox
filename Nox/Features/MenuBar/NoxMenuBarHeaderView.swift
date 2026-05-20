@@ -3,10 +3,12 @@ import SwiftUI
 struct NoxMenuBarHeaderView: View {
     var body: some View {
         HStack(alignment: .center, spacing: NoxSpacing.md) {
-            Image(systemName: NoxDesignTokens.Icon.brandSymbol)
-                .font(.system(size: NoxDesignTokens.SymbolSize.brand, weight: .medium))
+            Image("NoxTriskelionMark")
+                .resizable()
+                .renderingMode(.template)
+                .scaledToFit()
+                .frame(width: NoxDesignTokens.SymbolSize.brand + 4, height: NoxDesignTokens.SymbolSize.brand + 4)
                 .foregroundStyle(NoxDesignTokens.ColorRole.accent)
-                .symbolRenderingMode(.hierarchical)
                 .accessibilityHidden(true)
 
             VStack(alignment: .leading, spacing: NoxSpacing.xxs) {

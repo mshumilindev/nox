@@ -9,7 +9,8 @@ final class NoxStatusBarController: NSObject {
     private var statusItem: NSStatusItem?
     private var panel: NSPanel?
     private var hostingController: NSHostingController<AnyView>?
-    private var outsideClickMonitor: Any?
+    private var globalOutsideClickMonitor: Any?
+    private var localOutsideClickMonitor: Any?
 
     private weak var environment: AppEnvironment?
     private weak var panelState: NoxPanelState?
@@ -117,24 +118,46 @@ final class NoxStatusBarController: NSObject {
 
     private func installOutsideClickMonitor() {
         removeOutsideClickMonitor()
-        outsideClickMonitor = NSEvent.addGlobalMonitorForEvents(matching: [.leftMouseDown, .rightMouseDown]) {
+        globalOutsideClickMonitor = NSEvent.addGlobalMonitorForEvents(matching: [.leftMouseDown, .rightMouseDown]) {
             [weak self] _ in
             Task { @MainActor in
                 self?.closeIfClickOutside()
             }
         }
+        localOutsideClickMonitor = NSEvent.addLocalMonitorForEvents(matching: [.leftMouseDown, .rightMouseDown]) {
+            [weak self] event in
+            self?.closeIfClickOutside(at: event.locationInWindow, from: event.window)
+            return event
+        }
     }
 
     private func removeOutsideClickMonitor() {
-        if let outsideClickMonitor {
-            NSEvent.removeMonitor(outsideClickMonitor)
-            self.outsideClickMonitor = nil
+        if let globalOutsideClickMonitor {
+            NSEvent.removeMonitor(globalOutsideClickMonitor)
+            self.globalOutsideClickMonitor = nil
+        }
+        if let localOutsideClickMonitor {
+            NSEvent.removeMonitor(localOutsideClickMonitor)
+            self.localOutsideClickMonitor = nil
         }
     }
 
     private func closeIfClickOutside() {
         guard let panel, panel.isVisible else { return }
-        let click = NSEvent.mouseLocation
+        closeIfClickOutside(atScreenPoint: NSEvent.mouseLocation)
+    }
+
+    private func closeIfClickOutside(at point: NSPoint, from window: NSWindow?) {
+        guard let window else {
+            closeIfClickOutside()
+            return
+        }
+        let click = window.convertPoint(toScreen: point)
+        closeIfClickOutside(atScreenPoint: click)
+    }
+
+    private func closeIfClickOutside(atScreenPoint click: NSPoint) {
+        guard let panel, panel.isVisible else { return }
         if panel.frame.contains(click) { return }
         if let button = statusItem?.button, let window = button.window {
             let buttonFrame = button.convert(button.bounds, to: nil)

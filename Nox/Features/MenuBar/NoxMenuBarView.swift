@@ -19,6 +19,10 @@ struct NoxMenuBarView: View {
         return !pulseTexts.contains(where: { $0.contains(hint.lowercased()) })
     }
 
+    private var atmosphericState: NoxAtmosphericState {
+        colorScheme == .light ? .day : .night
+    }
+
     var body: some View {
         VStack(alignment: .leading, spacing: NoxSpacing.xl) {
             NoxMenuBarHeaderView()
@@ -43,7 +47,7 @@ struct NoxMenuBarView: View {
         .clipShape(RoundedRectangle(cornerRadius: NoxDesignTokens.Radius.lg, style: .continuous))
         .overlay {
             RoundedRectangle(cornerRadius: NoxDesignTokens.Radius.lg, style: .continuous)
-                .strokeBorder(NoxDesignTokens.ColorRole.border, lineWidth: 1)
+                .strokeBorder(NoxDesignTokens.ColorRole.border.opacity(0.48), lineWidth: 0.5)
         }
         .shadow(
             color: .black.opacity(NoxDesignTokens.Shadow.menuBarOpacity),
@@ -79,7 +83,14 @@ struct NoxMenuBarView: View {
     }
 
     private var panelBackground: some View {
-        NoxDesignTokens.ColorRole.surface
+        ZStack {
+            NoxAtmosphereBackground(
+                density: environment.memoryDensity * 0.42,
+                state: atmosphericState,
+                presentation: .menuBar
+            )
+            NoxDesignTokens.ColorRole.surface.opacity(atmosphericState == .day ? 0.86 : 0.58)
+        }
     }
 }
 
