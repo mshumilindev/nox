@@ -2,7 +2,6 @@ import SwiftUI
 
 struct NoxMenuBarView: View {
     @Environment(AppEnvironment.self) private var environment
-    @Environment(\.colorScheme) private var colorScheme
 
     private var presentation: NoxLiveContextPresentation {
         NoxLiveContextPresenter.present(
@@ -20,7 +19,7 @@ struct NoxMenuBarView: View {
     }
 
     private var atmosphericState: NoxAtmosphericState {
-        colorScheme == .light ? .day : .night
+        .night
     }
 
     var body: some View {
@@ -54,7 +53,7 @@ struct NoxMenuBarView: View {
             radius: NoxDesignTokens.Shadow.menuBarRadius,
             y: NoxDesignTokens.Shadow.menuBarYOffset
         )
-        .preferredColorScheme(colorScheme)
+        .preferredColorScheme(.dark)
         .task {
             environment.startIfNeeded()
         }
@@ -98,7 +97,7 @@ struct NoxMenuBarView: View {
                 state: atmosphericState,
                 presentation: .menuBar
             )
-            NoxDesignTokens.ColorRole.surface.opacity(atmosphericState == .day ? 0.86 : 0.58)
+            NoxDesignTokens.ColorRole.surface.opacity(0.58)
         }
     }
 }

@@ -22,7 +22,7 @@ It is not a chatbot, cloud assistant, productivity scorer, screenshot recorder, 
 ## Menu Bar Experience
 
 - Menu bar entry is an **`NSStatusItem`** via `NoxStatusBarController` (not `MenuBarExtra`), with `autosaveName` so the icon stays in the primary menu bar when possible.
-- Tray icon: template asset **`NoxTrayTemplate`** (triskelion spiral) through `NoxMenuBarIcon.makeTemplateImage()` — adapts to light/dark menu bar automatically.
+- Tray icon: template asset **`NoxTrayTemplate`** (triskelion spiral) through `NoxMenuBarIcon.makeTemplateImage()` for native macOS menu bar rendering.
 - **Left-click** opens a floating **`NSPanel`** dropdown (`NoxMenuBarView`, ~312×420 content width) with the same atmospheric stack as the dashboard (scaled down).
 - **Panel positioning:** anchored under the status button when `button.window` is available; otherwise falls back to mouse location + menu bar height (Control Center overflow / missing window case). Frame is clamped to the visible screen. `orderFrontRegardless()` + short outside-close grace period so the panel is not dismissed instantly.
 - **Dismiss:** click outside the panel or the tray icon again; `NoxMenuBarDismissAction` closes from in-panel actions.
@@ -50,10 +50,10 @@ It is not a chatbot, cloud assistant, productivity scorer, screenshot recorder, 
 
 ## Design System & Atmosphere (Phase 8.5–8.7 + brand pass)
 
-### Semantic colors (asset catalog, light/dark)
+### Semantic colors (asset catalog, night aurora)
 
-- UI colors come from **`Assets.xcassets`** color sets (`NoxCanvas`, `NoxSurface`, `NoxRail`, `NoxAccent`, `NoxTextPrimary`, `NoxTextSecondary`, `NoxBorder`, reflection/trust/presence roles, etc.) — each defines **universal + dark** appearances where needed.
-- `NoxDesignTokens.ColorRole` resolves these at runtime; the shell follows **system `colorScheme`** (light day / dark night), not a forced dark-only theme.
+- UI colors come from **`Assets.xcassets`** color sets (`NoxCanvas`, `NoxSurface`, `NoxRail`, `NoxAccent`, `NoxTextPrimary`, `NoxTextSecondary`, `NoxBorder`, reflection/trust/presence roles, etc.) and are currently presented through the dark/night appearance only.
+- `NoxDesignTokens.ColorRole` resolves these at runtime; the shell is currently forced into the dark appearance because Nox ships only the night aurora identity.
 
 ### Brand assets
 
@@ -68,13 +68,13 @@ It is not a chatbot, cloud assistant, productivity scorer, screenshot recorder, 
 
 Procedural Canvas aurora was **removed**. Current stack:
 
-1. **Base Canvas** — day: cool graphite gradient + radial depth; night: dark vertical gradient + subtle radial haze + sparse static stars (window only).
-2. **Night image layer** (evening / night / deepReflection when asset loads) — `Image("NoxNightAuroraBackground")`, `scaledToFill`, toned down (saturation/contrast/brightness), dark gradient overlay; opacity ~0.34 window / ~0.46 deep reflection / ~0.32 menu bar.
+1. **Base Canvas** — dark vertical graphite gradient + subtle radial haze + sparse static stars (window only).
+2. **Night image layer** — `Image("NoxNightAuroraBackground")`, `scaledToFill`, toned down (saturation/contrast/brightness), dark gradient overlay; opacity ~0.34 window / ~0.32 menu bar.
 3. **Optical Canvas** — top vignette + soft border stroke.
 
-`NoxAtmosphericState`: `day`, `evening`, `night`, `deepReflection` — **`isAnimated` is always false** today.
+`NoxAtmosphericState`: `night` only — **`isAnimated` is always false** today.
 
-**Shell mapping** (`NoxAmbientShellView`): `colorScheme == .light` → `.day`; dark + normal mode → `.night`; dark + **Deep reflection** window mode → `.deepReflection`. The `.evening` enum case exists for the image layer but is **not** selected by the shell (hour-of-day scheduling was removed).
+**Shell mapping** (`NoxAmbientShellView`): always `.night`; the dashboard and menu bar both force `.preferredColorScheme(.dark)`. Deep reflection remains a content/window mode, not a separate visual theme.
 
 ### Layout & components (unchanged intent)
 
@@ -93,13 +93,13 @@ Procedural Canvas aurora was **removed**. Current stack:
   - **Now** — presence, awareness, live signals, explainability;
   - **Threads** — continuity threads with “why” cards;
   - **Memory** — timeline and search;
-  - **Patterns** — arcs, emerging patterns, rhythms;
   - **Observatory** — one unified local signal graph and confidence-gated continuity observations;
+  - **Patterns** — arcs, emerging patterns, rhythms;
   - **Reflections** — calm reflection cards;
   - **Local** — local-first transparency and capability ladder;
   - **Trust** — privacy boundaries and memory controls.
 - **Window modes:** Compact, Expanded, Deep reflection — fixed content sizes per mode; `NoxWindowController` opens a floating `NSPanel`-style window, syncs frame on mode change, default top-trailing placement until user moves it.
-- **Appearance:** follows system light/dark (`colorScheme`); not locked to dark mode.
+- **Appearance:** locked to the night aurora theme for now.
 - **Progressive disclosure:** `NoxCollapsibleSection` folds dense content by default.
 - **Trust center:** stored/never collected/sensitive/retention/reflection boundaries.
 - **Memory controls:** pause observation, pause semantic memory, quiet modes, clear recent continuity.
@@ -440,7 +440,7 @@ Presentation layer in `Nox/Core/Memory/Presentation/` (no new dashboards or anal
 
 Module: `Nox/Core/Observatory/` plus `Nox/Features/Observatory/`
 
-- Dedicated **Observatory** destination sits after Patterns and before Reflections.
+- Dedicated **Observatory** destination sits directly under Memory in navigation.
 - `NoxObservatoryDataProvider` loads local timeline, semantic spans, sessions, connector cadence, behavioral, ambient utility, memory evolution, and rollup signals where available. It normalizes into bucketed temporal series without exposing raw text, browser titles, clipboard, or communication content.
 - Supported ranges: Today, 24h, 7d, 30d, All. Bucket sizing follows 15m / 30m / 2h / 1d thresholds.
 - `NoxObservatoryMaturityLevel` gates confidence: gathering (<6h), weak (6–24h), tentative (1–3d), normal (3–7d), long horizon (7d+). It does not fake confidence.
@@ -465,7 +465,6 @@ Module: `Nox/Core/Observatory/` plus `Nox/Features/Observatory/`
 
 - Reflection synthesis is deterministic only; optional LLM pass is not integrated.
 - **`NoxLongHorizonView` is unwired** — consolidated long-horizon layout exists only as a component file, not a shipped destination.
-- **`NoxAtmosphericState.evening`** is defined (night image + palette) but the shell never selects it; only day / night / deepReflection from `colorScheme` + window mode.
 - Night aurora is a **static image plate**, not reactive to memory density or live presence (density only affects base haze slightly).
 - Mail/Slack native metadata connectors are not integrated; communication pressure uses local activity proxies.
 - No cloud sync, encrypted export, or backup workflow.

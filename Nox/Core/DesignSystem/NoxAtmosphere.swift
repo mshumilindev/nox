@@ -2,22 +2,14 @@ import AppKit
 import SwiftUI
 
 enum NoxAtmosphericState: String, Codable, Sendable {
-    case day
-    case evening
     case night
-    case deepReflection
 
     var isAnimated: Bool { false }
 
     var updateInterval: TimeInterval { 1 }
 
     var baseCanvas: Color {
-        switch self {
-        case .day: Color(hex: 0xF2F4F8)
-        case .evening: Color(hex: 0x080B12)
-        case .night: Color(hex: 0x02040B)
-        case .deepReflection: Color(hex: 0x010209)
-        }
+        Color(hex: 0x02040B)
     }
 }
 
@@ -54,8 +46,8 @@ struct NoxAtmosphereBackground: View {
                     .overlay {
                         LinearGradient(
                             colors: [
-                                Color(hex: 0x02040B).opacity(state == .deepReflection ? 0.30 : 0.24),
-                                Color(hex: 0x02040B).opacity(state == .deepReflection ? 0.52 : 0.42)
+                                Color(hex: 0x02040B).opacity(0.24),
+                                Color(hex: 0x02040B).opacity(0.42)
                             ],
                             startPoint: .top,
                             endPoint: .bottom
@@ -78,16 +70,13 @@ struct NoxAtmosphereBackground: View {
     }
 
     private var showsNightImage: Bool {
-        guard state == .evening || state == .night || state == .deepReflection else { return false }
-        return NSImage(named: "NoxNightAuroraBackground") != nil
+        NSImage(named: "NoxNightAuroraBackground") != nil
     }
 
     private var nightImageOpacity: Double {
         switch (presentation, state) {
         case (.menuBar, _):
             return 0.32
-        case (.window, .deepReflection):
-            return 0.46
         default:
             return 0.34
         }
@@ -108,13 +97,8 @@ private enum NoxAtmosphereRenderer {
         presentation: NoxAtmospherePresentation
     ) {
         drawBase(in: &context, size: size, state: state)
-
-        if state == .day {
-            drawDayDepth(in: &context, size: size)
-        } else {
-            drawNightDepth(in: &context, size: size, density: density, state: state, presentation: presentation)
-            drawStars(in: &context, size: size, state: state, presentation: presentation)
-        }
+        drawNightDepth(in: &context, size: size, density: density, state: state, presentation: presentation)
+        drawStars(in: &context, size: size, state: state, presentation: presentation)
     }
 
     static func drawOpticalLayer(
@@ -128,22 +112,6 @@ private enum NoxAtmosphereRenderer {
 
     private static func drawBase(in context: inout GraphicsContext, size: CGSize, state: NoxAtmosphericState) {
         let rect = Path(CGRect(origin: .zero, size: size))
-        if state == .day {
-            context.fill(
-                rect,
-                with: .linearGradient(
-                    Gradient(colors: [
-                        Color(hex: 0xF2F4F8),
-                        Color(hex: 0xE8EBF2),
-                        Color(hex: 0xD9DFEA)
-                    ]),
-                    startPoint: .zero,
-                    endPoint: CGPoint(x: 0, y: size.height)
-                )
-            )
-            return
-        }
-
         context.fill(
             rect,
             with: .linearGradient(
@@ -159,27 +127,6 @@ private enum NoxAtmosphereRenderer {
         )
     }
 
-    private static func drawDayDepth(in context: inout GraphicsContext, size: CGSize) {
-        let rect = Path(CGRect(origin: .zero, size: size))
-        context.fill(
-            rect,
-            with: .radialGradient(
-                Gradient(colors: [Color(hex: 0xD9DFEA).opacity(0.34), .clear]),
-                center: CGPoint(x: size.width * 0.18, y: size.height * 0.08),
-                startRadius: 8,
-                endRadius: max(size.width, size.height) * 0.76
-            )
-        )
-        context.fill(
-            rect,
-            with: .linearGradient(
-                Gradient(colors: [.clear, Color(hex: 0xC8D0DD).opacity(0.18)]),
-                startPoint: CGPoint(x: 0, y: size.height * 0.50),
-                endPoint: CGPoint(x: 0, y: size.height)
-            )
-        )
-    }
-
     private static func drawNightDepth(
         in context: inout GraphicsContext,
         size: CGSize,
@@ -189,10 +136,10 @@ private enum NoxAtmosphereRenderer {
     ) {
         let rect = Path(CGRect(origin: .zero, size: size))
         let scale = presentation == .menuBar ? 0.45 : 1.0
-        let depth = state == .deepReflection ? 1.0 : 0.72
+        let depth = 0.72
 
         var haze = context
-        haze.addFilter(.blur(radius: state == .deepReflection ? 24 : 18))
+        haze.addFilter(.blur(radius: 18))
         haze.fill(
             rect,
             with: .radialGradient(
@@ -226,7 +173,7 @@ private enum NoxAtmosphereRenderer {
         presentation: NoxAtmospherePresentation
     ) {
         guard presentation == .window else { return }
-        let starCount = state == .deepReflection ? 52 : 32
+        let starCount = 32
         for index in 0..<starCount {
             let x = unitNoise(seed: 700 + index, value: 0.13) * size.width
             let y = unitNoise(seed: 900 + index, value: 0.41) * size.height * 0.48
@@ -246,7 +193,7 @@ private enum NoxAtmosphereRenderer {
         presentation: NoxAtmospherePresentation
     ) {
         let rect = Path(CGRect(origin: .zero, size: size))
-        let lowerDepth = state == .deepReflection ? 0.58 : 0.46
+        let lowerDepth = 0.46
         context.fill(
             rect,
             with: .linearGradient(

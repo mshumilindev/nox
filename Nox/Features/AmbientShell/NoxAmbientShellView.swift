@@ -2,7 +2,6 @@ import SwiftUI
 
 struct NoxAmbientShellView: View {
     @Environment(AppEnvironment.self) private var environment
-    @Environment(\.colorScheme) private var colorScheme
     @State private var showOnboarding = false
 
     private var activeDestination: NoxSemanticDestination {
@@ -14,20 +13,11 @@ struct NoxAmbientShellView: View {
     }
 
     private var contentAtmosphereOpacity: Double {
-        switch atmosphericState {
-        case .day: 0.18
-        case .evening: 0.42
-        case .night: 0.40
-        case .deepReflection: 0.38
-        }
+        0.40
     }
 
     private var atmosphericState: NoxAtmosphericState {
-        if environment.preferences.windowMode == .deepReflection, colorScheme == .dark {
-            return .deepReflection
-        }
-
-        return colorScheme == .light ? .day : .night
+        .night
     }
 
     var body: some View {
@@ -48,6 +38,7 @@ struct NoxAmbientShellView: View {
             .sheet(isPresented: $showOnboarding) {
                 NoxPermissionOnboardingView()
             }
+            .preferredColorScheme(.dark)
     }
 
     @ViewBuilder
