@@ -1,0 +1,122 @@
+import Foundation
+import NoxCore
+import NoxContextCore
+
+/// Life-work-rest balanced UI language — attention and context, not productivity telemetry.
+nonisolated public enum NoxHumanContextCopy {
+
+    // MARK: - Fragmented / mixed attention
+
+    public static let fragmentedAttentionPeriod = "Scattered attention"
+    public static let fragmentedWorkflowPeriod = "Scattered workflow"
+    public static let severalContextsInMotion = "Several contexts in motion"
+    public static let switchingBetweenContexts = "Switching between contexts"
+    public static let mixedContextPeriod = "Mixed context period"
+
+    public static func fragmentedLabel(workLike: Bool) -> String {
+        workLike ? fragmentedWorkflowPeriod : fragmentedAttentionPeriod
+    }
+
+    // MARK: - Presence / session
+
+    public static func appInFocus(appName: String, minutes: Int) -> String {
+        "\(appName) has been in focus for \(minutes)m"
+    }
+
+    public static func appWasInFocus(appName: String, minutes: Int) -> String {
+        "\(appName) was in focus for \(minutes)m"
+    }
+
+    public static func steadyContext(minutes: Int) -> String {
+        "A steady context for \(minutes)m"
+    }
+
+    public static func focusedInApp(_ appName: String) -> String {
+        "Focused in \(appName)"
+    }
+
+    // MARK: - Resumed / motion
+
+    public static let backInMotion = "Back in motion"
+    public static let contextResumed = "Context resumed"
+    public static let activeAgain = "Active again"
+
+    // MARK: - Memory emergence
+
+    public static let todayBeginningToTakeShape = "Today's activity is still forming."
+    public static let recentContextSettling = "Recent activity is still forming."
+    public static let shapeOfTodayEmerging = "Today's activity patterns are still forming."
+    public static let contextsGathering = "Today's sessions are beginning to repeat."
+
+  // MARK: - Live / observing
+
+    public static let watchingQuietly = "Passive viewing"
+    public static let contextSettlingIntoMemory = "Recent activity is being stored locally"
+
+    // MARK: - Development gating
+
+    public static func isWorkLikeContext(_ inference: NoxSemanticInference) -> Bool {
+        switch inference.fusionLabel {
+        case .likelyWorkRelated, .likelyAIAssistedWork, .likelyCreativeWork:
+            return true
+        default:
+            break
+        }
+        switch inference.state {
+        case .writing:
+            return inference.browserCategory == .development || inference.browserCategory == .reference
+        case .sustainedInteraction:
+            return inference.browserCategory == .development
+        case .fragmentedInteraction:
+            return inference.browserCategory == .development || inference.browserCategory == .reference
+        default:
+            return false
+        }
+    }
+
+    /// Strong multi-signal development — not merely "Cursor is open".
+    public static func hasStrongDevelopmentEvidence(
+        inference: NoxSemanticInference,
+        appName: String?
+    ) -> Bool {
+        var score = 0
+        if inference.browserCategory == .development { score += 1 }
+        if inference.browserCategory == .reference { score += 1 }
+        switch inference.aiWorkflow {
+        case .codeOriented, .iterativeWorkflow: score += 2
+        case .promptWriting: score += 1
+        default: break
+        }
+        if let appName {
+            let lower = appName.lowercased()
+            if lower.contains("terminal") || lower.contains("xcode") { score += 1 }
+            if lower.contains("github") { score += 1 }
+        }
+        return score >= 2
+    }
+
+    public static func editorFocusLabel(appName: String?) -> String? {
+        guard let appName, !appName.isEmpty else { return nil }
+        let knownEditors = ["Cursor", "Xcode", "Code", "VS Code", "Terminal", "Warp", "iTerm", "Nova"]
+        if knownEditors.contains(where: { appName.localizedCaseInsensitiveContains($0) }) {
+            return focusedInApp(appName)
+        }
+        return nil
+    }
+
+    public static func developmentDisplayLabel(
+        inference: NoxSemanticInference?,
+        appName: String?
+    ) -> String {
+        if let inference, hasStrongDevelopmentEvidence(inference: inference, appName: appName) {
+            if inference.fusionLabel == .likelyAIAssistedWork || inference.aiWorkflow != nil {
+                return "AI-assisted development"
+            }
+            return "Development context"
+        }
+        if let focus = editorFocusLabel(appName: appName) {
+            return focus
+        }
+        return "Development context"
+    }
+}

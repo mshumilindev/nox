@@ -1,0 +1,35 @@
+---
+description: macOS app and adapters — AppKit, observation, SQLite, composition roots
+globs: "{Nox/**/*.swift,Apps/NoxMac/**/*.swift}"
+alwaysApply: false
+---
+
+# Nox macOS app & adapters
+
+Applies to shipping target `Nox/` and future `Apps/NoxMac/`. This layer **implements** `NoxPlatformContracts`; it may import shared packages + all macOS frameworks required.
+
+## Belongs here (not in shared Core)
+
+- **Lifecycle**: `Nox/App/*` (`AppEnvironment`, `NoxContextService`, `NoxAppRuntime`, delegate).
+- **Observation**: `NoxActivityObserver`, `NoxAXFocusMonitor`, `NoxWindowContextReader`.
+- **Permissions**: `NoxPermissionService`.
+- **System**: `NoxSystemStateProvider`, `NoxSystemActionExecutor`, `NoxCaffeinateController`.
+- **Calendar / notifications**: `NoxCalendarContextProvider`, `NoxAmbientNotificationEngine`.
+- **Persistence**: all `*Store.swift`, `SQLite3`, `NoxPersistencePaths`, `NoxSQLiteBindings`.
+- **Presence mesh**: `LocalHTTPPresenceTransport`, Bonjour/BT discovery, `PresenceMeshManager`, keychain identity.
+- **UI**: `Nox/Features/**`, SwiftUI/AppKit design system (`NoxDesignTokens`, materials, menu bar, windowing).
+
+## Composition rules
+
+- Wire contracts in one place (today `NoxContextService`); do not let `Packages/*` reference `AppEnvironment` or `NSStatusItem`.
+- New mac-only features: add protocol to `NoxPlatformContracts` if other platforms will need a stub later; implement in adapter.
+- Do not move `NoxContextService` wholesale into Core — split orchestration vs mac wiring only in Phase 4.
+
+## UI copy
+
+- Follow `Docs/NOX_UI_COPY_RULES.md`: observational, not engine/telemetry voice.
+
+## When adding iOS/iPadOS/etc. later
+
+- New app target under `Apps/`; **reuse packages + contracts**; provide platform adapters only.
+- Never port desktop observation or canonical SQLite ownership to phone/tablet without sync design.

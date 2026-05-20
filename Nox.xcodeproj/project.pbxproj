@@ -6,6 +6,33 @@
 	objectVersion = 77;
 	objects = {
 
+/* Begin PBXBuildFile section */
+		B51EBEF12FBE4FD500C0CB62 /* NoxCore in Frameworks */ = {isa = PBXBuildFile; productRef = 578DD5E6555C4D998E57D6CA /* NoxCore */; };
+		B51EBEF22FBE4FD500C0CB62 /* NoxPlatformContracts in Frameworks */ = {isa = PBXBuildFile; productRef = 59860A4D0CA64B70BFB210BD /* NoxPlatformContracts */; };
+		B51EBEF32FBE4FD500C0CB62 /* NoxContextCore in Frameworks */ = {isa = PBXBuildFile; productRef = 7B5C6F27B3234FB8B845B46A /* NoxContextCore */; };
+		B51EBEF42FBE4FD500C0CB62 /* NoxSemanticCore in Frameworks */ = {isa = PBXBuildFile; productRef = 38B21C63CF944EDAAA049A4B /* NoxSemanticCore */; };
+		B51EBEF52FBE4FD500C0CB62 /* NoxMemoryCore in Frameworks */ = {isa = PBXBuildFile; productRef = 3F1419E20C5E4A96B645BA9F /* NoxMemoryCore */; };
+		B51EBEF62FBE4FD500C0CB62 /* NoxContinuityCore in Frameworks */ = {isa = PBXBuildFile; productRef = 4BF4651C1B234C02BF9F7722 /* NoxContinuityCore */; };
+		B51EBEF72FBE4FD500C0CB62 /* NoxBehavioralIntelligenceCore in Frameworks */ = {isa = PBXBuildFile; productRef = 35982F023BF7413FB1785F2B /* NoxBehavioralIntelligenceCore */; };
+		B51EBEF82FBE4FD500C0CB62 /* NoxAmbientUtilityCore in Frameworks */ = {isa = PBXBuildFile; productRef = 050AD6177BF64A77A2C9F8B9 /* NoxAmbientUtilityCore */; };
+		B51EBEF92FBE4FD500C0CB62 /* NoxSystemStateCore in Frameworks */ = {isa = PBXBuildFile; productRef = 80B4A801CE4B4CC7A3809CEB /* NoxSystemStateCore */; };
+		B51EBEFA2FBE4FD500C0CB62 /* NoxObservatoryCore in Frameworks */ = {isa = PBXBuildFile; productRef = 485AFBAAA37F495389484F9A /* NoxObservatoryCore */; };
+		B51EBEFB2FBE4FD500C0CB62 /* NoxPresenceCore in Frameworks */ = {isa = PBXBuildFile; productRef = 545E364F4C8D41C6B8998B39 /* NoxPresenceCore */; };
+		B51EBEFC2FBE4FD500C0CB62 /* NoxDesignCore in Frameworks */ = {isa = PBXBuildFile; productRef = 5B41B664344F47ADAEC03F51 /* NoxDesignCore */; };
+		B51EBEFD2FBE4FD500C0CB62 /* NoxCore in Frameworks */ = {isa = PBXBuildFile; productRef = 8770CF9794454670B54CA121 /* NoxCore */; };
+		B51EBEFE2FBE4FD500C0CB62 /* NoxPlatformContracts in Frameworks */ = {isa = PBXBuildFile; productRef = F9B7D286BAA44FF68F019E29 /* NoxPlatformContracts */; };
+		B51EBEFF2FBE4FD500C0CB62 /* NoxContextCore in Frameworks */ = {isa = PBXBuildFile; productRef = 7B5C6F27B3234FB8B845B46A /* NoxContextCore */; };
+		B51EBF002FBE4FD500C0CB62 /* NoxSemanticCore in Frameworks */ = {isa = PBXBuildFile; productRef = 38B21C63CF944EDAAA049A4B /* NoxSemanticCore */; };
+		B51EBF012FBE4FD500C0CB62 /* NoxMemoryCore in Frameworks */ = {isa = PBXBuildFile; productRef = 3F1419E20C5E4A96B645BA9F /* NoxMemoryCore */; };
+		B51EBF022FBE4FD500C0CB62 /* NoxContinuityCore in Frameworks */ = {isa = PBXBuildFile; productRef = 4BF4651C1B234C02BF9F7722 /* NoxContinuityCore */; };
+		B51EBF032FBE4FD500C0CB62 /* NoxBehavioralIntelligenceCore in Frameworks */ = {isa = PBXBuildFile; productRef = 35982F023BF7413FB1785F2B /* NoxBehavioralIntelligenceCore */; };
+		B51EBF042FBE4FD500C0CB62 /* NoxAmbientUtilityCore in Frameworks */ = {isa = PBXBuildFile; productRef = 050AD6177BF64A77A2C9F8B9 /* NoxAmbientUtilityCore */; };
+		B51EBF052FBE4FD500C0CB62 /* NoxSystemStateCore in Frameworks */ = {isa = PBXBuildFile; productRef = 80B4A801CE4B4CC7A3809CEB /* NoxSystemStateCore */; };
+		B51EBF062FBE4FD500C0CB62 /* NoxObservatoryCore in Frameworks */ = {isa = PBXBuildFile; productRef = 485AFBAAA37F495389484F9A /* NoxObservatoryCore */; };
+		B51EBF072FBE4FD500C0CB62 /* NoxPresenceCore in Frameworks */ = {isa = PBXBuildFile; productRef = 545E364F4C8D41C6B8998B39 /* NoxPresenceCore */; };
+		B51EBF082FBE4FD500C0CB62 /* NoxDesignCore in Frameworks */ = {isa = PBXBuildFile; productRef = 5B41B664344F47ADAEC03F51 /* NoxDesignCore */; };
+/* End PBXBuildFile section */
+
 /* Begin PBXContainerItemProxy section */
 		B580C3972FBBC1C800CB70C6 /* PBXContainerItemProxy */ = {
 			isa = PBXContainerItemProxy;
@@ -29,23 +56,10 @@
 		B580C3A02FBBC1C800CB70C6 /* NoxUITests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = NoxUITests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 /* End PBXFileReference section */
 
-/* Begin PBXFileSystemSynchronizedBuildFileExceptionSet section */
-		B580C3B32FBBC1C900CB70C6 /* Exceptions for "Nox" folder in "Nox" target */ = {
-			isa = PBXFileSystemSynchronizedBuildFileExceptionSet;
-			membershipExceptions = (
-				SupportingFiles/Info.plist,
-			);
-			target = B580C3882FBBC1C700CB70C6 /* Nox */;
-		};
-/* End PBXFileSystemSynchronizedBuildFileExceptionSet section */
-
 /* Begin PBXFileSystemSynchronizedRootGroup section */
-		B580C38B2FBBC1C700CB70C6 /* Nox */ = {
+		B580C38B2FBBC1C700CB70C6 /* Apps/NoxMac/Nox */ = {
 			isa = PBXFileSystemSynchronizedRootGroup;
-			exceptions = (
-				B580C3B32FBBC1C900CB70C6 /* Exceptions for "Nox" folder in "Nox" target */,
-			);
-			path = Nox;
+			path = Apps/NoxMac/Nox;
 			sourceTree = "<group>";
 		};
 		B580C3992FBBC1C800CB70C6 /* NoxTests */ = {
@@ -65,6 +79,18 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				B51EBEFC2FBE4FD500C0CB62 /* NoxDesignCore in Frameworks */,
+				B51EBEFB2FBE4FD500C0CB62 /* NoxPresenceCore in Frameworks */,
+				B51EBEFA2FBE4FD500C0CB62 /* NoxObservatoryCore in Frameworks */,
+				B51EBEF92FBE4FD500C0CB62 /* NoxSystemStateCore in Frameworks */,
+				B51EBEF82FBE4FD500C0CB62 /* NoxAmbientUtilityCore in Frameworks */,
+				B51EBEF72FBE4FD500C0CB62 /* NoxBehavioralIntelligenceCore in Frameworks */,
+				B51EBEF62FBE4FD500C0CB62 /* NoxContinuityCore in Frameworks */,
+				B51EBEF52FBE4FD500C0CB62 /* NoxMemoryCore in Frameworks */,
+				B51EBEF42FBE4FD500C0CB62 /* NoxSemanticCore in Frameworks */,
+				B51EBEF32FBE4FD500C0CB62 /* NoxContextCore in Frameworks */,
+				B51EBEF22FBE4FD500C0CB62 /* NoxPlatformContracts in Frameworks */,
+				B51EBEF12FBE4FD500C0CB62 /* NoxCore in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -72,6 +98,18 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				B51EBF072FBE4FD500C0CB62 /* NoxPresenceCore in Frameworks */,
+				B51EBF082FBE4FD500C0CB62 /* NoxDesignCore in Frameworks */,
+				B51EBEFE2FBE4FD500C0CB62 /* NoxPlatformContracts in Frameworks */,
+				B51EBF032FBE4FD500C0CB62 /* NoxBehavioralIntelligenceCore in Frameworks */,
+				B51EBF062FBE4FD500C0CB62 /* NoxObservatoryCore in Frameworks */,
+				B51EBF002FBE4FD500C0CB62 /* NoxSemanticCore in Frameworks */,
+				B51EBEFD2FBE4FD500C0CB62 /* NoxCore in Frameworks */,
+				B51EBEFF2FBE4FD500C0CB62 /* NoxContextCore in Frameworks */,
+				B51EBF012FBE4FD500C0CB62 /* NoxMemoryCore in Frameworks */,
+				B51EBF022FBE4FD500C0CB62 /* NoxContinuityCore in Frameworks */,
+				B51EBF052FBE4FD500C0CB62 /* NoxSystemStateCore in Frameworks */,
+				B51EBF042FBE4FD500C0CB62 /* NoxAmbientUtilityCore in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -88,7 +126,8 @@
 		B580C3802FBBC1C700CB70C6 = {
 			isa = PBXGroup;
 			children = (
-				B580C38B2FBBC1C700CB70C6 /* Nox */,
+				FD0A8CE22C784955BCF2E793 /* Packages */,
+				B580C38B2FBBC1C700CB70C6 /* Apps/NoxMac/Nox */,
 				B580C3992FBBC1C800CB70C6 /* NoxTests */,
 				B580C3A32FBBC1C800CB70C6 /* NoxUITests */,
 				B580C38A2FBBC1C700CB70C6 /* Products */,
@@ -103,6 +142,13 @@
 				B580C3A02FBBC1C800CB70C6 /* NoxUITests.xctest */,
 			);
 			name = Products;
+			sourceTree = "<group>";
+		};
+		FD0A8CE22C784955BCF2E793 /* Packages */ = {
+			isa = PBXGroup;
+			children = (
+			);
+			path = Packages;
 			sourceTree = "<group>";
 		};
 /* End PBXGroup section */
@@ -121,10 +167,22 @@
 			dependencies = (
 			);
 			fileSystemSynchronizedGroups = (
-				B580C38B2FBBC1C700CB70C6 /* Nox */,
+				B580C38B2FBBC1C700CB70C6 /* Apps/NoxMac/Nox */,
 			);
 			name = Nox;
 			packageProductDependencies = (
+				578DD5E6555C4D998E57D6CA /* NoxCore */,
+				59860A4D0CA64B70BFB210BD /* NoxPlatformContracts */,
+				7B5C6F27B3234FB8B845B46A /* NoxContextCore */,
+				38B21C63CF944EDAAA049A4B /* NoxSemanticCore */,
+				3F1419E20C5E4A96B645BA9F /* NoxMemoryCore */,
+				4BF4651C1B234C02BF9F7722 /* NoxContinuityCore */,
+				35982F023BF7413FB1785F2B /* NoxBehavioralIntelligenceCore */,
+				050AD6177BF64A77A2C9F8B9 /* NoxAmbientUtilityCore */,
+				80B4A801CE4B4CC7A3809CEB /* NoxSystemStateCore */,
+				485AFBAAA37F495389484F9A /* NoxObservatoryCore */,
+				545E364F4C8D41C6B8998B39 /* NoxPresenceCore */,
+				5B41B664344F47ADAEC03F51 /* NoxDesignCore */,
 			);
 			productName = Nox;
 			productReference = B580C3892FBBC1C700CB70C6 /* Nox.app */;
@@ -148,6 +206,18 @@
 			);
 			name = NoxTests;
 			packageProductDependencies = (
+				8770CF9794454670B54CA121 /* NoxCore */,
+				F9B7D286BAA44FF68F019E29 /* NoxPlatformContracts */,
+				7B5C6F27B3234FB8B845B46A /* NoxContextCore */,
+				38B21C63CF944EDAAA049A4B /* NoxSemanticCore */,
+				3F1419E20C5E4A96B645BA9F /* NoxMemoryCore */,
+				4BF4651C1B234C02BF9F7722 /* NoxContinuityCore */,
+				35982F023BF7413FB1785F2B /* NoxBehavioralIntelligenceCore */,
+				050AD6177BF64A77A2C9F8B9 /* NoxAmbientUtilityCore */,
+				80B4A801CE4B4CC7A3809CEB /* NoxSystemStateCore */,
+				485AFBAAA37F495389484F9A /* NoxObservatoryCore */,
+				545E364F4C8D41C6B8998B39 /* NoxPresenceCore */,
+				5B41B664344F47ADAEC03F51 /* NoxDesignCore */,
 			);
 			productName = NoxTests;
 			productReference = B580C3962FBBC1C800CB70C6 /* NoxTests.xctest */;
@@ -208,6 +278,20 @@
 			);
 			mainGroup = B580C3802FBBC1C700CB70C6;
 			minimizedProjectReferenceProxies = 1;
+			packageReferences = (
+				26D9D88D3EB243799E29574B /* XCLocalSwiftPackageReference "Packages/NoxCore" */,
+				CDD76339808C444CA7D3EDF7 /* XCLocalSwiftPackageReference "Packages/NoxPlatformContracts" */,
+				64CC26599FC84570A435F895 /* XCLocalSwiftPackageReference "Packages/NoxContextCore" */,
+				4B69D4E9A8AF41A5AFEF1439 /* XCLocalSwiftPackageReference "Packages/NoxSemanticCore" */,
+				A088DE18789543A69A321C96 /* XCLocalSwiftPackageReference "Packages/NoxMemoryCore" */,
+				997818E1EB0342F9A6162395 /* XCLocalSwiftPackageReference "Packages/NoxContinuityCore" */,
+				7F8DB87D944345129C5DBF91 /* XCLocalSwiftPackageReference "Packages/NoxBehavioralIntelligenceCore" */,
+				1DE3029FE37A499AA471EBAC /* XCLocalSwiftPackageReference "Packages/NoxAmbientUtilityCore" */,
+				7D0664F50A4644FFBCD63608 /* XCLocalSwiftPackageReference "Packages/NoxSystemStateCore" */,
+				3D1430EBF53B4699BA92478C /* XCLocalSwiftPackageReference "Packages/NoxObservatoryCore" */,
+				E42EED27C1F643698695B8DC /* XCLocalSwiftPackageReference "Packages/NoxPresenceCore" */,
+				3D27FD5B588847AFA4380690 /* XCLocalSwiftPackageReference "Packages/NoxDesignCore" */,
+			);
 			preferredProjectObjectVersion = 77;
 			productRefGroup = B580C38A2FBBC1C700CB70C6 /* Products */;
 			projectDirPath = "";
@@ -401,14 +485,14 @@
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
-				CODE_SIGN_ENTITLEMENTS = Nox/SupportingFiles/Nox.entitlements;
+				CODE_SIGN_ENTITLEMENTS = Apps/NoxMac/Nox/SupportingFiles/Nox.entitlements;
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
 				ENABLE_APP_SANDBOX = YES;
 				ENABLE_HARDENED_RUNTIME = YES;
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = YES;
-				INFOPLIST_FILE = Nox/SupportingFiles/Info.plist;
+				INFOPLIST_FILE = Apps/NoxMac/Nox/SupportingFiles/Info.plist;
 				INFOPLIST_KEY_CFBundleDisplayName = Nox;
 				INFOPLIST_KEY_LSApplicationCategoryType = "public.app-category.productivity";
 				INFOPLIST_KEY_NSHumanReadableCopyright = "";
@@ -440,14 +524,14 @@
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
-				CODE_SIGN_ENTITLEMENTS = Nox/SupportingFiles/Nox.entitlements;
+				CODE_SIGN_ENTITLEMENTS = Apps/NoxMac/Nox/SupportingFiles/Nox.entitlements;
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
 				ENABLE_APP_SANDBOX = YES;
 				ENABLE_HARDENED_RUNTIME = YES;
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = YES;
-				INFOPLIST_FILE = Nox/SupportingFiles/Info.plist;
+				INFOPLIST_FILE = Apps/NoxMac/Nox/SupportingFiles/Info.plist;
 				INFOPLIST_KEY_CFBundleDisplayName = Nox;
 				INFOPLIST_KEY_LSApplicationCategoryType = "public.app-category.productivity";
 				INFOPLIST_KEY_NSHumanReadableCopyright = "";
@@ -600,6 +684,130 @@
 			defaultConfigurationName = Release;
 		};
 /* End XCConfigurationList section */
+
+/* Begin XCLocalSwiftPackageReference section */
+		1DE3029FE37A499AA471EBAC /* XCLocalSwiftPackageReference "Packages/NoxAmbientUtilityCore" */ = {
+			isa = XCLocalSwiftPackageReference;
+			relativePath = Packages/NoxAmbientUtilityCore;
+		};
+		26D9D88D3EB243799E29574B /* XCLocalSwiftPackageReference "Packages/NoxCore" */ = {
+			isa = XCLocalSwiftPackageReference;
+			relativePath = Packages/NoxCore;
+		};
+		3D1430EBF53B4699BA92478C /* XCLocalSwiftPackageReference "Packages/NoxObservatoryCore" */ = {
+			isa = XCLocalSwiftPackageReference;
+			relativePath = Packages/NoxObservatoryCore;
+		};
+		3D27FD5B588847AFA4380690 /* XCLocalSwiftPackageReference "Packages/NoxDesignCore" */ = {
+			isa = XCLocalSwiftPackageReference;
+			relativePath = Packages/NoxDesignCore;
+		};
+		4B69D4E9A8AF41A5AFEF1439 /* XCLocalSwiftPackageReference "Packages/NoxSemanticCore" */ = {
+			isa = XCLocalSwiftPackageReference;
+			relativePath = Packages/NoxSemanticCore;
+		};
+		64CC26599FC84570A435F895 /* XCLocalSwiftPackageReference "Packages/NoxContextCore" */ = {
+			isa = XCLocalSwiftPackageReference;
+			relativePath = Packages/NoxContextCore;
+		};
+		7D0664F50A4644FFBCD63608 /* XCLocalSwiftPackageReference "Packages/NoxSystemStateCore" */ = {
+			isa = XCLocalSwiftPackageReference;
+			relativePath = Packages/NoxSystemStateCore;
+		};
+		7F8DB87D944345129C5DBF91 /* XCLocalSwiftPackageReference "Packages/NoxBehavioralIntelligenceCore" */ = {
+			isa = XCLocalSwiftPackageReference;
+			relativePath = Packages/NoxBehavioralIntelligenceCore;
+		};
+		997818E1EB0342F9A6162395 /* XCLocalSwiftPackageReference "Packages/NoxContinuityCore" */ = {
+			isa = XCLocalSwiftPackageReference;
+			relativePath = Packages/NoxContinuityCore;
+		};
+		A088DE18789543A69A321C96 /* XCLocalSwiftPackageReference "Packages/NoxMemoryCore" */ = {
+			isa = XCLocalSwiftPackageReference;
+			relativePath = Packages/NoxMemoryCore;
+		};
+		CDD76339808C444CA7D3EDF7 /* XCLocalSwiftPackageReference "Packages/NoxPlatformContracts" */ = {
+			isa = XCLocalSwiftPackageReference;
+			relativePath = Packages/NoxPlatformContracts;
+		};
+		E42EED27C1F643698695B8DC /* XCLocalSwiftPackageReference "Packages/NoxPresenceCore" */ = {
+			isa = XCLocalSwiftPackageReference;
+			relativePath = Packages/NoxPresenceCore;
+		};
+/* End XCLocalSwiftPackageReference section */
+
+/* Begin XCSwiftPackageProductDependency section */
+		050AD6177BF64A77A2C9F8B9 /* NoxAmbientUtilityCore */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = 1DE3029FE37A499AA471EBAC /* XCLocalSwiftPackageReference "Packages/NoxAmbientUtilityCore" */;
+			productName = NoxAmbientUtilityCore;
+		};
+		35982F023BF7413FB1785F2B /* NoxBehavioralIntelligenceCore */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = 7F8DB87D944345129C5DBF91 /* XCLocalSwiftPackageReference "Packages/NoxBehavioralIntelligenceCore" */;
+			productName = NoxBehavioralIntelligenceCore;
+		};
+		38B21C63CF944EDAAA049A4B /* NoxSemanticCore */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = 4B69D4E9A8AF41A5AFEF1439 /* XCLocalSwiftPackageReference "Packages/NoxSemanticCore" */;
+			productName = NoxSemanticCore;
+		};
+		3F1419E20C5E4A96B645BA9F /* NoxMemoryCore */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = A088DE18789543A69A321C96 /* XCLocalSwiftPackageReference "Packages/NoxMemoryCore" */;
+			productName = NoxMemoryCore;
+		};
+		485AFBAAA37F495389484F9A /* NoxObservatoryCore */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = 3D1430EBF53B4699BA92478C /* XCLocalSwiftPackageReference "Packages/NoxObservatoryCore" */;
+			productName = NoxObservatoryCore;
+		};
+		4BF4651C1B234C02BF9F7722 /* NoxContinuityCore */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = 997818E1EB0342F9A6162395 /* XCLocalSwiftPackageReference "Packages/NoxContinuityCore" */;
+			productName = NoxContinuityCore;
+		};
+		545E364F4C8D41C6B8998B39 /* NoxPresenceCore */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = E42EED27C1F643698695B8DC /* XCLocalSwiftPackageReference "Packages/NoxPresenceCore" */;
+			productName = NoxPresenceCore;
+		};
+		578DD5E6555C4D998E57D6CA /* NoxCore */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = 26D9D88D3EB243799E29574B /* XCLocalSwiftPackageReference "Packages/NoxCore" */;
+			productName = NoxCore;
+		};
+		59860A4D0CA64B70BFB210BD /* NoxPlatformContracts */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = CDD76339808C444CA7D3EDF7 /* XCLocalSwiftPackageReference "Packages/NoxPlatformContracts" */;
+			productName = NoxPlatformContracts;
+		};
+		5B41B664344F47ADAEC03F51 /* NoxDesignCore */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = 3D27FD5B588847AFA4380690 /* XCLocalSwiftPackageReference "Packages/NoxDesignCore" */;
+			productName = NoxDesignCore;
+		};
+		7B5C6F27B3234FB8B845B46A /* NoxContextCore */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = 64CC26599FC84570A435F895 /* XCLocalSwiftPackageReference "Packages/NoxContextCore" */;
+			productName = NoxContextCore;
+		};
+		80B4A801CE4B4CC7A3809CEB /* NoxSystemStateCore */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = 7D0664F50A4644FFBCD63608 /* XCLocalSwiftPackageReference "Packages/NoxSystemStateCore" */;
+			productName = NoxSystemStateCore;
+		};
+		8770CF9794454670B54CA121 /* NoxCore */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = 26D9D88D3EB243799E29574B /* XCLocalSwiftPackageReference "Packages/NoxCore" */;
+			productName = NoxCore;
+		};
+		F9B7D286BAA44FF68F019E29 /* NoxPlatformContracts */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = CDD76339808C444CA7D3EDF7 /* XCLocalSwiftPackageReference "Packages/NoxPlatformContracts" */;
+			productName = NoxPlatformContracts;
+		};
+/* End XCSwiftPackageProductDependency section */
 	};
 	rootObject = B580C3812FBBC1C700CB70C6 /* Project object */;
 }

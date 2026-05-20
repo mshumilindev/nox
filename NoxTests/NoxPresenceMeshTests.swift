@@ -1,40 +1,21 @@
 import CryptoKit
 import XCTest
+import NoxCore
+import NoxPlatformContracts
+import NoxContextCore
+import NoxSemanticCore
+import NoxMemoryCore
+import NoxContinuityCore
+import NoxBehavioralIntelligenceCore
+import NoxAmbientUtilityCore
+import NoxSystemStateCore
+import NoxObservatoryCore
+import NoxPresenceCore
+import NoxDesignCore
 @testable import Nox
 
 @MainActor
-final class NoxPresenceMeshTests: XCTestCase {
-    func testMeshProfilePortsAreDistinct() {
-        XCTAssertEqual(NoxMeshProfile(name: "node-a").meshPort, 9121)
-        XCTAssertEqual(NoxMeshProfile(name: "node-b").meshPort, 9122)
-        XCTAssertNotEqual(NoxMeshProfile(name: "node-a").meshPort, NoxMeshProfile(name: "node-b").meshPort)
-    }
-
-    func testCanonicalPayloadSigningRoundTrip() throws {
-        let privateKey = Curve25519.Signing.PrivateKey()
-        let publicKey = privateKey.publicKey
-        let payload = NoxMeshCrypto.canonicalPayload(
-            type: "pairing_request",
-            protocolVersion: 1,
-            fromDeviceId: "device-a",
-            fromDeviceName: "Mac A",
-            nonce: "nonce-1",
-            timestamp: ISO8601DateFormatter().string(from: Date()),
-            extra: ["inviteToken": "tok"]
-        )
-        let signature = try NoxMeshCrypto.sign(
-            payload: payload,
-            privateKeyData: privateKey.rawRepresentation
-        )
-        XCTAssertTrue(
-            NoxMeshCrypto.verify(
-                payload: payload,
-                signatureBase64: signature,
-                publicKeyBase64: publicKey.rawRepresentation.base64EncodedString()
-            )
-        )
-    }
-
+final class NoxPresenceMeshMacTests: XCTestCase {
     func testPairingInviteEncodeDecode() throws {
         let identity = NoxNodeIdentity(
             systemId: "sys",
@@ -56,41 +37,5 @@ final class NoxPresenceMeshTests: XCTestCase {
         XCTAssertEqual(decoded.primaryDeviceId, identity.deviceId)
         XCTAssertEqual(decoded.type, NoxPairingInvite.fileType)
         XCTAssertFalse(decoded.signature.isEmpty)
-    }
-
-    func testPairingMessageVerifierRejectsReplayedNonce() throws {
-        let verifier = PairingMessageVerifier()
-        let privateKey = Curve25519.Signing.PrivateKey()
-        let keyB64 = privateKey.publicKey.rawRepresentation.base64EncodedString()
-        let timestamp = ISO8601DateFormatter().string(from: Date())
-        let payload = NoxMeshCrypto.canonicalPayload(
-            type: NoxMeshMessageType.testPing.rawValue,
-            protocolVersion: 1,
-            fromDeviceId: "d1",
-            fromDeviceName: "A",
-            nonce: "same-nonce",
-            timestamp: timestamp
-        )
-        let signature = try NoxMeshCrypto.sign(
-            payload: payload,
-            privateKeyData: privateKey.rawRepresentation
-        )
-        let message = NoxMeshMessage(
-            type: .testPing,
-            protocolVersion: 1,
-            fromDeviceId: "d1",
-            fromDeviceName: "A",
-            nonce: "same-nonce",
-            timestamp: timestamp,
-            signature: signature,
-            publicKeyBase64: keyB64
-        )
-        try verifier.verify(message, publicKeyBase64: keyB64, trustEstablishing: false)
-        do {
-            try verifier.verify(message, publicKeyBase64: keyB64, trustEstablishing: false)
-            XCTFail("Expected replayed nonce")
-        } catch let error as NoxMeshError {
-            XCTAssertEqual(error, .replayedNonce)
-        }
     }
 }

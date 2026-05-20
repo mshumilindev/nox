@@ -1,0 +1,43 @@
+---
+description: Shared Swift packages — Foundation-only domain, imports, public API, tests
+globs: Packages/**/*.swift
+alwaysApply: false
+---
+
+# Nox shared packages (`Packages/`)
+
+## Allowed imports
+
+- **Default**: `import Foundation` only.
+- **Exception**: `CoreGraphics` only for spacing/layout constants (e.g. `NoxSpacing`) when documented in package README.
+- **Dependencies**: packages may depend on other Nox packages (e.g. `NoxContextCore` → `NoxCore`), never on app targets.
+
+## Forbidden in `Packages/*/Sources` (CI enforced)
+
+`AppKit`, `SwiftUI`, `SQLite3`, `EventKit`, `UserNotifications`, `CoreBluetooth`, `Network`, `ApplicationServices`, `IOKit`, `Cocoa`, `Combine`, `NSWorkspace`, menu-bar/window APIs.
+
+If a file needs any of these → **stop**; leave in `Nox/` or `Apps/NoxMac/` adapter with `// TODO(platform): <reason>`.
+
+## Package roles
+
+| Package | Contents |
+|---------|----------|
+| `NoxPlatformContracts` | Protocols + neutral associated types only |
+| `NoxCore` | Events, trust, presence enums, permissions models, philosophy |
+| `NoxContextCore` | Context models, classifiers, evidence (no AppKit symbols) |
+| `NoxMemoryCore` | Memory entities, rollup engines — **not** `*Store.swift` |
+| `NoxContinuityCore` | Threads, matching — **not** SQLite stores |
+| `NoxSemanticCore` | Inference engines — **not** `NoxSemanticMemoryStore` |
+| `NoxPresenceCore` | Mesh messages, pairing domain — **not** BT/Bonjour/Network |
+| Other `*Core` | Pure engines/models per `Docs/PLATFORM_MIGRATION.md` |
+
+## API & tests
+
+- Types used from the app target must be `public` (members too).
+- Move Foundation-only tests into `Packages/<Name>/Tests/`; keep SQLite, AX, mesh integration tests in `NoxTests`.
+- Prefer extending existing types over duplicating logic when extracting.
+
+## Wiring
+
+- App and tests use explicit `import NoxCore`, `import NoxContextCore`, etc. (see `Scripts/add-app-package-imports.sh`). Do not re-introduce `@_exported` barrel imports.
+- macOS adapters **import** packages; packages **never** import adapters or UI.

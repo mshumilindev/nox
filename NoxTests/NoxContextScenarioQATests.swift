@@ -1,5 +1,17 @@
 import Foundation
 import Testing
+import NoxCore
+import NoxPlatformContracts
+import NoxContextCore
+import NoxSemanticCore
+import NoxMemoryCore
+import NoxContinuityCore
+import NoxBehavioralIntelligenceCore
+import NoxAmbientUtilityCore
+import NoxSystemStateCore
+import NoxObservatoryCore
+import NoxPresenceCore
+import NoxDesignCore
 @testable import Nox
 
 /// Iteration 6A scenario-class validation for the context acquisition pipeline.

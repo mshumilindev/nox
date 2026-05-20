@@ -1,0 +1,64 @@
+---
+description: Nox multi-platform responsibility split — canonical macOS node, capability matrix, where code belongs
+alwaysApply: true
+---
+
+# Nox platform boundaries
+
+**macOS is the only canonical Nox node** until sync exists. iPhone/iPad/Watch/TV/visionOS are not implemented yet; do not add them without explicit product approval.
+
+## Before writing code — placement decision
+
+1. **Pure domain** (models, engines, scoring, copy rules, no OS APIs) → `Packages/Nox*Core/` or `Packages/NoxCore/`. **Foundation only** unless a package README explicitly allows more.
+2. **Cross-platform capability surface** (what the app needs, not how) → `Packages/NoxPlatformContracts/` — protocols + neutral types only. **No behavior.**
+3. **OS-specific implementation** (observe apps, AX, SQLite, mesh transport, menu bar, windows, notifications) → macOS app / `Apps/NoxMac/` / `Nox/` adapters behind a contract. Never import adapters from shared packages.
+4. **UI** (SwiftUI/AppKit, design tokens with Color/Material) → platform app target (`Nox/`, future `Apps/NoxMac/`). Not shared Core.
+
+If unsure: **default to shared Core + contract**; push platform code to the adapter that implements the contract.
+
+## Capability matrix (what each device may do)
+
+| Capability | macOS | iPhone | iPad | Watch | Apple TV | visionOS |
+|------------|-------|--------|------|-------|----------|----------|
+| Desktop activity observation | **Full** | None | None | None | None | Limited/spatial only if explicit |
+| Window / AX / screen context | **Full** | None | None | None | None | Platform-specific, non-canonical |
+| Canonical local memory (SQLite owner) | **Yes** | Cache/read-only until sync | Same | No | No personal memory | Non-canonical cache |
+| Memory UI | Full browser | Summary | Summary | Glance | None | Spatial summary |
+| Notifications | Full | Full mobile | Full mobile | Short alerts | Minimal | Subtle/spatial |
+| System actions (Focus, caffeinate, battery) | **Full** | No mac actions | No mac actions | No | No | No mac actions |
+| Presence mesh | **Primary node** | Limited surface | Limited surface | Hint only | Passive/room | Limited surface |
+| Observatory dashboard | **Full** | Summary | Summary | **No** | **No** | Optional |
+| Trust controls | Full | Light approve/revoke | Light | Minimal | Usually none | Light |
+
+## Hard platform restrictions
+
+- **iPhone / iPad**: No `NSWorkspace`, Accessibility, foreground desktop app observation, canonical memory ownership, or mac-only system actions.
+- **Apple Watch**: No Observatory dashboard, full memory browser, heavy local inference, or personal memory ownership.
+- **Apple TV**: Household/passive/display only — no productivity dashboard or personal memory management.
+- **visionOS**: May consume shared models; must not become canonical core.
+- **macOS**: Only platform that may own observation pipeline, SQLite canonical store, menu bar, window modes, and full Presence Mesh as primary node.
+
+## Contracts map (implement per platform, define once)
+
+| Contract | macOS today | Other platforms |
+|----------|-------------|-----------------|
+| `NoxActivityObserving` | Desktop observer | No-op / absent |
+| `NoxWindowContextReading` | NSWorkspace + AX | Stub / absent |
+| `NoxPermissionProviding` | Real permission service | Mobile permission set |
+| `NoxCalendarContextProviding` | EventKit | EventKit (mobile) when added |
+| `NoxNotificationDelivering` | UserNotifications | UNUserNotificationCenter |
+| `NoxSystemStateProviding` / `NoxSystemActionExecuting` / `NoxCaffeinateControlling` | Full | Stubs or subset |
+| `NoxPresenceDiscoveryProviding` / `NoxPresenceTransportProviding` | Bonjour/BT/HTTP | Reduced transport |
+| `NoxIdentityProviding` / `NoxKeychainProviding` | Keychain | Keychain (platform) |
+| `NoxPersistencePathProviding` | App Support paths | Sandbox paths |
+
+Orchestration (`NoxContextService`, `AppEnvironment`) stays in **macOS app composition** until Phase 4 split; shared code must not reference them.
+
+## Refactor invariants
+
+- Do not change runtime behavior when moving files; use `git mv` and `public` only as needed for modules.
+- Do not remove macOS features during extraction.
+- Run `Scripts/check-package-import-boundaries.sh` after editing `Packages/*/Sources`.
+- Gate: `xcodebuild -scheme Nox -destination 'platform=macOS' build` and `test -only-testing:NoxTests`.
+
+Details: `Docs/PLATFORM_MIGRATION.md`.
