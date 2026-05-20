@@ -1,6 +1,6 @@
 # Nox Roadmap
 
-Last updated: 2026-05-19
+Last updated: 2026-05-20
 
 The old day-by-day MVP checklist has been retired. Nox is now tracked by shipped capability phases and current gaps. `Docs/CURRENT_FUNCTIONALITY.md` remains the source of truth for what exists in code today.
 

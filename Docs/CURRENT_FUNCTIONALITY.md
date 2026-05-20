@@ -1,6 +1,6 @@
 # Nox Current Functionality
 
-Last updated: 2026-05-19
+Last updated: 2026-05-20
 
 This document is the living inventory of what Nox actually implements today. Update it after every development phase so planning reflects shipped behavior, not intent.
 
@@ -16,19 +16,21 @@ It is not a chatbot, cloud assistant, productivity scorer, screenshot recorder, 
 - Agent-style app using `LSUIElement`; it lives in the menu bar without a Dock-first experience.
 - Floating dashboard is owned by `NoxWindowController` through `NoxPanelState`, with single-window open/focus behavior.
 - Runtime singletons are centralized in `NoxAppRuntime`.
-- `AppEnvironment` owns UI-facing state for presence, permissions, preferences, awareness snapshots, explainability, live signals, **layered timeline sections** (`timelineSections`), semantic context, search, memory period, long-horizon memory, morning continuity, reflections, memory maturity, **connector continuity snapshot**, and active app context.
+- `AppEnvironment` owns UI-facing state for presence, permissions, preferences, awareness snapshots, explainability, live signals, **layered timeline sections** (`timelineSections`), semantic context, search, memory period, long-horizon memory (`longHorizonSnapshot`), **memory evolution** (`memoryEvolutionSnapshot`), morning continuity, reflections, memory maturity, **connector / behavioral / ambient utility snapshots**, and active app context.
 - App lifecycle can checkpoint memory and session state before termination through `NoxLifecycleCoordinator` and `NoxContextService`.
 
 ## Menu Bar Experience
 
-- Menu bar icon reflects presence through `NoxMenuBarIcon`.
+- Menu bar entry is an **`NSStatusItem`** via `NoxStatusBarController` (not `MenuBarExtra`), with `autosaveName` so the icon stays in the primary menu bar when possible.
+- Tray icon: template asset **`NoxTrayTemplate`** (triskelion spiral) through `NoxMenuBarIcon.makeTemplateImage()` — adapts to light/dark menu bar automatically.
+- Click opens a floating **`NSPanel`** dropdown (`NoxMenuBarView`, ~320×420) with the same atmospheric stack as the dashboard (scaled down).
 - Dropdown shows:
-  - current presence;
-  - live context pulse;
-  - semantic hint when available;
-  - compact live signal feed;
-  - actions for opening Nox and quitting;
-  - calm local-first philosophy copy.
+  - wordmark header (`NoxMenuBarHeaderView` + `NoxTriskelionMark`);
+  - current presence (`NoxPresenceBadgeView`);
+  - compact live signals when available;
+  - semantic hint when not duplicated in the pulse;
+  - actions to open the dashboard and quit;
+  - calm philosophy copy (`NoxPhilosophySurface`).
 - Menu bar copy avoids surveillance language.
 
 ## Visual Identity (Phase 8.5–8.7)
@@ -36,25 +38,51 @@ It is not a chatbot, cloud assistant, productivity scorer, screenshot recorder, 
 ### Phase 8.7 — Human UI pass
 - **Three surface levels:** `major` (rare hero), `standard` (entities), `soft` (metadata/controls) — replaces uniform mega-cards.
 - **`noxGroup`** replaces heavy `noxCluster` wrappers; readable width cap (~520pt) on surfaces.
-- **Memory timeline:** layered sections (Continuity → Semantic → Focus → Activity → Interruptions), fixed row heights, SF Symbol markers aligned to title line (no dot/circle chrome).
+- **Memory timeline:** layered sections (`NoxTimelineSectionView` / `NoxTimelineRowView`), fixed row heights, SF Symbol markers aligned to title line (no dot/circle chrome).
 - **Trust:** single composed boundaries list; calmer memory controls (toggle alignment, menu picker, quiet links).
 - **Now:** flat vertical composition — one `standard` presence block, `soft` live context, `major` morning only.
 - **Sidebar:** left-aligned rows, semantic grouping, accent bar selection (not icon-column template).
 - **Mode control:** underline selection, no glossy segmented pill.
 - **Interaction:** `NoxAmbientHover` on buttons/chips only; `noxInteractiveChrome` on toggles/pickers (hover only — no custom pointer cursor).
 
-## Visual Identity (Phase 8.5 + 8.6)
+## Design System & Atmosphere (Phase 8.5–8.7 + brand pass)
 
-- Graphite atmospheric palette: canvas, rail, layered surfaces, muted indigo accent.
+### Semantic colors (asset catalog, light/dark)
+
+- UI colors come from **`Assets.xcassets`** color sets (`NoxCanvas`, `NoxSurface`, `NoxRail`, `NoxAccent`, `NoxTextPrimary`, `NoxTextSecondary`, `NoxBorder`, reflection/trust/presence roles, etc.) — each defines **universal + dark** appearances where needed.
+- `NoxDesignTokens.ColorRole` resolves these at runtime; the shell follows **system `colorScheme`** (light day / dark night), not a forced dark-only theme.
+
+### Brand assets
+
+- **Triskelion mark:** `NoxTriskelionMark` (navigation rail, menu bar header); variants `NoxTriskelionSoft`, `NoxTriskelionEmbossed` in catalog.
+- **Menu bar tray:** `NoxTrayTemplate` (template PDF/SVG).
+- **App icon:** `AppIcon.appiconset` with generated `NoxAppIcon-*` PNG sizes.
+- **Night atmosphere image:** `NoxNightAuroraBackground` — static raster aurora plate (source notes in `Assets/Source/RAWPIXEL_AURORA_SOURCE.md`).
+- **Notification glyph:** `NoxNotificationGlyph` (triskelion).
+- Design sources tracked under `Assets/Source/` (triskelion SVG + attribution markdown).
+
+### `NoxAtmosphereBackground` (static, no procedural animation)
+
+Procedural Canvas aurora was **removed**. Current stack:
+
+1. **Base Canvas** — day: cool graphite gradient + radial depth; night: dark vertical gradient + subtle radial haze + sparse static stars (window only).
+2. **Night image layer** (evening / night / deepReflection when asset loads) — `Image("NoxNightAuroraBackground")`, `scaledToFill`, toned down (saturation/contrast/brightness), dark gradient overlay; opacity ~0.34 window / ~0.46 deep reflection / ~0.32 menu bar.
+3. **Optical Canvas** — top vignette + soft border stroke.
+
+`NoxAtmosphericState`: `day`, `evening`, `night`, `deepReflection` — **`isAnimated` is always false** today.
+
+**Shell mapping** (`NoxAmbientShellView`): `colorScheme == .light` → `.day`; dark + normal mode → `.night`; dark + **Deep reflection** window mode → `.deepReflection`. The `.evening` enum case exists for the image layer but is **not** selected by the shell (hour-of-day scheduling was removed).
+
+### Layout & components (unchanged intent)
+
 - **Spacing scale (4pt base):** 4 · 8 · 12 · 16 · 24 · 32 · 48 — `NoxSpacing`, `NoxSurfacePage`, consistent card insets.
-- **Typography:** unified section labels (`noxSectionLabel`), metadata (`noxMetadata`), page titles via `NoxPageIntro` / `NoxSectionHeader`.
-- **Icons:** `NoxIcon` with rail / chrome / inline / section roles; `NoxSFSymbol.validated` ensures symbols exist before render; destination symbols normalized (e.g. reflections `text.quote`, trust `shield.lefthalf.filled`).
-- `NoxMaterials` — 0.5pt borders, tiered fills, `cardPadding` / `cardPaddingLoose`; no glass spam.
-- `NoxAtmosphereBackground` — layered graphite gradients + soft vignette (static, no neon).
-- Architectural navigation rail (**128pt**, icon-above-label, no label wrap) with restrained selection fill.
-- `NoxWindowModeControl` — thin graphite mode switch (replaces thick segmented control).
-- Deep window mode: `NoxDeepPatternsSurfaceView` / `NoxDeepReflectionSurfaceView` with shared section headers.
-- Shell chrome: destination context + calm mode control; content well uses canvas tint.
+- **Typography:** `noxSectionLabel`, `noxMetadata`, `NoxPageIntro` / `NoxSectionHeader`, `NoxTypography.wordmark` / `tagline`.
+- **Icons:** `NoxIcon` + `NoxSFSymbol.validated`; rail uses template triskelion, not generic app symbol.
+- **`NoxMaterials`** — tiered surfaces (`major` / `standard` / `soft`), borders, rail width **128pt**.
+- **`NoxWindowModeControl`** — underline mode switch; fixed sizes in `NoxDesignTokens.Window` (Compact 368×460, Expanded 560×660, Deep 720×820).
+- **`NoxTitlebarLayout`** — shell chrome vertical padding / min height for traffic-light alignment.
+- **Deep mode** swaps Patterns → `NoxDeepPatternsSurfaceView`, Reflections → `NoxDeepReflectionSurfaceView`.
+- Content well opacity varies by atmosphere state (`contentAtmosphereOpacity` 0.18–0.42).
 
 ## Adaptive Ambient Shell (Phase 8)
 
@@ -66,7 +94,8 @@ It is not a chatbot, cloud assistant, productivity scorer, screenshot recorder, 
   - **Reflections** — calm reflection cards;
   - **Local** — local-first transparency and capability ladder;
   - **Trust** — privacy boundaries and memory controls.
-- **Window modes:** Compact, Expanded, Deep reflection (resizable floating panel).
+- **Window modes:** Compact, Expanded, Deep reflection — fixed content sizes per mode; `NoxWindowController` opens a floating `NSPanel`-style window, syncs frame on mode change, default top-trailing placement until user moves it.
+- **Appearance:** follows system light/dark (`colorScheme`); not locked to dark mode.
 - **Progressive disclosure:** `NoxCollapsibleSection` folds dense content by default.
 - **Trust center:** stored/never collected/sensitive/retention/reflection boundaries.
 - **Memory controls:** pause observation, pause semantic memory, quiet modes, clear recent continuity.
@@ -89,17 +118,22 @@ It is not a chatbot, cloud assistant, productivity scorer, screenshot recorder, 
 - `NoxMorningSummaryPresenter` shapes headline + supporting lines.
 - Summaries are deterministic, non-coaching, and stored in ambient state cooldown (`lastMorningSummaryAt`).
 
-### Long-Horizon Memory Surface
+### Long-Horizon Memory (distributed surfaces)
 
-- `NoxLongHorizonView` surfaces:
-  - active continuity threads;
-  - emerging patterns;
-  - semantic arcs;
-  - reflective synthesis candidates;
-  - behavioral rhythms and era candidates from typed memory;
-  - weekly/monthly rollup narratives;
-  - rare resurfacing notes (cooldown-protected).
-- Card components: `NoxContinuityThreadCard`, `NoxSemanticArcCard`, `NoxBehavioralRhythmCard`, `NoxEraSurface`.
+`NoxLongHorizonLoader` + `NoxReflectiveContinuityAssembler` produce `NoxLongHorizonSnapshot` on every memory reload. **`NoxLongHorizonView` exists in code but is not mounted in the app** — content is split across semantic destinations:
+
+| Destination | Long-horizon content |
+| --- | --- |
+| **Threads** | Active continuity threads + explainability cards (`NoxContinuityThreadCard` + evolution-aware copy) |
+| **Memory** | Layered timeline + era observation line (`NoxMemoryTimelineView`, `NoxTemporalMemoryRowPresenter`) |
+| **Patterns** | Emerging patterns, semantic arcs, continuity shapes, life-shaped periods, rhythms, cadence, connector enrichment, **temporal continuity** (Phase 12), era observation |
+| **Reflections** | `NoxReflectionCandidate` cards from synthesis pipeline |
+| **Now** | Morning summary, resurfacing notes, connector/utility interventions when gated |
+| **Deep → Patterns / Reflections** | Deeper layout variants of Patterns and Reflections |
+
+Shared card components: `NoxContinuityThreadCard`, `NoxSemanticArcCard`, `NoxBehavioralRhythmCard`, `NoxEraSurface` (optional `eraHints` from memory evolution).
+
+Weekly/monthly rollup narratives and rare resurfacing notes are assembled into the snapshot; resurfacing respects cooldowns in `NoxAmbientState`.
 
 ### Reflective Synthesis
 
@@ -207,16 +241,19 @@ It is not a chatbot, cloud assistant, productivity scorer, screenshot recorder, 
 - `NoxDaySemanticFraming` creates a calm overview of today.
 - `NoxReflectiveContinuityAssembler` bundles long-horizon, morning, emerging, and reflection outputs for the dashboard.
 
-### Memory timeline (layered + deduped)
+### Memory timeline (layered + deduped + evolution UX)
 
-- `NoxTimelineBlockPresenter.makeSections()` builds **five layers** instead of one mixed feed:
+- `NoxTimelineBlockPresenter.makeSections()` builds **five layers**:
   - Continuity → Semantic memory → Focus → Activity → Interruptions.
-- Within each layer, items sort newest-first; empty layers are hidden.
+- Within each layer, items sort **newest-first** at presentation time; empty layers are hidden.
+- After Phase 12 refresh, **`NoxTemporalMemoryRowPresenter.enrich`** applies aging copy and visual emphasis **once per reload** (no intermediate raw-then-enriched flash). Layer **order is preserved** (no weight-based re-sort inside layers — avoids flicker in Last 7 days).
+- UI components: **`NoxTimelineSectionView`**, **`NoxTimelineRowView`** (opacity / temporal stamp / relation line), optional **`NoxMemoryEraObservationView`** above the timeline.
 - **`NoxTimelineActivityDeduper`** drops raw activity spans when their **time interval** overlaps a semantic span (`NoxTimeInterval`: ≥30s overlap, ≥50% of shorter interval, or fully contained).
-- **`NoxMemorySearchScope`** — when Filter memory is active, all layers narrow to search hits and shared time windows (no full-day semantic list + filtered activity).
-- **Historical periods** (Yesterday, Last 7 days) use static empty copy — live open-span emergence does not bleed into past days.
+- **`NoxMemorySearchScope`** — when Filter memory is active, all layers narrow to search hits and shared time windows.
+- **Historical periods** (Yesterday, Last 7 days) use static empty copy; temporal copy is **period-aware** (no “today” phrasing on 7-day view).
 - **Emergence for Today only** — `periodScopedEmergence` uses `openSpan` and live signals only when `memoryPeriod == .today`.
-- **Timeline markers** — `NoxTimelineSymbol` + category `symbolName` (e.g. Research → `book.fill`, Development → `hammer.fill`); period picker and search use `NoxIcon`.
+- **Long-term resurfacing row** injected at top of Continuity layer on **Today only**, when evolution notes + resurfacing band align.
+- **Timeline markers** — `NoxTimelineSymbol` + category `symbolName`; supports `.resurfacingMemory` kind for rare resurfacing rows.
 
 ### Activity classification (no “Unknown” in UI)
 
@@ -342,12 +379,13 @@ Module: `Nox/Core/MemoryEvolution/`
 
 Presentation layer in `Nox/Core/Memory/Presentation/` (no new dashboards or analytics):
 
-- **Aging presentation** (`NoxMemoryAgingPresenter`, `NoxMemoryTemporalState`, `NoxTimelineRowPresentation`): maps engine aging bands to visual emphasis (title/metadata/icon opacity, duration suppression) — presentation only, not leaked engine models.
-- **Temporal copy** (`NoxTemporalContinuityCopyBuilder`): replaces telemetry phrasing (“1m”, “N resumptions”) with calm continuity language (“recently active”, “returned across several sessions”) — confidence-gated and sparse.
-- **Row orchestration** (`NoxTemporalMemoryRowPresenter`): enriches timeline sections after Phase 12 refresh; injects rare long-term resurfacing rows; reorders by temporal weight within layers.
-- **Ecology hints** (`NoxMemoryRelationPresenter`): sparse relation lines (“connected to recent development continuity”) without explaining ecology directly.
-- **UI extraction**: `NoxTimelineRowView`, `NoxTimelineSectionView`, `NoxMemoryEraObservationView`; cards (`NoxContinuityThreadCard`, `NoxSemanticArcCard`) apply aging styles; light era observation above Memory timeline and in Patterns.
-- **Ordering**: `NoxLongHorizonLoader` and `NoxContextualMemoryPrioritizer` bias toward high temporal-weight / unresolved / resurfaced continuity over noisy short activity.
+- **Aging presentation** (`NoxMemoryAgingPresenter`, `NoxMemoryTemporalState`, `NoxTimelineRowPresentation`): maps engine aging bands to visual emphasis (title/metadata/icon opacity, duration suppression) — presentation only.
+- **Temporal copy** (`NoxTemporalContinuityCopyBuilder`): replaces telemetry phrasing (“1m”, “N resumptions”) with calm continuity language — **confidence-gated**, **period-aware** (`today` vs `lastSevenDays`), stable fallbacks (`stamp ?? durationText`).
+- **Row orchestration** (`NoxTemporalMemoryRowPresenter`): enriches timeline sections after Phase 12 in `NoxContextService.reloadMemoryView()`; injects rare long-term resurfacing rows (**Today only**); relation lines **Today only**; short activity rows may hide duration when ≤2 minutes.
+- **Ecology hints** (`NoxMemoryRelationPresenter`): sparse relation lines when coupling threshold met.
+- **UI extraction**: `NoxTimelineRowView`, `NoxTimelineSectionView`, `NoxMemoryEraObservationView`; cards (`NoxContinuityThreadCard`, `NoxSemanticArcCard`) read `memoryEvolutionSnapshot` for aging/copy.
+- **Ordering (long-horizon only)**: `NoxLongHorizonLoader` and `NoxContextualMemoryPrioritizer` use `temporalWeights` for thread/arc priority — **not** timeline row order inside Memory layers.
+- **Stability fixes**: single timeline publish per reload; `NoxUnresolvedPersistenceEngine` does not increment return counters on every evolve pass (prevents copy flicker).
 
 ## Interaction & Hover
 
@@ -364,11 +402,14 @@ Presentation layer in `Nox/Core/Memory/Presentation/` (no new dashboards or anal
 ## Current Gaps And Risks
 
 - Reflection synthesis is deterministic only; optional LLM pass is not integrated.
-- Long-horizon surface may need visual density tuning as memory grows.
+- **`NoxLongHorizonView` is unwired** — consolidated long-horizon layout exists only as a component file, not a shipped destination.
+- **`NoxAtmosphericState.evening`** is defined (night image + palette) but the shell never selects it; only day / night / deepReflection from `colorScheme` + window mode.
+- Night aurora is a **static image plate**, not reactive to memory density or live presence (density only affects base haze slightly).
 - Mail/Slack native metadata connectors are not integrated; communication pressure uses local activity proxies.
 - No cloud sync, encrypted export, or backup workflow.
-- Calendar permission onboarding may still need product polish, and the final sandbox entitlement flow should be validated before release.
+- Calendar permission onboarding may still need product polish; sandbox entitlement flow should be validated before release.
 - Settings row labels are not tap-to-toggle (only the switch/picker is interactive).
+- `Docs/CURRENT_FUNCTIONALITY.md` must stay aligned with code after visual/atmosphere changes (this file is the inventory of record).
 
 ## Best Next-Step Candidates
 
