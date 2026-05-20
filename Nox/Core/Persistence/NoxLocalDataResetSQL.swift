@@ -4,6 +4,43 @@ import SQLite3
 enum NoxLocalDataResetSQL {
     private static let bundleId = "dev.nox.Nox"
 
+    static func purgeContinuityObservations(at databaseURL: URL) throws -> NoxContinuityResetReport {
+        var db: OpaquePointer?
+        guard sqlite3_open(databaseURL.path, &db) == SQLITE_OK else {
+            throw NoxMemoryStoreError.openFailed
+        }
+        defer { sqlite3_close(db) }
+
+        let timeline = try runDelete(db, sql: "DELETE FROM timeline_events;")
+        let activity = try runDelete(db, sql: "DELETE FROM activity_spans;")
+        let semantic = try runDelete(db, sql: "DELETE FROM semantic_spans;")
+        let focus = try runDelete(db, sql: "DELETE FROM focus_blocks;")
+        let interruptions = try runDelete(db, sql: "DELETE FROM interruptions;")
+        let sessions = try runDelete(db, sql: "DELETE FROM work_sessions;")
+        let rollups = try runDelete(db, sql: "DELETE FROM memory_rollups;")
+        let threads = try runDelete(db, sql: "DELETE FROM continuity_threads;")
+        let typed = try runDelete(db, sql: "DELETE FROM typed_memories;")
+        let reflections = try runDelete(db, sql: "DELETE FROM reflections;")
+        let behavioral = try runDelete(db, sql: "DELETE FROM behavioral_intelligence;")
+        let connector = try runDelete(db, sql: "DELETE FROM connector_signals;")
+        sqlite3_exec(db, "VACUUM;", nil, nil, nil)
+
+        return NoxContinuityResetReport(
+            timelineEvents: timeline,
+            activitySpans: activity,
+            semanticSpans: semantic,
+            focusBlocks: focus,
+            interruptions: interruptions,
+            workSessions: sessions,
+            memoryRollups: rollups,
+            continuityThreads: threads,
+            typedMemories: typed,
+            reflections: reflections,
+            behavioralSignals: behavioral,
+            connectorSignals: connector
+        )
+    }
+
     static func purgeNoxSelf(at databaseURL: URL) throws -> NoxPurgeReport {
         var db: OpaquePointer?
         guard sqlite3_open(databaseURL.path, &db) == SQLITE_OK else {
