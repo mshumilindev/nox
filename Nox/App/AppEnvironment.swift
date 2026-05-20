@@ -62,6 +62,8 @@ final class AppEnvironment {
     let appVersion: String
     let buildNumber: String
 
+    var presenceMesh: PresenceMeshManager { NoxAppRuntime.presenceMesh }
+
     private let contextService = NoxContextService()
     private var didStart = false
     private var startTask: Task<Void, Never>?

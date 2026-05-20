@@ -25,6 +25,8 @@ Open the built app:
 
 Drag to `/Applications` or always launch from the same path so TCC remembers the app.
 
+**Why Bluetooth (or other) prompts repeat after every Xcode build:** macOS TCC stores consent per signed app *and* install path. Each clean build under `DerivedData/Nox-<hash>/…` can look like a new app to the system. Permissions you granted still exist for the old path; the new binary asks again. Fix: copy `Nox.app` to `/Applications` (or a fixed folder) and run that copy for day-to-day testing. Bundle id stays `dev.nox.Nox`; path stability is what matters.
+
 ## Permissions
 
 | Permission | Enables |
@@ -32,9 +34,10 @@ Drag to `/Applications` or always launch from the same path so TCC remembers the
 | **Accessibility** | Window titles, browser URL (`kAXDocument`), focused roles |
 | **Screen Recording** | Optional window-title fallback via `CGWindowList` |
 | **Calendar** | Optional EventKit timing profile for generalized coordination context |
+| **Bluetooth** | Apple Continuity presence on the **Presence** page only (not at launch) |
 | **Automation** | Not integrated in this build |
 
-System Settings -> Privacy & Security -> Accessibility / Screen Recording / Calendars -> enable **Nox** (`dev.nox.Nox`) as needed.
+System Settings -> Privacy & Security -> Accessibility / Screen Recording / Calendars / Bluetooth -> enable **Nox** (`dev.nox.Nox`) as needed.
 
 After changing permissions, **quit and relaunch** Nox (standalone recommended).
 

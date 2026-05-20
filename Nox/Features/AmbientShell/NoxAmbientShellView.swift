@@ -39,6 +39,29 @@ struct NoxAmbientShellView: View {
                 NoxPermissionOnboardingView()
             }
             .preferredColorScheme(.dark)
+            .overlay {
+                if activeDestination == .presence, environment.presenceMesh.isListeningForPresence {
+                    NoxPresenceListeningOverlay()
+                        .transition(.opacity)
+                }
+            }
+            .animation(.easeInOut(duration: 0.35), value: environment.presenceMesh.isListeningForPresence)
+            .overlay {
+                let mesh = environment.presenceMesh
+                let suppressPulse = activeDestination == .presence && mesh.isListeningForPresence
+                let showPulse = mesh.isAmbientPulseBusy || mesh.lastAmbientEvent != nil
+                if !suppressPulse, showPulse {
+                    NoxPresenceMeshAmbientOverlay(
+                        isLoading: mesh.isAmbientPulseBusy,
+                        event: mesh.lastAmbientEvent
+                    ) {
+                        mesh.consumeAmbientEvent()
+                    }
+                    .transition(.opacity)
+                }
+            }
+            .animation(.easeInOut(duration: 0.28), value: environment.presenceMesh.isAmbientPulseBusy)
+            .animation(.easeInOut(duration: 0.28), value: environment.presenceMesh.lastAmbientEvent != nil)
     }
 
     @ViewBuilder
@@ -111,6 +134,8 @@ struct NoxAmbientShellView: View {
         switch destination {
         case .now:
             NoxNowSurfaceView()
+        case .presence:
+            NoxPresenceSurfaceView()
         case .threads:
             NoxThreadsSurfaceView()
         case .memory:

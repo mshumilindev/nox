@@ -7,7 +7,7 @@ struct NoxCompactNavigationBar: View {
     var body: some View {
         ScrollView(.horizontal, showsIndicators: false) {
             HStack(spacing: NoxSpacing.xs) {
-                ForEach(NoxSemanticDestination.allCases) { destination in
+                ForEach(NoxSemanticDestination.compactRailOrder) { destination in
                     compactItem(destination)
                 }
             }

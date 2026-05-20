@@ -6,7 +6,7 @@ This document is the living inventory of what Nox actually implements today. Upd
 
 ## Product State
 
-Nox is currently a native macOS menu bar app with an adaptive ambient shell, local activity awareness, trust surfaces, memory controls, deterministic context inference, structured memory, stabilized engagement filtering, continuity detection, reflective continuity, **local macOS system-state contradictions (Phase 13)**, **Observatory**, and local persistence.
+Nox is currently a native macOS menu bar app with an adaptive ambient shell, local activity awareness, trust surfaces, memory controls, deterministic context inference, structured memory, stabilized engagement filtering, continuity detection, reflective continuity, **local macOS system-state contradictions (Phase 13)**, **Observatory**, **Presence Mesh v1 (local-first multi-node pairing)**, and local persistence.
 
 It is not a chatbot, cloud assistant, productivity scorer, screenshot recorder, clipboard tracker, or keystroke logger.
 
@@ -460,6 +460,19 @@ Module: `Nox/Core/Observatory/` plus `Nox/Features/Observatory/`
 
 - Unit tests cover presence, memory, continuity, context QA, reflective continuity, **engagement stabilization**, **Phase 9 connectors**, **Phase 10 behavioral intelligence**, **Phase 12 memory evolution**, **Phase 12.5 presentation copy/aging**, **Phase 13 system contradictions & caffeinate safety**, **timeline dedup by time overlap**, **layered sections**, **historical empty copy**, and **activity classification** (e.g. ChatGPT → Research, legacy `unknown` resolution).
 - UI test files exist; product strategy avoids brittle layout UI tests as primary validation.
+
+## Presence Mesh v1 — Local-First Device Expansion
+
+- **Surface:** dedicated **Presence** navigation destination (`NoxPresenceSurfaceView`) — ambient device cards, auto-discovery sweep every ~60s while page is open, skeleton listening state, pairing sheet (“Expand Nox Here”).
+- **Identity:** `IdentityProvider` / `LocalIdentityProvider` — Ed25519 (Curve25519.Signing), `systemId`, `deviceId`, `deviceName`, `protocolVersion`; private key in Keychain (DEBUG file fallback labeled dev-only).
+- **Profiles:** `NOX_PROFILE=node-a` or `-nox-profile node-b` isolates Application Support (`Nox-dev-node-a`, etc.), trust store, and ports (9121 / 9122).
+- **Discovery:** `_nox._tcp` only (no AirPlay/LAN enumeration); `NoxPresenceCurator` hides low-confidence/service-derived labels before UI.
+- **Transport:** `LocalHTTPPresenceTransport` — POST `/mesh` JSON messages on profile port; signed pairing + test ping/pulse/pong.
+- **Manager:** `PresenceMeshManager` — nearby/trusted nodes, pairing approval, debounced discovery, ambient events.
+- **Invites:** `.noxpair` JSON + `nox://pair` deep link; native Share Sheet (`NoxPresenceMeshShareBridge`); manual import in dev panel.
+- **UI:** ambient cards (no IPs/ports in normal UI); dev diagnostics behind DEBUG; aurora/triskelion overlay on trust/pulse (`NoxPresenceMeshAmbientOverlay`).
+- **Entitlements:** local network client/server in `Nox.entitlements`; `NSLocalNetworkUsageDescription` + `NSBonjourServices` in Info.plist.
+- **Not shipped:** cloud sync, CloudKit, timeline replication, silent join, auto-AirDrop.
 
 ## Current Gaps And Risks
 

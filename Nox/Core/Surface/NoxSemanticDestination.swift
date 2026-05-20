@@ -3,6 +3,7 @@ import Foundation
 /// Conceptual navigation — not dashboard tabs.
 nonisolated enum NoxSemanticDestination: String, CaseIterable, Identifiable, Codable, Sendable {
     case now
+    case presence
     case threads
     case memory
     case patterns
@@ -16,6 +17,7 @@ nonisolated enum NoxSemanticDestination: String, CaseIterable, Identifiable, Cod
     var title: String {
         switch self {
         case .now: "Now"
+        case .presence: "Presence"
         case .threads: "Threads"
         case .memory: "Memory"
         case .patterns: "Patterns"
@@ -29,6 +31,7 @@ nonisolated enum NoxSemanticDestination: String, CaseIterable, Identifiable, Cod
     var symbolName: String {
         switch self {
         case .now: "waveform.path"
+        case .presence: "laptopcomputer.and.iphone"
         case .threads: "link"
         case .memory: "clock.arrow.circlepath"
         case .patterns: "square.grid.3x3"
@@ -37,6 +40,11 @@ nonisolated enum NoxSemanticDestination: String, CaseIterable, Identifiable, Cod
         case .local: "internaldrive"
         case .trust: "shield.lefthalf.filled"
         }
+    }
+
+    /// Compact menu bar order — mirrors expanded rail grouping.
+    static var compactRailOrder: [NoxSemanticDestination] {
+        [.now, .presence, .threads, .memory, .observatory, .patterns, .reflections, .local, .trust]
     }
 
 }

@@ -10,5 +10,30 @@
 	<true/>
 	<key>NSCalendarsUsageDescription</key>
 	<string>Nox reads calendar timing locally to understand coordination density. Event titles are not stored.</string>
+	<key>NSLocalNetworkUsageDescription</key>
+	<string>Nox discovers other Nox nodes on your local network so you can expand your environment with your approval.</string>
+	<key>NSBluetoothAlwaysUsageDescription</key>
+	<string>Nox listens for nearby Apple Continuity presence so iPhone and iPad can appear in Presence without scanning your network.</string>
+	<key>NSBonjourServices</key>
+	<array>
+		<string>_nox._tcp</string>
+		<string>_airplay._tcp</string>
+		<string>_raop._tcp</string>
+		<string>_companion-link._tcp</string>
+		<string>_device-info._tcp</string>
+		<string>_apple-mobdev2._tcp</string>
+		<string>_homekit._tcp</string>
+	</array>
+	<key>CFBundleURLTypes</key>
+	<array>
+		<dict>
+			<key>CFBundleURLName</key>
+			<string>dev.nox.pairing</string>
+			<key>CFBundleURLSchemes</key>
+			<array>
+				<string>nox</string>
+			</array>
+		</dict>
+	</array>
 </dict>
 </plist>

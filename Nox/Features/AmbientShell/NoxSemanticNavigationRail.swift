@@ -3,7 +3,7 @@ import SwiftUI
 struct NoxSemanticNavigationRail: View {
   @Environment(AppEnvironment.self) private var environment
 
-  private let primary: [NoxSemanticDestination] = [.now, .threads, .memory, .observatory]
+  private let primary: [NoxSemanticDestination] = [.now, .presence, .threads, .memory, .observatory]
   private let reflective: [NoxSemanticDestination] = [.patterns, .reflections]
   private let system: [NoxSemanticDestination] = [.local, .trust]
 

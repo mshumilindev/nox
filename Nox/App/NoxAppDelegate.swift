@@ -11,6 +11,37 @@ final class NoxAppDelegate: NSObject, NSApplicationDelegate {
             environment: NoxAppRuntime.environment,
             panelState: NoxAppRuntime.panelState
         )
+        NoxAppRuntime.presenceMesh.start()
+    }
+
+    func application(_ application: NSApplication, open urls: [URL]) {
+        for url in urls {
+            handleIncomingURL(url)
+        }
+    }
+
+    private func handleIncomingURL(_ url: URL) {
+        guard url.scheme == "nox", url.host == "pair" else {
+            if url.pathExtension == "noxpair" || url.lastPathComponent.hasSuffix(".noxpair") {
+                if let data = try? Data(contentsOf: url) {
+                    Task { @MainActor in try? await NoxAppRuntime.presenceMesh.importInviteData(data) }
+                }
+            }
+            return
+        }
+        let components = URLComponents(url: url, resolvingAgainstBaseURL: false)
+        let deviceId = components?.queryItems?.first { $0.name == "deviceId" }?.value ?? ""
+        let token = components?.queryItems?.first { $0.name == "invite" }?.value ?? ""
+        guard !deviceId.isEmpty else { return }
+        Task { @MainActor in
+            await NoxAppRuntime.presenceMesh.manualConnect(
+                host: "127.0.0.1",
+                port: Int(NoxMeshRuntime.profile.meshPort),
+                deviceId: deviceId,
+                deviceName: "Invited Nox"
+            )
+            _ = token
+        }
     }
 
     func applicationShouldTerminateAfterLastWindowClosed(_ sender: NSApplication) -> Bool {
