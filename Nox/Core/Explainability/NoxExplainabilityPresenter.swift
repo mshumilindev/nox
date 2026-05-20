@@ -23,11 +23,11 @@ enum NoxExplainabilityPresenter {
     static func whyContinuityAppeared(thread: NoxContinuityThread) -> NoxInferenceReason {
         let headline: String
         if thread.totalResumptions > 0 {
-            headline = "Repeated activity returned after time away."
+            headline = "You came back to this after time away."
         } else if thread.totalSessions >= 2 {
-            headline = "Repeated \(thread.title.lowercased()) across recent sessions."
+            headline = "\(thread.title) appeared again across recent sessions."
         } else {
-            headline = "Repeated activity formed a recurring thread."
+            headline = "This kind of activity started repeating across sessions."
         }
         return NoxInferenceReason(
             id: "thread-\(thread.id)",

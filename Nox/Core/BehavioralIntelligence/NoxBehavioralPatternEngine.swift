@@ -24,8 +24,8 @@ nonisolated enum NoxBehavioralPatternEngine {
             signatures.append(sig(
                 id: "pattern-late-night-work",
                 kind: .lateNightWorkCycle,
-                label: "Late-night work cycle",
-                detail: "Evening work has appeared again — observational, not prescriptive.",
+                label: "Evening work again",
+                detail: "Work showed up late in the day again recently.",
                 confidence: 0.64,
                 horizonDays: 7,
                 evidence: ["late_hour", "work_minutes:\(workMinutes)"]
@@ -37,8 +37,8 @@ nonisolated enum NoxBehavioralPatternEngine {
             signatures.append(sig(
                 id: "pattern-overload-recovery",
                 kind: .overloadRecoveryOscillation,
-                label: "Overload–recovery oscillation",
-                detail: "Active stretches and quieter stretches have been alternating.",
+                label: "Busy days, then quieter ones",
+                detail: "Fuller days have been followed by calmer ones.",
                 confidence: 0.67,
                 horizonDays: 14,
                 evidence: ["density_oscillation"]
@@ -49,8 +49,8 @@ nonisolated enum NoxBehavioralPatternEngine {
             signatures.append(sig(
                 id: "pattern-coordination-week",
                 kind: .coordinationHeavyWeek,
-                label: "Coordination-heavy stretch",
-                detail: "Communication and scheduling density may be shaping the week.",
+                label: "A week with more messages and meetings",
+                detail: "Communication and calendar time took more of the week.",
                 confidence: 0.61,
                 horizonDays: 7,
                 evidence: ["communication_load"]
@@ -61,8 +61,8 @@ nonisolated enum NoxBehavioralPatternEngine {
             signatures.append(sig(
                 id: "pattern-deep-focus-streak",
                 kind: .deepFocusStreak,
-                label: "Deep-focus streak",
-                detail: "Sustained focus blocks have been forming locally.",
+                label: "Longer focus stretches",
+                detail: "You stayed in sustained work for longer blocks recently.",
                 confidence: 0.7,
                 horizonDays: 3,
                 evidence: ["deep_focus"]
@@ -73,8 +73,8 @@ nonisolated enum NoxBehavioralPatternEngine {
             signatures.append(sig(
                 id: "pattern-fragmented-context",
                 kind: .fragmentedContext,
-                label: "Fragmented context period",
-                detail: "App and workflow switching increased recently.",
+                label: "Scattered stretches",
+                detail: "You moved between several apps and tasks for a while.",
                 confidence: 0.72,
                 horizonDays: 2,
                 evidence: ["switch_count:\(switches)"]
@@ -85,8 +85,8 @@ nonisolated enum NoxBehavioralPatternEngine {
             signatures.append(sig(
                 id: "pattern-creative-exploration",
                 kind: .creativeExploration,
-                label: "Creative exploration phase",
-                detail: "Creative tools have had sustained presence recently.",
+                label: "Creative work in bursts",
+                detail: "Creative apps showed up in repeated sessions recently.",
                 confidence: 0.58,
                 horizonDays: 14,
                 evidence: ["creative_duration"]
@@ -97,8 +97,8 @@ nonisolated enum NoxBehavioralPatternEngine {
             signatures.append(sig(
                 id: "pattern-passive-decompression",
                 kind: .passiveDecompression,
-                label: "Passive decompression loop",
-                detail: "Passive viewing or listening has dominated recent activity.",
+                label: "Mostly listening or viewing",
+                detail: "Passive viewing or listening took most of recent activity.",
                 confidence: 0.6,
                 horizonDays: 3,
                 evidence: ["passive_share"]
@@ -109,8 +109,8 @@ nonisolated enum NoxBehavioralPatternEngine {
             signatures.append(sig(
                 id: "pattern-instability-phase",
                 kind: .instabilityPhase,
-                label: "Instability phase",
-                detail: "Weekly activity shows unusually scattered sessions.",
+                label: "An unsettled week",
+                detail: "Days varied more than your usual week-to-week pattern.",
                 confidence: 0.56,
                 horizonDays: 21,
                 evidence: ["weekly_fragmentation"]

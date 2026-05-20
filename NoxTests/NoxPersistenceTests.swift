@@ -10,6 +10,16 @@ struct NoxPersistencePathsTests {
         #expect(url.path.contains("Nox"))
         #expect(url.lastPathComponent == "timeline.db")
         #expect(url == NoxPersistencePaths.databaseURL)
+        #expect(!url.path.contains("Nox-dev-"))
+    }
+
+    @Test func meshDataLivesUnderPresenceMeshNotAlternateAppFolder() {
+        let mesh = NoxPersistencePaths.meshDataDirectory
+        let path = mesh.path
+        #expect(path.contains("Application Support"))
+        #expect(path.contains("/Nox/"))
+        #expect(path.contains("PresenceMesh"))
+        #expect(!path.contains("Nox-dev-"))
     }
 }
 

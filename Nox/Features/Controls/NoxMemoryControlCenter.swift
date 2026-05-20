@@ -5,34 +5,36 @@ struct NoxMemoryControlCenter: View {
 
   var body: some View {
     VStack(alignment: .leading, spacing: NoxSpacing.lg) {
-      Text("Memory controls")
+      Text("Memory")
         .noxSectionLabel()
 
       VStack(alignment: .leading, spacing: 0) {
-        controlToggle(
+        NoxSettingsToggleRow(
           title: "Pause observation",
-          detail: "Stops new timeline activity until resumed.",
-          isOn: environment.preferences.pauseState.observationPaused
-        ) {
-          environment.setObservationPaused(!$0)
-        }
+          detail: "Stops recording new timeline activity.",
+          isOn: Binding(
+            get: { environment.preferences.pauseState.observationPaused },
+            set: { environment.setObservationPaused($0) }
+          )
+        )
 
         controlDivider
 
-        controlToggle(
-          title: "Pause semantic memory",
-          detail: "Context may still appear — memory formation pauses.",
-          isOn: environment.preferences.pauseState.semanticMemoryPaused
-        ) {
-          environment.setSemanticMemoryPaused(!$0)
-        }
+        NoxSettingsToggleRow(
+          title: "Pause memory formation",
+          detail: "Live context may still appear; new memory spans pause.",
+          isOn: Binding(
+            get: { environment.preferences.pauseState.semanticMemoryPaused },
+            set: { environment.setSemanticMemoryPaused($0) }
+          )
+        )
 
         controlDivider
 
         quietModeRow
       }
 
-      VStack(alignment: .leading, spacing: NoxSpacing.sm) {
+      HStack(spacing: NoxSpacing.md) {
         actionButton("Clear recent activity") {
           Task { await environment.clearRecentMemory() }
         }
@@ -49,7 +51,7 @@ struct NoxMemoryControlCenter: View {
     Rectangle()
       .fill(NoxDesignTokens.ColorRole.border.opacity(0.12))
       .frame(height: 0.5)
-      .padding(.vertical, NoxSpacing.sm)
+      .padding(.horizontal, NoxSpacing.xs)
   }
 
   private var quietModeRow: some View {
@@ -63,7 +65,6 @@ struct NoxMemoryControlCenter: View {
           .fixedSize(horizontal: false, vertical: true)
       }
       .frame(maxWidth: .infinity, alignment: .leading)
-      .allowsHitTesting(false)
 
       Picker("", selection: quietBinding) {
         ForEach(NoxQuietMode.allCases, id: \.self) { mode in
@@ -76,6 +77,7 @@ struct NoxMemoryControlCenter: View {
       .noxInteractiveChrome(.chip)
     }
     .padding(.vertical, NoxSpacing.sm)
+    .padding(.horizontal, NoxSpacing.xs)
   }
 
   private var quietBinding: Binding<NoxQuietMode> {
@@ -83,33 +85,6 @@ struct NoxMemoryControlCenter: View {
       get: { environment.preferences.pauseState.quietMode },
       set: { environment.setQuietMode($0) }
     )
-  }
-
-  private func controlToggle(
-    title: String,
-    detail: String,
-    isOn: Bool,
-    onChange: @escaping @MainActor (Bool) -> Void
-  ) -> some View {
-    HStack(alignment: .top, spacing: NoxSpacing.md) {
-      VStack(alignment: .leading, spacing: NoxSpacing.xxs) {
-        Text(title)
-          .font(NoxTypography.continuityDetail)
-          .foregroundStyle(NoxDesignTokens.ColorRole.textPrimary.opacity(0.9))
-        Text(detail)
-          .noxMetadata()
-          .fixedSize(horizontal: false, vertical: true)
-      }
-      .frame(maxWidth: .infinity, alignment: .leading)
-      .allowsHitTesting(false)
-
-      Toggle("", isOn: Binding(get: { isOn }, set: onChange))
-        .labelsHidden()
-        .toggleStyle(.switch)
-        .padding(.top, 1)
-        .noxInteractiveChrome(.row)
-    }
-    .padding(.vertical, NoxSpacing.sm)
   }
 
   private func actionButton(_ title: String, action: @escaping () -> Void) -> some View {

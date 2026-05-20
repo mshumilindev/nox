@@ -534,7 +534,7 @@ Module: `Nox/Core/PresenceMesh/Artwork/`
 - Settings row labels are not tap-to-toggle (only the switch/picker is interactive).
 - Phase 13 Focus detection is coarse (`isFocused` only); Sleep/Work/DND distinction depends on what Apple exposes to `INFocusStatusCenter`.
 - Status item in Control Center overflow may behave differently than primary menu bar placement.
-- **`NOX_PROFILE` currently relocates all Application Support** (`NoxPersistencePaths.appFolderName` follows mesh profile), so timeline/memory may appear empty when switching Xcode scheme profile — mesh-only isolation is not yet split from main DB path.
+- **`NOX_PROFILE` isolates Presence Mesh only** — `timeline.db` and memory always use `~/Library/Application Support/Nox/`; mesh identity/trust live under `PresenceMesh/` or `PresenceMesh/Profiles/<name>/`. Legacy `Nox-dev-*` folders from earlier builds are not migrated automatically.
 - Device artwork requires network for first fetch (AppleDB + GitHub raw PNG); offline shows Nox generic silhouettes only.
 
 ## Best Next-Step Candidates

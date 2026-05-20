@@ -1,43 +1,58 @@
 # Nox UI copy rules
 
-Nox UI copy must prioritize observable meaning over atmospheric wording. Calm tone is allowed, but ambiguity is not. Every user-facing sentence must communicate a concrete observation, behavioral pattern, repeated activity, change over time, or detected context. Nox should sound like a thoughtful local intelligence system — not a poetic AI narrator.
+Phase 14 product rule: Nox describes **observable reality** in language a person would naturally understand. The system may model continuity, cadence, and topology internally — users should mostly hear what actually happened.
 
-Every message must answer:
+## Human observation rule
+
+Every user-facing sentence must answer:
 
 - what happened,
 - what repeated,
 - what changed,
-- or what Nox observed.
+- or what Nox noticed.
 
-If a sentence cannot survive the question “What specifically happened?”, it should be rewritten.
+Prefer **direct observations** and **plain phrasing**. Nox should sound like someone quietly noticing patterns — not a cognition engine narrating itself.
 
-The factual layer is mandatory. Ambient tone is optional.
+### Good
 
-## Good UI copy
+- “You moved between a lot of different things tonight.”
+- “Focus stayed steady most of the morning.”
+- “You came back to this after a few quieter days.”
+- “Most work today happened in shorter stretches.”
+- “You returned to development work after several days away.”
 
-- “Research sessions returned repeatedly this week.”
-- “App switching increased during the last hour.”
-- “Most recent deep-focus sessions started after midnight.”
-- “Communication activity dropped during focused work periods.”
+### Bad
 
-## Bad UI copy
+- “Fragmentation increased.”
+- “Continuity weakened.”
+- “Behavioral instability emerged.”
+- “Recovery cadence shifted.”
+- “Coordination load remained elevated.”
+- “Temporal continuity resurfaced.”
 
-- “Returning continuity has been quietly strengthening nearby structures.”
-- “A familiar shape emerged across your continuity.”
-- “Long-term resonance gathered around this context.”
+The user should feel: **the system quietly noticed something** — not **the system is modeling me**.
 
-Avoid atmospheric abstractions without a concrete subject. Words like shape, resonance, structures, rails, field, emergence, drift, continuity, and presence should generally not appear alone in UI copy unless directly tied to a real observable object.
+## Vocabulary
 
-Prefer concrete objects: apps, workflows, sessions, repeated behaviors, interruptions, routines, focus periods, communication load, recurring research, project activity, device presence, activity trends.
+**Use:** apps, sessions, work, focus, switching, evenings, mornings, projects, viewing, messages (generalized), calendar timing.
 
-Internal system terminology should stay internal. Translate engine concepts into human-facing concepts: recurring activity, long-term patterns, repeated workflows, trend view, stable routine, returning context, activity relationships.
+**Avoid in UI copy:** continuity, topology, cadence, orchestration, resonance, drift, structure, fragmentation (as a noun), enrichment, semantic arc, long-horizon field, pipeline, entitlement, observation pipeline.
 
-If copy sounds like sci-fi narration, ambient AI philosophy, a movie trailer, pseudo-therapy, or reflective existential prose, rewrite it into concrete observational language.
+Internal engine terms stay in code and comments only.
 
-Nox copy should feel calm, observant, restrained, precise, local-first, system-like, and confidence-aware. When confidence is weak, state uncertainty explicitly.
+## Tone
 
-Avoid filler ambience (quietly, softly, gently, faintly, subtly) unless it materially changes meaning. Visual ambience should come from motion, spacing, typography, gradients, pacing, transitions, and interaction design — not from vague writing.
+- Calm, restrained, local-first, confidence-aware.
+- No sci-fi narration, therapy voice, productivity coaching, or quantified-self scoring.
+- No filler: quietly, softly, gently, subtly (unless meaning changes).
+- When confidence is low, say so plainly: “Patterns are still forming.” / “Not enough repeated activity yet.”
 
-## Implementation rule
+## Specificity
 
-Any new UI copy added to Nox must pass a specificity review before merge. If the text can be reused unchanged inside a sci-fi trailer, meditation app, or AI philosophy website, rewrite it into concrete observational language.
+The factual layer is mandatory. Ambient tone is optional and must support meaning — never replace it.
+
+If copy could appear unchanged in a meditation app, AI philosophy site, or sci-fi trailer, rewrite it.
+
+## Implementation
+
+Any new UI string must pass a specificity review before merge. See `Docs/PHASE_14_INTERFACE_CLOSURE.md` for scope (settings, onboarding, mesh paths, surfaces).

@@ -5,35 +5,44 @@ struct NoxConnectorTrustControls: View {
 
     var body: some View {
         VStack(alignment: .leading, spacing: NoxSpacing.lg) {
-            Text("Connector awareness")
+            Text("Connectors")
                 .noxSectionLabel()
 
-            Text("Used only for generalized activity signals — never inbox automation.")
+            Text("Generalized timing only — never inbox automation.")
                 .noxMetadata()
                 .fixedSize(horizontal: false, vertical: true)
 
             VStack(alignment: .leading, spacing: 0) {
-                connectorToggle(
-                    title: "Calendar context",
-                    detail: "Read-only timing and density. Titles are not stored.",
-                    isOn: environment.preferences.connectors.calendarEnabled
-                ) { environment.setCalendarConnectorEnabled($0) }
+                NoxSettingsToggleRow(
+                    title: "Calendar",
+                    detail: "Meeting density and timing. Titles are not stored.",
+                    isOn: Binding(
+                        get: { environment.preferences.connectors.calendarEnabled },
+                        set: { environment.setCalendarConnectorEnabled($0) }
+                    )
+                )
 
                 divider
 
-                connectorToggle(
-                    title: "Communication pressure",
-                    detail: "Cadence from local app metadata — not message bodies.",
-                    isOn: environment.preferences.connectors.communicationPressureEnabled
-                ) { environment.setCommunicationPressureEnabled($0) }
+                NoxSettingsToggleRow(
+                    title: "Communication load",
+                    detail: "App cadence from local metadata — not message bodies.",
+                    isOn: Binding(
+                        get: { environment.preferences.connectors.communicationPressureEnabled },
+                        set: { environment.setCommunicationPressureEnabled($0) }
+                    )
+                )
 
                 divider
 
-                connectorToggle(
-                    title: "Pause related-activity signals",
-                    detail: "Mac awareness may continue; connector signals pause.",
-                    isOn: environment.preferences.connectors.continuityEnrichmentPaused
-                ) { environment.setContinuityEnrichmentPaused($0) }
+                NoxSettingsToggleRow(
+                    title: "Pause connector signals",
+                    detail: "Mac awareness continues; calendar and message cadence pause.",
+                    isOn: Binding(
+                        get: { environment.preferences.connectors.continuityEnrichmentPaused },
+                        set: { environment.setContinuityEnrichmentPaused($0) }
+                    )
+                )
             }
 
             HStack(spacing: NoxSpacing.md) {
@@ -43,7 +52,7 @@ struct NoxConnectorTrustControls: View {
                 .font(NoxTypography.caption)
                 .buttonStyle(.noxBorderless)
 
-                Button("Clear connector activity") {
+                Button("Clear connector data") {
                     Task { await environment.clearConnectorContinuity() }
                 }
                 .font(NoxTypography.caption)
@@ -57,30 +66,6 @@ struct NoxConnectorTrustControls: View {
         Rectangle()
             .fill(NoxDesignTokens.ColorRole.border.opacity(0.12))
             .frame(height: 0.5)
-            .padding(.vertical, NoxSpacing.sm)
-    }
-
-    private func connectorToggle(
-        title: String,
-        detail: String,
-        isOn: Bool,
-        onChange: @escaping @MainActor (Bool) -> Void
-    ) -> some View {
-        HStack(alignment: .top, spacing: NoxSpacing.md) {
-            VStack(alignment: .leading, spacing: NoxSpacing.xxs) {
-                Text(title)
-                    .font(NoxTypography.continuityDetail)
-                Text(detail)
-                    .noxMetadata()
-                    .fixedSize(horizontal: false, vertical: true)
-            }
-            .frame(maxWidth: .infinity, alignment: .leading)
-            .allowsHitTesting(false)
-
-            Toggle("", isOn: Binding(get: { isOn }, set: onChange))
-                .labelsHidden()
-                .noxInteractiveChrome(.row)
-        }
-        .padding(.vertical, NoxSpacing.sm)
+            .padding(.horizontal, NoxSpacing.xs)
     }
 }

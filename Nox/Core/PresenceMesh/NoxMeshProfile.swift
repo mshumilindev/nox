@@ -8,10 +8,16 @@ nonisolated struct NoxMeshProfile: Equatable, Sendable, Codable {
 
     var isDefault: Bool { name == "default" }
 
-    /// Application Support folder name (sandbox-relative).
+    /// Legacy folder name — memory always uses shared `Nox`; mesh uses `PresenceMesh/Profiles/<name>`.
     var storageFolderName: String {
         if isDefault { return "Nox" }
         return "Nox-dev-\(name)"
+    }
+
+    /// Subpath under shared `Nox/PresenceMesh/` for profile-scoped mesh state.
+    var meshProfileSubpath: String {
+        if isDefault { return "PresenceMesh" }
+        return "PresenceMesh/Profiles/\(name)"
     }
 
     /// Local HTTP pairing port — avoids collisions between co-located dev nodes.

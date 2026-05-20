@@ -8,7 +8,7 @@ struct NoxObservatoryObservationPanel: View {
             NoxSectionHeader(
                 title: "Observations",
                 symbol: "text.magnifyingglass",
-                subtitle: "Confidence-aware observations."
+                subtitle: "What Nox noticed — when the signal is strong enough."
             )
 
             VStack(alignment: .leading, spacing: NoxSpacing.cardStack) {

@@ -132,7 +132,7 @@ final class NoxStatusBarController: NSObject {
 
         layoutPanelContent()
         position(panel: panel, relativeTo: button)
-        ignoreOutsideCloseUntil = Date().addingTimeInterval(0.25)
+        ignoreOutsideCloseUntil = Date().addingTimeInterval(0.35)
 
         NSApp.activate(ignoringOtherApps: true)
         panel.orderFrontRegardless()

@@ -10,10 +10,10 @@ nonisolated enum NoxObservatoryObservationEngine {
                 NoxObservatoryObservation(
                     id: "maturity-\(maturity.rawValue)",
                     severity: .note,
-                    title: "Low signal confidence",
+                    title: "Still gathering",
                     detail: maturity.copy,
                     confidence: maturity.confidenceCeiling,
-                    evidence: ["Observed activity is below the threshold for strong interpretation."]
+                    evidence: ["Not enough local activity yet for a strong read."]
                 )
             ]
         }
@@ -26,8 +26,8 @@ nonisolated enum NoxObservatoryObservationEngine {
             observations.append(observation(
                 id: "recovery-shortening-coordination-rising",
                 severity: .elevated,
-                title: "Recovery is losing ground",
-                detail: "Recovery periods are becoming shorter while coordination load remains elevated.",
+                title: "Shorter breaks, more back-and-forth",
+                detail: "Quiet stretches got shorter while scheduling and messages stayed busy.",
                 confidence: min(recovery.confidence, coordination.confidence),
                 evidence: ["Recovery trend \(formatTrend(trend(recovery))).", "Coordination average \(formatAverage(average(coordination)))."]
             ))
@@ -38,10 +38,10 @@ nonisolated enum NoxObservatoryObservationEngine {
             observations.append(observation(
                 id: "fragmentation-dominates-focus",
                 severity: .elevated,
-                title: "Fragmentation is dominating focus",
-                detail: "App switching remains elevated even during periods where sustained focus should carry more of the day.",
+                title: "Lots of switching",
+                detail: "You moved between many apps and tasks even when longer focus stretches would have been typical.",
                 confidence: min(fragmentation.confidence, focus.confidence),
-                evidence: ["Fragmentation average \(formatAverage(average(fragmentation))).", "Focus continuity average \(formatAverage(average(focus)))."]
+                evidence: ["Switching average \(formatAverage(average(fragmentation))).", "Focus average \(formatAverage(average(focus)))."]
             ))
         }
 
@@ -49,8 +49,8 @@ nonisolated enum NoxObservatoryObservationEngine {
             observations.append(observation(
                 id: "deep-work-collapse",
                 severity: .severe,
-                title: "Deep work periods are dropping",
-                detail: "Sustained deep work has decreased relative to the earlier part of this range.",
+                title: "Shorter focus stretches",
+                detail: "Most work in this period happened in shorter blocks than earlier in the range.",
                 confidence: deepWork.confidence,
                 evidence: ["Deep work trend \(formatTrend(trend(deepWork)))."]
             ))
@@ -61,10 +61,10 @@ nonisolated enum NoxObservatoryObservationEngine {
             observations.append(observation(
                 id: "overload-low-recovery",
                 severity: .severe,
-                title: "Sustained overload pressure",
-                detail: "Current rhythm suggests sustained overload. Recovery is consistently insufficient relative to workload.",
+                title: "Heavy days, little pause",
+                detail: "Busy stretches ran long and there was not much quiet time to balance them.",
                 confidence: min(overload.confidence, recovery.confidence),
-                evidence: ["Overload average \(formatAverage(average(overload))).", "Recovery average \(formatAverage(average(recovery)))."]
+                evidence: ["Load average \(formatAverage(average(overload))).", "Recovery average \(formatAverage(average(recovery)))."]
             ))
         }
 
@@ -72,10 +72,10 @@ nonisolated enum NoxObservatoryObservationEngine {
             observations.append(observation(
                 id: "switching-high",
                 severity: .elevated,
-                title: "Switching is taking the foreground",
-                detail: "You are spending significantly more time switching than sustaining focus.",
+                title: "Switching took most of the day",
+                detail: "You spent more time changing apps and tasks than staying in one flow.",
                 confidence: switching.confidence,
-                evidence: ["Context switching average \(formatAverage(average(switching)))."]
+                evidence: ["Switching average \(formatAverage(average(switching)))."]
             ))
         }
 
@@ -84,10 +84,10 @@ nonisolated enum NoxObservatoryObservationEngine {
             observations.append(observation(
                 id: "passive-after-overload",
                 severity: .note,
-                title: "Passive decompression is rising",
-                detail: "Passive decompression increased sharply after prolonged overload.",
+                title: "More passive viewing after busy stretches",
+                detail: "Listening and viewing picked up after a stretch of heavier work.",
                 confidence: min(passive.confidence, overload.confidence),
-                evidence: ["Passive decompression trend \(formatTrend(trend(passive))).", "Overload average \(formatAverage(average(overload)))."]
+                evidence: ["Passive viewing trend \(formatTrend(trend(passive))).", "Load average \(formatAverage(average(overload)))."]
             ))
         }
 
@@ -96,10 +96,10 @@ nonisolated enum NoxObservatoryObservationEngine {
             observations.append(observation(
                 id: "stable-continuity",
                 severity: .note,
-                title: "A stable activity window",
-                detail: "Most sustained focus is clustering inside a stable rhythm rather than appearing randomly.",
+                title: "A steadier stretch",
+                detail: "Focus tended to stay in similar kinds of work rather than jumping around.",
                 confidence: min(rhythm.confidence, focus.confidence),
-                evidence: ["Rhythm stability average \(formatAverage(average(rhythm))).", "Focus continuity average \(formatAverage(average(focus)))."]
+                evidence: ["Stability average \(formatAverage(average(rhythm))).", "Focus average \(formatAverage(average(focus)))."]
             ))
         }
 
@@ -107,10 +107,10 @@ nonisolated enum NoxObservatoryObservationEngine {
             observations.append(observation(
                 id: "no-hard-observation",
                 severity: .note,
-                title: "No strong conclusion",
-                detail: "The collected signals do not justify a strong interpretation for this range.",
+                title: "No strong read yet",
+                detail: "Recent activity does not support one clear summary for this range.",
                 confidence: maturity.confidenceCeiling,
-                evidence: ["No signal crossed the confidence-gated observation thresholds."]
+                evidence: ["Signals stayed below the threshold for a firm note."]
             ))
         }
 

@@ -5,8 +5,8 @@ nonisolated enum NoxHumanContextCopy {
 
     // MARK: - Fragmented / mixed attention
 
-    static let fragmentedAttentionPeriod = "Fragmented attention period"
-    static let fragmentedWorkflowPeriod = "Fragmented workflow period"
+    static let fragmentedAttentionPeriod = "Scattered attention"
+    static let fragmentedWorkflowPeriod = "Scattered workflow"
     static let severalContextsInMotion = "Several contexts in motion"
     static let switchingBetweenContexts = "Switching between contexts"
     static let mixedContextPeriod = "Mixed context period"

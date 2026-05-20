@@ -23,8 +23,8 @@ enum NoxCapabilityMatrix {
         [
             NoxCapabilityRow(
                 id: "app-awareness",
-                feature: "App context",
-                status: capabilities.appAwarenessAvailable ? "Active" : "Limited context",
+                feature: "Apps in use",
+                status: capabilities.appAwarenessAvailable ? "Active" : "Limited",
                 tone: capabilities.appAwarenessAvailable ? .active : .locked
             ),
             NoxCapabilityRow(
@@ -32,12 +32,12 @@ enum NoxCapabilityMatrix {
                 feature: "Window context",
                 status: capabilities.windowAwarenessAvailable
                     ? "Available"
-                    : "Additional context available",
+                    : "Limited — Accessibility can unlock titles",
                 tone: capabilities.windowAwarenessAvailable ? .active : .pending
             ),
             NoxCapabilityRow(
                 id: "interaction-semantics",
-                feature: "Context awareness",
+                feature: "Activity detail",
                 status: interactionSemanticsStatus(
                     active: interactionPipelineActive,
                     semanticsAvailable: capabilities.interactionSignalsAvailable
@@ -52,20 +52,20 @@ enum NoxCapabilityMatrix {
             ),
             NoxCapabilityRow(
                 id: "focus-detection",
-                feature: "Focus continuity",
-                status: capabilities.windowAwarenessAvailable ? "Available" : "Limited context",
+                feature: "Focus periods",
+                status: capabilities.windowAwarenessAvailable ? "Available" : "Limited without window titles",
                 tone: capabilities.windowAwarenessAvailable ? .active : .pending
             ),
             NoxCapabilityRow(
                 id: "accessibility",
                 feature: "Accessibility",
-                status: capabilities.accessibilityGranted ? "Allowed" : "Not yet allowed",
+                status: capabilities.accessibilityGranted ? "On" : "Not enabled",
                 tone: capabilities.accessibilityGranted ? .active : .pending
             ),
             NoxCapabilityRow(
                 id: "screen-recording",
                 feature: "Screen recording",
-                status: capabilities.screenRecordingGranted ? "Allowed" : "Optional",
+                status: capabilities.screenRecordingGranted ? "On" : "Optional",
                 tone: capabilities.screenRecordingGranted ? .active : .pending
             )
         ]
@@ -73,16 +73,16 @@ enum NoxCapabilityMatrix {
 
     private static func memoryStatus(_ readiness: NoxMemoryReadiness) -> String {
         switch readiness {
-        case .observing: "Emerging"
-        case .building: "Emerging"
+        case .observing: "Still forming"
+        case .building: "Building"
         case .ready: "Available"
         }
     }
 
     private static func interactionSemanticsStatus(active: Bool, semanticsAvailable: Bool) -> String {
         if semanticsAvailable { return "Active" }
-        if active { return "Emerging" }
-        return "Limited context"
+        if active { return "Still forming" }
+        return "Limited"
     }
 
     private static func memoryTone(_ readiness: NoxMemoryReadiness) -> NoxCapabilityTone {

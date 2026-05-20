@@ -5,33 +5,21 @@ struct NoxAmbientUtilityTrustControls: View {
 
     var body: some View {
         VStack(alignment: .leading, spacing: NoxSpacing.lg) {
-            Text("Ambient notifications")
+            Text("Notifications")
                 .noxSectionLabel()
 
-            Text("Rare activity observations — not reminders, tasks, or coaching. Cooldowns lengthen when relevance is uncertain.")
+            Text("Occasional local notes — not reminders or coaching.")
                 .noxMetadata()
                 .fixedSize(horizontal: false, vertical: true)
 
-            HStack(alignment: .top, spacing: NoxSpacing.md) {
-                VStack(alignment: .leading, spacing: NoxSpacing.xxs) {
-                    Text("Allow ambient notifications")
-                        .font(NoxTypography.continuityDetail)
-                    Text("Local macOS notifications only. Cooldowns and silence rules apply.")
-                        .noxMetadata()
-                        .fixedSize(horizontal: false, vertical: true)
-                }
-                .frame(maxWidth: .infinity, alignment: .leading)
-                .allowsHitTesting(false)
-
-                Toggle(
-                    "",
-                    isOn: Binding(
-                        get: { environment.preferences.ambientUtility.ambientNotificationsEnabled },
-                        set: { environment.setAmbientNotificationsEnabled($0) }
-                    )
+            NoxSettingsToggleRow(
+                title: "Allow notifications",
+                detail: "macOS notifications only, with cooldowns.",
+                isOn: Binding(
+                    get: { environment.preferences.ambientUtility.ambientNotificationsEnabled },
+                    set: { environment.setAmbientNotificationsEnabled($0) }
                 )
-                .labelsHidden()
-            }
+            )
         }
         .noxSurface(.soft, padding: NoxSpacing.lg)
     }

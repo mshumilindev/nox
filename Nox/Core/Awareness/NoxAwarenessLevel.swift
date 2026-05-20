@@ -13,19 +13,19 @@ enum NoxAwarenessLevel: Int, CaseIterable, Codable, Sendable, Comparable {
 
     var title: String {
         switch self {
-        case .minimal: "Minimal awareness"
-        case .appAwareness: "App-level awareness"
-        case .contextAwareness: "Context awareness"
-        case .fullSemantic: "Full semantic awareness"
+        case .minimal: "Basic awareness"
+        case .appAwareness: "App awareness"
+        case .contextAwareness: "Window context"
+        case .fullSemantic: "Full local context"
         }
     }
 
     var scopeLabel: String {
         switch self {
-        case .minimal: "Limited recent activity available"
+        case .minimal: "Limited detail right now"
         case .appAwareness: "Apps in focus, generalized detail"
-        case .contextAwareness: "More detailed window context available"
-        case .fullSemantic: "Rich local activity context"
+        case .contextAwareness: "Window titles when allowed"
+        case .fullSemantic: "Rich local context on this Mac"
         }
     }
 
@@ -36,9 +36,9 @@ enum NoxAwarenessLevel: Int, CaseIterable, Codable, Sendable, Comparable {
         case .appAwareness:
             "Knows which apps are active — not window titles."
         case .contextAwareness:
-            "Reads window titles and interaction context locally."
+            "Can read window titles and tie them to sessions."
         case .fullSemantic:
-            "Forms local memory, recurring threads, and reflections."
+            "Forms local memory and pattern summaries."
         }
     }
 }

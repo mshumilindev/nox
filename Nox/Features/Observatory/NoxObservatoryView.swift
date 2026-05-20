@@ -59,7 +59,7 @@ struct NoxObservatoryHeader: View {
                         .font(.system(size: 18, weight: .medium, design: .rounded))
                         .foregroundStyle(NoxDesignTokens.ColorRole.textPrimary.opacity(0.94))
 
-                    Text("Recent local activity combined into one long-term trend view.")
+                    Text("Recent days of activity on this Mac, shown as one timeline.")
                         .font(NoxTypography.surfaceSubtitle)
                         .foregroundStyle(NoxDesignTokens.ColorRole.textSecondary.opacity(0.62))
                         .fixedSize(horizontal: false, vertical: true)

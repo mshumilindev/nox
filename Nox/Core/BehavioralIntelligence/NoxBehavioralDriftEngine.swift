@@ -19,15 +19,15 @@ nonisolated enum NoxBehavioralDriftEngine {
                     return drift(
                         kind: .prolongedQuiet,
                         label: "Quieter than usual",
-                        detail: "Recent days have been calmer than the prior stretch.",
+                        detail: "The last few days were calmer than the week before.",
                         confidence: 0.58
                     )
                 }
                 if priorAvg <= 0.35, recentAvg >= 0.65 {
                     return drift(
                         kind: .sustainedDeviation,
-                        label: "Denser than usual",
-                        detail: "Activity density has risen compared with earlier days.",
+                        label: "Busier than usual",
+                        detail: "Recent days had more activity than earlier in the week.",
                         confidence: 0.56
                     )
                 }
@@ -37,8 +37,8 @@ nonisolated enum NoxBehavioralDriftEngine {
         if signatures.contains(where: { $0.kind == .instabilityPhase }) {
             return drift(
                 kind: .rhythmInstability,
-                label: "Less stable rhythms",
-                detail: "Recent rhythms have been less stable than usual.",
+                label: "Days felt scattered",
+                detail: "Work and apps kept changing more than your usual pattern.",
                 confidence: 0.6
             )
         }
@@ -47,8 +47,8 @@ nonisolated enum NoxBehavioralDriftEngine {
         if switches >= 18 {
             return drift(
                 kind: .rhythmInstability,
-                label: "Unusual switching",
-                detail: "Context switching has been higher than a typical day.",
+                label: "Lots of switching",
+                detail: "You moved between apps and tasks more than on a typical day.",
                 confidence: 0.57
             )
         }
@@ -58,8 +58,8 @@ nonisolated enum NoxBehavioralDriftEngine {
            stats.totalActiveMs < 30 * 60_000 {
             return drift(
                 kind: .cadenceCollapse,
-                label: "Quiet cadence stretch",
-                detail: "Established cadence has been quiet for several days.",
+                label: "Several quiet days",
+                detail: "Activity stayed low across several days in a row.",
                 confidence: 0.54
             )
         }

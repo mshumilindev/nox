@@ -21,7 +21,7 @@ enum NoxConnectorContinuityEnricher {
         }
 
         if snapshot.generalizedSignals.contains(where: { $0.id == "calendar-travel-like" }) {
-            notes.append("Travel preparation cadence may be forming.")
+            notes.append("Travel planning has been showing up again.")
         }
 
         if snapshot.cadencePatterns.contains(where: { $0.id == "rhythm-deep-focus-era" }),
@@ -31,7 +31,7 @@ enum NoxConnectorContinuityEnricher {
 
         if threads.count >= 2,
            snapshot.pressureSignals.contains(where: { $0.kind == .communication }) {
-            notes.append("Communication pressure threads through recent continuity.")
+            notes.append("Messages and meetings have been threading through recent work.")
         }
 
         return notes

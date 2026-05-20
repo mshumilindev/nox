@@ -11,7 +11,7 @@ struct NoxCapabilityExplanationView: View {
             }
 
             if !capabilities.accessibilityGranted {
-                Text("Accessibility unlocks window titles — still stored only on this Mac.")
+                Text("Accessibility adds window titles. Nothing leaves this Mac.")
                     .font(NoxTypography.caption)
                     .foregroundStyle(NoxDesignTokens.ColorRole.textSecondary)
             }
