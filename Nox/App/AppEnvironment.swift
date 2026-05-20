@@ -42,6 +42,8 @@ final class AppEnvironment {
     var behavioralSnapshot: NoxBehavioralIntelligenceSnapshot = .empty
     var ambientUtilitySnapshot: NoxAmbientUtilitySnapshot = .empty
     var memoryEvolutionSnapshot: NoxMemoryEvolutionSnapshot = .neutral
+    var systemTrayHint: String?
+    var lastSystemActionMessage: String?
 
     var activeAppName: String?
     var activeBundleId: String?
@@ -193,5 +195,33 @@ final class AppEnvironment {
         if enabled {
             Task { await contextService.requestAmbientNotificationAuthorization() }
         }
+    }
+
+    func setSystemContradictionSuggestionsEnabled(_ enabled: Bool) {
+        mutatePreferences { $0.ambientUtility.systemState.contradictionSuggestionsEnabled = enabled }
+    }
+
+    func setCaffeinateSuggestionsEnabled(_ enabled: Bool) {
+        mutatePreferences { $0.ambientUtility.systemState.caffeinateSuggestionsEnabled = enabled }
+    }
+
+    func performSystemInterventionAction(_ action: NoxSystemActionCandidate) {
+        Task {
+            let outcome = await contextService.performSystemInterventionAction(action)
+            switch outcome {
+            case .completed(let message), .unavailable(let message):
+                lastSystemActionMessage = message
+            case .dismissed, .noOp:
+                break
+            }
+        }
+    }
+
+    func stopManagedCaffeinate() {
+        Task { await contextService.stopManagedCaffeinate() }
+    }
+
+    func clearSystemActionHistory() {
+        Task { await contextService.clearSystemActionHistory() }
     }
 }

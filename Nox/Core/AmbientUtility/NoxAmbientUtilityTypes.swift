@@ -150,6 +150,29 @@ nonisolated struct NoxAmbientUtilitySnapshot: Equatable, Sendable {
 
 nonisolated struct NoxAmbientUtilityPreferences: Codable, Equatable, Sendable {
     var ambientNotificationsEnabled: Bool
+    var systemState: NoxSystemStatePreferences
 
-    static let `default` = NoxAmbientUtilityPreferences(ambientNotificationsEnabled: false)
+    static let `default` = NoxAmbientUtilityPreferences(
+        ambientNotificationsEnabled: false,
+        systemState: .default
+    )
+
+    init(
+        ambientNotificationsEnabled: Bool = false,
+        systemState: NoxSystemStatePreferences = .default
+    ) {
+        self.ambientNotificationsEnabled = ambientNotificationsEnabled
+        self.systemState = systemState
+    }
+
+    init(from decoder: Decoder) throws {
+        let container = try decoder.container(keyedBy: CodingKeys.self)
+        ambientNotificationsEnabled = try container.decodeIfPresent(Bool.self, forKey: .ambientNotificationsEnabled) ?? false
+        systemState = try container.decodeIfPresent(NoxSystemStatePreferences.self, forKey: .systemState) ?? .default
+    }
+
+    private enum CodingKeys: String, CodingKey {
+        case ambientNotificationsEnabled
+        case systemState
+    }
 }

@@ -118,6 +118,32 @@ nonisolated struct NoxAmbientIntervention: Identifiable, Equatable, Sendable {
     let detail: String
     let kind: NoxInterventionKind
     let observedAt: Date
+    let systemContradictionType: NoxSystemContradictionType?
+    let explainabilityDetail: String?
+    let assuranceLine: String?
+    let actions: [NoxSystemActionCandidate]
+
+    init(
+        id: String,
+        label: String,
+        detail: String,
+        kind: NoxInterventionKind,
+        observedAt: Date,
+        systemContradictionType: NoxSystemContradictionType? = nil,
+        explainabilityDetail: String? = nil,
+        assuranceLine: String? = nil,
+        actions: [NoxSystemActionCandidate] = []
+    ) {
+        self.id = id
+        self.label = label
+        self.detail = detail
+        self.kind = kind
+        self.observedAt = observedAt
+        self.systemContradictionType = systemContradictionType
+        self.explainabilityDetail = explainabilityDetail
+        self.assuranceLine = assuranceLine
+        self.actions = actions
+    }
 }
 
 enum NoxInterventionKind: String, Codable, Sendable {
@@ -125,4 +151,5 @@ enum NoxInterventionKind: String, Codable, Sendable {
     case fragmentedDayAck
     case recoveryAwareShift
     case lateNightCadence
+    case systemState
 }

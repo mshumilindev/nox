@@ -13,12 +13,14 @@ nonisolated struct NoxAmbientState: Codable, Equatable, Sendable {
     var lastResurfacingShownAt: Date?
     var lastConnectorInterventionAt: Date?
     var lastConnectorFocusKind: String?
+    var lastDominantActivityCategory: String?
     var recentConnectorDensities: [Double]
     var lastAmbientNotificationAt: Date?
     var lastContextualNudgeAt: Date?
     var recentNotificationKinds: [String]
     var ambientTrust: NoxAmbientTrustState
     var memoryEvolution: NoxMemoryEvolutionState
+    var systemState: NoxSystemStatePersistence
 
     init(
         lastPresence: String?,
@@ -33,12 +35,14 @@ nonisolated struct NoxAmbientState: Codable, Equatable, Sendable {
         lastResurfacingShownAt: Date?,
         lastConnectorInterventionAt: Date? = nil,
         lastConnectorFocusKind: String? = nil,
+        lastDominantActivityCategory: String? = nil,
         recentConnectorDensities: [Double] = [],
         lastAmbientNotificationAt: Date? = nil,
         lastContextualNudgeAt: Date? = nil,
         recentNotificationKinds: [String] = [],
         ambientTrust: NoxAmbientTrustState = .initial,
-        memoryEvolution: NoxMemoryEvolutionState = .initial
+        memoryEvolution: NoxMemoryEvolutionState = .initial,
+        systemState: NoxSystemStatePersistence = .initial
     ) {
         self.lastPresence = lastPresence
         self.lastActiveAppName = lastActiveAppName
@@ -52,12 +56,14 @@ nonisolated struct NoxAmbientState: Codable, Equatable, Sendable {
         self.lastResurfacingShownAt = lastResurfacingShownAt
         self.lastConnectorInterventionAt = lastConnectorInterventionAt
         self.lastConnectorFocusKind = lastConnectorFocusKind
+        self.lastDominantActivityCategory = lastDominantActivityCategory
         self.recentConnectorDensities = recentConnectorDensities
         self.lastAmbientNotificationAt = lastAmbientNotificationAt
         self.lastContextualNudgeAt = lastContextualNudgeAt
         self.recentNotificationKinds = recentNotificationKinds
         self.ambientTrust = ambientTrust
         self.memoryEvolution = memoryEvolution
+        self.systemState = systemState
     }
 
     static let empty = NoxAmbientState(
@@ -73,12 +79,14 @@ nonisolated struct NoxAmbientState: Codable, Equatable, Sendable {
         lastResurfacingShownAt: nil,
         lastConnectorInterventionAt: nil,
         lastConnectorFocusKind: nil,
+        lastDominantActivityCategory: nil,
         recentConnectorDensities: [],
         lastAmbientNotificationAt: nil,
         lastContextualNudgeAt: nil,
         recentNotificationKinds: [],
         ambientTrust: .initial,
-        memoryEvolution: .initial
+        memoryEvolution: .initial,
+        systemState: .initial
     )
 
     init(from decoder: Decoder) throws {
@@ -95,12 +103,14 @@ nonisolated struct NoxAmbientState: Codable, Equatable, Sendable {
         lastResurfacingShownAt = try container.decodeIfPresent(Date.self, forKey: .lastResurfacingShownAt)
         lastConnectorInterventionAt = try container.decodeIfPresent(Date.self, forKey: .lastConnectorInterventionAt)
         lastConnectorFocusKind = try container.decodeIfPresent(String.self, forKey: .lastConnectorFocusKind)
+        lastDominantActivityCategory = try container.decodeIfPresent(String.self, forKey: .lastDominantActivityCategory)
         recentConnectorDensities = try container.decodeIfPresent([Double].self, forKey: .recentConnectorDensities) ?? []
         lastAmbientNotificationAt = try container.decodeIfPresent(Date.self, forKey: .lastAmbientNotificationAt)
         lastContextualNudgeAt = try container.decodeIfPresent(Date.self, forKey: .lastContextualNudgeAt)
         recentNotificationKinds = try container.decodeIfPresent([String].self, forKey: .recentNotificationKinds) ?? []
         ambientTrust = try container.decodeIfPresent(NoxAmbientTrustState.self, forKey: .ambientTrust) ?? .initial
         memoryEvolution = try container.decodeIfPresent(NoxMemoryEvolutionState.self, forKey: .memoryEvolution) ?? .initial
+        systemState = try container.decodeIfPresent(NoxSystemStatePersistence.self, forKey: .systemState) ?? .initial
     }
 }
 

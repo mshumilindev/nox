@@ -11,6 +11,7 @@ final class NoxStatusBarController: NSObject {
     private var hostingController: NSHostingController<AnyView>?
     private var globalOutsideClickMonitor: Any?
     private var localOutsideClickMonitor: Any?
+    private var ignoreOutsideCloseUntil: Date?
 
     private weak var environment: AppEnvironment?
     private weak var panelState: NoxPanelState?
@@ -46,9 +47,15 @@ final class NoxStatusBarController: NSObject {
 
     private func configureRemovalBehavior(_ item: NSStatusItem) {
         if #available(macOS 14.0, *) {
-            // Default: not in overflow "removable" set; user keeps Nox in the menu bar.
             item.behavior = []
         }
+    }
+
+    private var panelContentSize: NSSize {
+        NSSize(
+            width: NoxSpacing.menuBarWidth + NoxSpacing.lg * 2,
+            height: 420
+        )
     }
 
     private func buildPanelIfNeeded() {
@@ -66,25 +73,48 @@ final class NoxStatusBarController: NSObject {
         let hosting = NSHostingController(rootView: AnyView(root))
         hostingController = hosting
 
+        let size = panelContentSize
         let panel = NSPanel(
-            contentRect: NSRect(x: 0, y: 0, width: 320, height: 420),
+            contentRect: NSRect(origin: .zero, size: size),
             styleMask: [.nonactivatingPanel, .fullSizeContentView],
             backing: .buffered,
             defer: false
         )
         panel.isFloatingPanel = true
         panel.level = .popUpMenu
-        panel.collectionBehavior = [.moveToActiveSpace, .fullScreenAuxiliary]
+        panel.collectionBehavior = [.moveToActiveSpace, .fullScreenAuxiliary, .transient]
         panel.backgroundColor = .clear
         panel.isOpaque = false
         panel.hasShadow = true
+        panel.becomesKeyOnlyIfNeeded = true
+        panel.hidesOnDeactivate = false
         panel.contentViewController = hosting
-        panel.setContentSize(hosting.view.fittingSize)
+        layoutPanelContent()
 
         self.panel = panel
     }
 
-    @objc private func statusItemClicked(_ sender: NSStatusBarButton) {
+    private func layoutPanelContent() {
+        guard let hosting = hostingController, let panel else { return }
+        hosting.view.layoutSubtreeIfNeeded()
+        let fitted = hosting.view.fittingSize
+        let size = panelContentSize
+        panel.setContentSize(
+            NSSize(
+                width: max(size.width, fitted.width),
+                height: max(280, fitted.height)
+            )
+        )
+    }
+
+    /// AppKit calls status-item actions from Obj-C; hop to the main actor explicitly (Swift 6).
+    @objc nonisolated private func statusItemClicked(_ sender: NSStatusBarButton) {
+        Task { @MainActor [weak self] in
+            self?.handleStatusItemClick(sender)
+        }
+    }
+
+    private func handleStatusItemClick(_ sender: NSStatusBarButton) {
         if NSApp.currentEvent?.type == .rightMouseUp {
             return
         }
@@ -100,20 +130,52 @@ final class NoxStatusBarController: NSObject {
             return
         }
 
+        layoutPanelContent()
         position(panel: panel, relativeTo: button)
+        ignoreOutsideCloseUntil = Date().addingTimeInterval(0.25)
+
         NSApp.activate(ignoringOtherApps: true)
-        panel.makeKeyAndOrderFront(nil)
-        installOutsideClickMonitor()
+        panel.orderFrontRegardless()
+
+        DispatchQueue.main.async { [weak self] in
+            self?.installOutsideClickMonitor()
+        }
     }
 
     private func position(panel: NSPanel, relativeTo button: NSStatusBarButton) {
-        guard let buttonWindow = button.window else { return }
-        let buttonFrame = button.convert(button.bounds, to: nil)
-        let screenFrame = buttonWindow.convertToScreen(buttonFrame)
+        let anchor = statusItemAnchorScreenRect(for: button)
         var frame = panel.frame
-        frame.origin.x = screenFrame.midX - frame.width / 2
-        frame.origin.y = screenFrame.minY - frame.height - 6
+        frame.size = panelContentSize
+        frame.origin.x = anchor.midX - frame.width / 2
+        frame.origin.y = anchor.minY - frame.height - 6
+
+        if let screen = screenContaining(anchor) {
+            let visible = screen.visibleFrame
+            frame.origin.x = min(max(frame.origin.x, visible.minX + 8), visible.maxX - frame.width - 8)
+            frame.origin.y = min(max(frame.origin.y, visible.minY + 8), visible.maxY - frame.height - 8)
+        }
+
         panel.setFrame(frame, display: true)
+    }
+
+    private func statusItemAnchorScreenRect(for button: NSStatusBarButton) -> NSRect {
+        if let buttonWindow = button.window {
+            let buttonFrame = button.convert(button.bounds, to: nil)
+            return buttonWindow.convertToScreen(buttonFrame)
+        }
+
+        let mouse = NSEvent.mouseLocation
+        let screen = NSScreen.screens.first { $0.frame.contains(mouse) } ?? NSScreen.main
+        let menuBarHeight: CGFloat = {
+            guard let screen else { return 24 }
+            return max(22, screen.frame.height - screen.visibleFrame.height)
+        }()
+        let y = (screen?.frame.maxY ?? mouse.y) - menuBarHeight
+        return NSRect(x: mouse.x - 9, y: y, width: 18, height: menuBarHeight)
+    }
+
+    private func screenContaining(_ rect: NSRect) -> NSScreen? {
+        NSScreen.screens.first { $0.frame.intersects(rect) } ?? NSScreen.main
     }
 
     private func installOutsideClickMonitor() {
@@ -126,7 +188,9 @@ final class NoxStatusBarController: NSObject {
         }
         localOutsideClickMonitor = NSEvent.addLocalMonitorForEvents(matching: [.leftMouseDown, .rightMouseDown]) {
             [weak self] event in
-            self?.closeIfClickOutside(at: event.locationInWindow, from: event.window)
+            Task { @MainActor in
+                self?.closeIfClickOutside(at: event.locationInWindow, from: event.window)
+            }
             return event
         }
     }
@@ -142,12 +206,21 @@ final class NoxStatusBarController: NSObject {
         }
     }
 
+    private func shouldIgnoreOutsideClose() -> Bool {
+        if let ignoreOutsideCloseUntil, Date() < ignoreOutsideCloseUntil {
+            return true
+        }
+        return false
+    }
+
     private func closeIfClickOutside() {
+        guard !shouldIgnoreOutsideClose() else { return }
         guard let panel, panel.isVisible else { return }
         closeIfClickOutside(atScreenPoint: NSEvent.mouseLocation)
     }
 
     private func closeIfClickOutside(at point: NSPoint, from window: NSWindow?) {
+        guard !shouldIgnoreOutsideClose() else { return }
         guard let window else {
             closeIfClickOutside()
             return
@@ -157,13 +230,15 @@ final class NoxStatusBarController: NSObject {
     }
 
     private func closeIfClickOutside(atScreenPoint click: NSPoint) {
+        guard !shouldIgnoreOutsideClose() else { return }
         guard let panel, panel.isVisible else { return }
         if panel.frame.contains(click) { return }
-        if let button = statusItem?.button, let window = button.window {
-            let buttonFrame = button.convert(button.bounds, to: nil)
-            let screenFrame = window.convertToScreen(buttonFrame)
-            if screenFrame.contains(click) { return }
+
+        if let button = statusItem?.button {
+            let anchor = statusItemAnchorScreenRect(for: button)
+            if anchor.insetBy(dx: -6, dy: -6).contains(click) { return }
         }
+
         closeMenu()
     }
 }

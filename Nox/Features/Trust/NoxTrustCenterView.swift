@@ -15,6 +15,7 @@ struct NoxTrustCenterView: View {
       NoxConnectorTrustControls()
 
       NoxAmbientUtilityTrustControls()
+      NoxSystemStateTrustControls()
 
       NoxMemoryControlCenter()
     }

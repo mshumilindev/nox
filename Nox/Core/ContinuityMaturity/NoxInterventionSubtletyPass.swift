@@ -59,6 +59,8 @@ nonisolated enum NoxInterventionSubtletyPass {
                 label: "Evenings have been active again.",
                 detail: "A small recognition — not coaching."
             )
+        case .systemState:
+            return intervention
         }
 
         return intervention
@@ -74,7 +76,11 @@ nonisolated enum NoxInterventionSubtletyPass {
             label: NoxEmotionalSafetyCopy.sanitize(label),
             detail: NoxEmotionalSafetyCopy.sanitize(detail),
             kind: intervention.kind,
-            observedAt: intervention.observedAt
+            observedAt: intervention.observedAt,
+            systemContradictionType: intervention.systemContradictionType,
+            explainabilityDetail: intervention.explainabilityDetail,
+            assuranceLine: intervention.assuranceLine,
+            actions: intervention.actions
         )
     }
 }

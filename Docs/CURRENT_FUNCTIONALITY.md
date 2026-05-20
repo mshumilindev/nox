@@ -6,7 +6,7 @@ This document is the living inventory of what Nox actually implements today. Upd
 
 ## Product State
 
-Nox is currently a native macOS menu bar app with an adaptive ambient shell, local activity awareness, trust surfaces, memory controls, deterministic context inference, structured memory, continuity detection, reflective continuity, and local persistence.
+Nox is currently a native macOS menu bar app with an adaptive ambient shell, local activity awareness, trust surfaces, memory controls, deterministic context inference, structured memory, continuity detection, reflective continuity, **local macOS system-state contradictions (Phase 13)**, and local persistence.
 
 It is not a chatbot, cloud assistant, productivity scorer, screenshot recorder, clipboard tracker, or keystroke logger.
 
@@ -16,17 +16,20 @@ It is not a chatbot, cloud assistant, productivity scorer, screenshot recorder, 
 - Agent-style app using `LSUIElement`; it lives in the menu bar without a Dock-first experience.
 - Floating dashboard is owned by `NoxWindowController` through `NoxPanelState`, with single-window open/focus behavior.
 - Runtime singletons are centralized in `NoxAppRuntime`.
-- `AppEnvironment` owns UI-facing state for presence, permissions, preferences, awareness snapshots, explainability, live signals, **layered timeline sections** (`timelineSections`), semantic context, search, memory period, long-horizon memory (`longHorizonSnapshot`), **memory evolution** (`memoryEvolutionSnapshot`), morning continuity, reflections, memory maturity, **connector / behavioral / ambient utility snapshots**, and active app context.
+- `AppEnvironment` owns UI-facing state for presence, permissions, preferences, awareness snapshots, explainability, live signals, **layered timeline sections** (`timelineSections`), semantic context, search, memory period, long-horizon memory (`longHorizonSnapshot`), **memory evolution** (`memoryEvolutionSnapshot`), morning continuity, reflections, memory maturity, **connector / behavioral / ambient utility snapshots**, optional **`systemTrayHint`** (one-line calm note when a system contradiction is active), and active app context.
 - App lifecycle can checkpoint memory and session state before termination through `NoxLifecycleCoordinator` and `NoxContextService`.
 
 ## Menu Bar Experience
 
 - Menu bar entry is an **`NSStatusItem`** via `NoxStatusBarController` (not `MenuBarExtra`), with `autosaveName` so the icon stays in the primary menu bar when possible.
 - Tray icon: template asset **`NoxTrayTemplate`** (triskelion spiral) through `NoxMenuBarIcon.makeTemplateImage()` — adapts to light/dark menu bar automatically.
-- Click opens a floating **`NSPanel`** dropdown (`NoxMenuBarView`, ~320×420) with the same atmospheric stack as the dashboard (scaled down).
+- **Left-click** opens a floating **`NSPanel`** dropdown (`NoxMenuBarView`, ~312×420 content width) with the same atmospheric stack as the dashboard (scaled down).
+- **Panel positioning:** anchored under the status button when `button.window` is available; otherwise falls back to mouse location + menu bar height (Control Center overflow / missing window case). Frame is clamped to the visible screen. `orderFrontRegardless()` + short outside-close grace period so the panel is not dismissed instantly.
+- **Dismiss:** click outside the panel or the tray icon again; `NoxMenuBarDismissAction` closes from in-panel actions.
 - Dropdown shows:
   - wordmark header (`NoxMenuBarHeaderView` + `NoxTriskelionMark`);
   - current presence (`NoxPresenceBadgeView`);
+  - optional one-line **`systemTrayHint`** when Phase 13 surfaced a system contradiction;
   - compact live signals when available;
   - semantic hint when not duplicated in the pulse;
   - actions to open the dashboard and quit;
@@ -128,7 +131,7 @@ Procedural Canvas aurora was **removed**. Current stack:
 | **Memory** | Layered timeline + era observation line (`NoxMemoryTimelineView`, `NoxTemporalMemoryRowPresenter`) |
 | **Patterns** | Emerging patterns, semantic arcs, continuity shapes, life-shaped periods, rhythms, cadence, connector enrichment, **temporal continuity** (Phase 12), era observation |
 | **Reflections** | `NoxReflectionCandidate` cards from synthesis pipeline |
-| **Now** | Morning summary, resurfacing notes, connector/utility interventions when gated |
+| **Now** | Morning summary, resurfacing notes, connector/utility/**system-state** interventions when gated (`NoxConnectorInterventionBanner` with optional actions) |
 | **Deep → Patterns / Reflections** | Deeper layout variants of Patterns and Reflections |
 
 Shared card components: `NoxContinuityThreadCard`, `NoxSemanticArcCard`, `NoxBehavioralRhythmCard`, `NoxEraSurface` (optional `eraHints` from memory evolution).
@@ -387,6 +390,39 @@ Presentation layer in `Nox/Core/Memory/Presentation/` (no new dashboards or anal
 - **Ordering (long-horizon only)**: `NoxLongHorizonLoader` and `NoxContextualMemoryPrioritizer` use `temporalWeights` for thread/arc priority — **not** timeline row order inside Memory layers.
 - **Stability fixes**: single timeline publish per reload; `NoxUnresolvedPersistenceEngine` does not increment return counters on every evolve pass (prevents copy flicker).
 
+## Phase 13 — System state contradictions (local macOS)
+
+`Nox/Core/SystemState/` extends the **existing** ambient utility pipeline (no duplicate notification/nudge engines):
+
+| Module | Role |
+| --- | --- |
+| `NoxSystemStateProvider` | Focus (`INFocusStatusCenter`, `isFocused` when authorized), battery (IOKit), external displays, low power mode, appearance/time hints |
+| `NoxSystemContradictionEngine` | Six contradiction detectors + calm copy |
+| `NoxSystemContradictionSuppressionModel` | Global 4h cooldown, per-type 12h after dismiss, confidence floor |
+| `NoxSystemContradictionContextBuilder` | Builds context from stats, focus, utility snapshot, connector transitions |
+| `NoxSystemStateOrchestrator` | Runs after Phase 11.5 calibration; may set `refinedIntervention` |
+| `NoxSystemContradictionPresenter` | Maps to `NoxAmbientIntervention` (`kind: .systemState`) |
+| `NoxSystemActionPermissionModel` | Safety levels + permission gating per action kind |
+| `NoxSystemActionExecutor` | User-triggered settings links, resurfacing quiet window, dismiss |
+| `NoxCaffeinateController` | Nox-managed `/usr/bin/caffeinate -dims`; restored on launch if session active; stopped on quit |
+
+**Contradiction types (all observational, non-coaching):**
+
+1. Sleep/focus during sustained active work  
+2. Long session without display sleep protection (caffeinate suggestion)  
+3. High interruption cost while system quiet modes unclear  
+4. Recovery window after long focus (optional brief resurfacing quiet — not a break reminder)  
+5. Battery-sensitive long session on battery power  
+6. Context mismatch after return (Focus still on vs new activity category)
+
+**Integration:** `NoxContextService.refreshAmbientUtilityLayer` → calibration → orchestrator → `connectorSnapshot.intervention` on Now when enrichment not paused. Competes with connector/behavioral interventions when confidence ≥ ~0.66. `NoxInterventionSubtletyPass` leaves `.systemState` copy unchanged.
+
+**Actions (never automatic):** Open Focus or Battery settings; start/stop Nox caffeinate (30m / 60m / estimated session remainder); reduce resurfacing 2h; dismiss. Preferences: `NoxAmbientUtilityPreferences.systemState` (contradiction + caffeinate toggles). Trust: `NoxSystemStateTrustControls` in Trust center.
+
+**Persistence:** `NoxAmbientState.systemState` — `lastSystemInterventionAt`, per-type dismissals, `caffeinateSession`, `resurfacingQuietUntil`, local `actionHistory`. Also `lastDominantActivityCategory` for return-after-absence mismatch.
+
+**Focus API note:** macOS exposes authorized `INFocusStatus.isFocused` (boolean), not Sleep vs Work Focus names — copy stays low-certainty (“appears active”).
+
 ## Interaction & Hover
 
 - `NoxBorderlessPressStyle` — press feedback + ambient hover on **Button** labels only.
@@ -396,7 +432,7 @@ Presentation layer in `Nox/Core/Memory/Presentation/` (no new dashboards or anal
 
 ## Testing
 
-- Unit tests cover presence, memory, continuity, context QA, reflective continuity, **Phase 9 connectors**, **Phase 10 behavioral intelligence**, **Phase 12 memory evolution**, **Phase 12.5 presentation copy/aging**, **timeline dedup by time overlap**, **layered sections**, **historical empty copy**, and **activity classification** (e.g. ChatGPT → Research, legacy `unknown` resolution).
+- Unit tests cover presence, memory, continuity, context QA, reflective continuity, **Phase 9 connectors**, **Phase 10 behavioral intelligence**, **Phase 12 memory evolution**, **Phase 12.5 presentation copy/aging**, **Phase 13 system contradictions & caffeinate safety**, **timeline dedup by time overlap**, **layered sections**, **historical empty copy**, and **activity classification** (e.g. ChatGPT → Research, legacy `unknown` resolution).
 - UI test files exist; product strategy avoids brittle layout UI tests as primary validation.
 
 ## Current Gaps And Risks
@@ -409,7 +445,8 @@ Presentation layer in `Nox/Core/Memory/Presentation/` (no new dashboards or anal
 - No cloud sync, encrypted export, or backup workflow.
 - Calendar permission onboarding may still need product polish; sandbox entitlement flow should be validated before release.
 - Settings row labels are not tap-to-toggle (only the switch/picker is interactive).
-- `Docs/CURRENT_FUNCTIONALITY.md` must stay aligned with code after visual/atmosphere changes (this file is the inventory of record).
+- Phase 13 Focus detection is coarse (`isFocused` only); Sleep/Work/DND distinction depends on what Apple exposes to `INFocusStatusCenter`.
+- Status item in Control Center overflow may behave differently than primary menu bar placement.
 
 ## Best Next-Step Candidates
 

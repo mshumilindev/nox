@@ -120,6 +120,10 @@ final class NoxContextService {
     func checkpointBeforeTerminate() async {
         guard let environment else { return }
 
+        if let stopped = NoxCaffeinateController.shared.stop() {
+            ambientState.systemState.caffeinateSession = stopped
+        }
+
         try? await memoryCoordinator.checkpointOpenSpan(at: Date())
 
         if let session = sessionDetector.exportCurrentSession() {
@@ -203,6 +207,8 @@ final class NoxContextService {
                 arcs: continuityArcs,
                 at: date
             )
+            let previousDominant = ambientState.lastDominantActivityCategory
+                .flatMap(NoxActivityCategory.init(rawValue:))
             let utilitySnapshot = await refreshAmbientUtilityLayer(
                 connectorSnapshot: connectorSnapshot,
                 behavioralSnapshot: behavioralSnapshot,
@@ -210,6 +216,8 @@ final class NoxContextService {
                 focus: view.focus,
                 threads: view.continuityThreads,
                 arcs: continuityArcs,
+                isUserIdle: environment.isUserIdle,
+                previousDominantCategory: previousDominant,
                 at: date
             )
             environment.ambientUtilitySnapshot = utilitySnapshot
@@ -286,6 +294,7 @@ final class NoxContextService {
                 await deliverAmbientNotificationIfNeeded(notification)
             }
             ambientState.lastConnectorFocusKind = view.focus.kind?.rawValue
+            ambientState.lastDominantActivityCategory = view.stats.dominantCategory?.rawValue
             var densities = ambientState.recentConnectorDensities
             densities.append(NoxCadenceDensity.score(for: view.stats))
             if densities.count > 14 { densities.removeFirst(densities.count - 14) }
@@ -991,6 +1000,10 @@ final class NoxContextService {
         ambientState = (try? await ambientStateStore.load()) ?? .empty
         var ambient = ambientState
 
+        if let session = ambient.systemState.caffeinateSession, session.isActive {
+            NoxCaffeinateController.shared.restore(session: session)
+        }
+
         if let persisted = try? await ambientStateStore.loadSignalTracker() {
             signalTracker.restore(from: persisted)
         }
@@ -1158,6 +1171,8 @@ final class NoxContextService {
         focus: NoxFocusAnalysis?,
         threads: [NoxContinuityThread],
         arcs: [NoxSemanticArc],
+        isUserIdle: Bool,
+        previousDominantCategory: NoxActivityCategory?,
         at date: Date
     ) async -> NoxAmbientUtilitySnapshot {
         let base = NoxAmbientUtilityOrchestrator.refresh(
@@ -1189,7 +1204,64 @@ final class NoxContextService {
             at: date
         )
         ambientState.ambientTrust = trust
-        return calibrated
+
+        guard !preferences.connectors.continuityEnrichmentPaused else {
+            return calibrated
+        }
+
+        let context = NoxSystemContradictionContextBuilder.build(
+            stats: stats,
+            focus: focus,
+            threads: threads,
+            utility: calibrated,
+            connectorSnapshot: connectorSnapshot,
+            observationContinuitySeconds: signalTracker.observationContinuitySeconds(),
+            isUserIdle: isUserIdle,
+            previousDominantCategory: previousDominantCategory
+        )
+        var systemPersistence = ambientState.systemState
+        let integrated = NoxSystemStateOrchestrator.integrate(
+            utility: calibrated,
+            behavioralIntervention: behavioralSnapshot.recommendedIntervention,
+            context: context,
+            preferences: preferences.ambientUtility.systemState,
+            persistence: &systemPersistence,
+            at: date
+        )
+        ambientState.systemState = systemPersistence
+        environment?.systemTrayHint = integrated.trayHint
+        return integrated.snapshot
+    }
+
+    func performSystemInterventionAction(_ action: NoxSystemActionCandidate) async -> NoxSystemActionOutcome {
+        let continuity = signalTracker.observationContinuitySeconds()
+        var persistence = ambientState.systemState
+        let contradictionType = environment?.connectorSnapshot.intervention?.systemContradictionType
+        let outcome = NoxSystemActionExecutor.perform(
+            action,
+            contradictionType: contradictionType,
+            preferences: preferences.ambientUtility.systemState,
+            persistence: &persistence,
+            observationContinuitySeconds: continuity
+        )
+        ambientState.systemState = persistence
+        try? await ambientStateStore.save(ambientState)
+        await reloadMemoryView()
+        return outcome
+    }
+
+    func stopManagedCaffeinate() async {
+        if let stopped = NoxCaffeinateController.shared.stop() {
+            ambientState.systemState.caffeinateSession = stopped
+            try? await ambientStateStore.save(ambientState)
+        }
+        await reloadMemoryView()
+    }
+
+    func clearSystemActionHistory() async {
+        ambientState.systemState.actionHistory = []
+        ambientState.systemState.dismissedContradictions = [:]
+        try? await ambientStateStore.save(ambientState)
     }
 
     private func refreshMemoryEvolutionLayer(
@@ -1215,11 +1287,21 @@ final class NoxContextService {
             calibration: utilitySnapshot.calibration,
             focus: focus,
             stored: &evolutionState,
-            calmnessAllowsResurfacing: utilitySnapshot.calmness.allowsResurfacing,
+            calmnessAllowsResurfacing: resurfacingAllowed(utilitySnapshot: utilitySnapshot, at: date),
             at: date
         )
         ambientState.memoryEvolution = evolutionState
         return snapshot
+    }
+
+    private func resurfacingAllowed(
+        utilitySnapshot: NoxAmbientUtilitySnapshot,
+        at date: Date
+    ) -> Bool {
+        if let until = ambientState.systemState.resurfacingQuietUntil, date < until {
+            return false
+        }
+        return utilitySnapshot.calmness.allowsResurfacing
     }
 
     private func deliverAmbientNotificationIfNeeded(

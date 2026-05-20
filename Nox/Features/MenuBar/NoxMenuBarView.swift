@@ -67,12 +67,21 @@ struct NoxMenuBarView: View {
                 .foregroundStyle(NoxDesignTokens.ColorRole.textSecondary)
                 .tracking(0.6)
 
-            NoxPresenceBadgeView(
-                state: environment.presence,
-                sessionSummary: environment.sessionSummary,
-                semanticHint: showSemanticHint ? environment.semanticHint : nil,
-                capabilities: environment.capabilities
-            )
+            VStack(alignment: .leading, spacing: NoxSpacing.xs) {
+                NoxPresenceBadgeView(
+                    state: environment.presence,
+                    sessionSummary: environment.sessionSummary,
+                    semanticHint: showSemanticHint ? environment.semanticHint : nil,
+                    capabilities: environment.capabilities
+                )
+
+                if let hint = environment.systemTrayHint, !hint.isEmpty {
+                    Text(hint)
+                        .noxMetadata()
+                        .foregroundStyle(NoxDesignTokens.ColorRole.textSecondary.opacity(0.9))
+                        .fixedSize(horizontal: false, vertical: true)
+                }
+            }
             .padding(NoxSpacing.md)
             .frame(maxWidth: .infinity, alignment: .leading)
             .background(

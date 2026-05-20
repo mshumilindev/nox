@@ -62,6 +62,18 @@ enum NoxExplainabilityPresenter {
         NoxConnectorExplainability.inferenceReason(for: snapshot)
     }
 
+    static func whySystemContradiction(_ intervention: NoxAmbientIntervention) -> NoxInferenceReason? {
+        guard intervention.kind == .systemState else { return nil }
+        let detail = intervention.explainabilityDetail
+            ?? NoxSystemContradictionPresenter.explainabilityDetail
+        return NoxInferenceReason(
+            id: "system-\(intervention.id)",
+            headline: NoxEmotionalSafetyCopy.sanitize(intervention.label),
+            detail: NoxEmotionalSafetyCopy.sanitize(detail),
+            source: .liveSignal
+        )
+    }
+
     static func whyMemorySpan(_ span: NoxSemanticMemorySpan) -> NoxInferenceReason {
         let detail = span.sensitivityLevel != .normal
             ? NoxSemanticVisibilityPresenter.mode(for: span.sensitivityLevel).detail
