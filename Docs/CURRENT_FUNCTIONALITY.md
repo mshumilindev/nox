@@ -91,6 +91,7 @@ Procedural Canvas aurora was **removed**. Current stack:
 
 - `NoxAmbientShellView` replaces the single scroll wall with semantic navigation:
   - **Now** — presence, awareness, live signals, explainability;
+  - **Presence** — nearby / trusted Nox environments and curated Apple ecosystem presence (see Presence Mesh v1);
   - **Threads** — continuity threads with “why” cards;
   - **Memory** — timeline and search;
   - **Observatory** — one unified local signal graph and confidence-gated continuity observations;
@@ -458,21 +459,68 @@ Module: `Nox/Core/Observatory/` plus `Nox/Features/Observatory/`
 
 ## Testing
 
-- Unit tests cover presence, memory, continuity, context QA, reflective continuity, **engagement stabilization**, **Phase 9 connectors**, **Phase 10 behavioral intelligence**, **Phase 12 memory evolution**, **Phase 12.5 presentation copy/aging**, **Phase 13 system contradictions & caffeinate safety**, **timeline dedup by time overlap**, **layered sections**, **historical empty copy**, and **activity classification** (e.g. ChatGPT → Research, legacy `unknown` resolution).
+- Unit tests cover presence, memory, continuity, context QA, reflective continuity, **engagement stabilization**, **Phase 9 connectors**, **Phase 10 behavioral intelligence**, **Phase 12 memory evolution**, **Phase 12.5 presentation copy/aging**, **Phase 13 system contradictions & caffeinate safety**, **timeline dedup by time overlap**, **layered sections**, **historical empty copy**, **activity classification** (e.g. ChatGPT → Research, legacy `unknown` resolution), **`NoxDeviceArtworkResolverTests`** (AppleDB + littlebyteorg artwork URLs, hardware identity trust), and **`NoxPresenceCuratorTests`**.
 - UI test files exist; product strategy avoids brittle layout UI tests as primary validation.
 
 ## Presence Mesh v1 — Local-First Device Expansion
 
-- **Surface:** dedicated **Presence** navigation destination (`NoxPresenceSurfaceView`) — ambient device cards, auto-discovery sweep every ~60s while page is open, skeleton listening state, pairing sheet (“Expand Nox Here”).
-- **Identity:** `IdentityProvider` / `LocalIdentityProvider` — Ed25519 (Curve25519.Signing), `systemId`, `deviceId`, `deviceName`, `protocolVersion`; private key in Keychain (DEBUG file fallback labeled dev-only).
-- **Profiles:** `NOX_PROFILE=node-a` or `-nox-profile node-b` isolates Application Support (`Nox-dev-node-a`, etc.), trust store, and ports (9121 / 9122).
-- **Discovery:** `_nox._tcp` only (no AirPlay/LAN enumeration); `NoxPresenceCurator` hides low-confidence/service-derived labels before UI.
-- **Transport:** `LocalHTTPPresenceTransport` — POST `/mesh` JSON messages on profile port; signed pairing + test ping/pulse/pong.
-- **Manager:** `PresenceMeshManager` — nearby/trusted nodes, pairing approval, debounced discovery, ambient events.
-- **Invites:** `.noxpair` JSON + `nox://pair` deep link; native Share Sheet (`NoxPresenceMeshShareBridge`); manual import in dev panel.
-- **UI:** ambient cards (no IPs/ports in normal UI); dev diagnostics behind DEBUG; aurora/triskelion overlay on trust/pulse (`NoxPresenceMeshAmbientOverlay`).
-- **Entitlements:** local network client/server in `Nox.entitlements`; `NSLocalNetworkUsageDescription` + `NSBonjourServices` in Info.plist.
-- **Not shipped:** cloud sync, CloudKit, timeline replication, silent join, auto-AirDrop.
+### Surface & shell integration
+
+- Dedicated **Presence** destination (`NoxPresenceSurfaceView`) in the semantic rail and compact nav.
+- **Your environment** hero card (`isPrimaryEnvironment`) for this Mac; **Nearby Environments** and **Trusted Presence** sections below.
+- While the page is open: `PresenceMeshManager.setPresencePageActive(true)` runs discovery sweeps (~60s periodic) and enables BLE; `isListeningForPresence` drives `NoxPresenceListeningOverlay` on the shell when no nodes are visible.
+- **Expand** sheet (`NoxPresenceExpandSheet`) for pairing another Mac; **AirPlay Test** on unavailable Apple rows (HTTP probe + ambient pulse overlay).
+- Shell overlays: `NoxPresenceListeningOverlay` (listening), `NoxPresenceMeshAmbientOverlay` (trust/pulse feedback with spinning triskelion loader).
+- Dev panel: Option key or 5× tap on hero; `NoxPresenceDeveloperPanel` behind DEBUG.
+
+### Identity & profiles
+
+- `LocalIdentityProvider` — Ed25519 (`Curve25519.Signing`), `systemId`, `deviceId`, `deviceName`, `protocolVersion`; private key in Keychain (DEBUG file fallback labeled dev-only).
+- `NOX_PROFILE=node-a` / `-nox-profile node-b` — dev multi-node: isolated mesh storage folder name, trust store, ports **9121** / **9122** (see Persistence note below).
+
+### Discovery & curation
+
+- **Bonjour:** publishes `_nox._tcp`; browses Nox plus curated Apple services (`_device-info`, `_apple-mobdev2`, `_companion-link`, `_airplay`, `_raop`, `_homekit`).
+- **BLE:** `AppleBluetoothPresenceDiscoveryProvider` — Apple Continuity signals; started **only while Presence page is active** (avoids Bluetooth permission prompt at app launch).
+- `CompositePresenceDiscoveryProvider` merges Bonjour + BLE; **collapses HomePod stereo pairs** into one row by group id/name.
+- `NoxPresenceCurator` — rejects media players, LAN noise, and low-quality Bonjour labels; separate **presentable Nox mesh** vs **presentable Apple presence** (`unavailable` state).
+- Resolves Mac vs media-endpoint mismatches (e.g. Mac name with AirPlay token kind → prefers Mac family for copy/artwork).
+
+### Device artwork (`DeviceArtworkResolver`)
+
+Module: `Nox/Core/PresenceMesh/Artwork/`
+
+| Piece | Role |
+| --- | --- |
+| `DeviceArtworkResolver` | Resolution order: **model-specific** → **disk/memory cache** → **family** → **Nox generic silhouette** |
+| `AppleDBDeviceCatalog` | `api.appledb.dev/device/{key}.json` — `imageKey`, preferred color |
+| `DeviceArtworkURLBuilder` | **littlebyteorg/apple-device-images** raw PNG paths (`device/{key}/{color}_dark.png`, fallbacks to `device-lowres/`) |
+| `DeviceArtworkCache` | Aggressive SHA256-keyed cache under `PresenceMesh/ArtworkCache/` |
+| `NoxPresenceHardwareIdentityResolver` | Trust rules for hardware identity (see below) |
+| `NoxDeviceArtworkView` | Async load in `.task`; **never blocks** card layout — generic/ambient glyph shows immediately |
+| `NoxPresenceGenericDeviceArtwork` | Tier-4 Nox-styled silhouettes — **not SF Symbols** as final device art |
+
+**Hardware identity trust (artwork + concrete device display):**
+
+- **Trusted for model keys:** `_device-info`, `_apple-mobdev2`, `_companion-link`, BLE continuity, Nox mesh TXT.
+- **Not trusted from service names alone:** `_airplay`, `_raop` — no iPhone/Mac inference from AirPlay labels like “Kitchen iPhone”.
+- **Exception:** AirPlay/RAOP **TXT `model` fields** (e.g. `AudioAccessory1,1`) may resolve **exact** HomePod / Apple TV artwork when present.
+- Low-confidence rows use **ambient triskelion glyph**, not a specific Apple product render.
+
+### Transport, manager, invites
+
+- `LocalHTTPPresenceTransport` — POST `/mesh` JSON on profile port; signed pairing + test ping/pulse/pong.
+- `PresenceMeshManager` — nearby/trusted nodes, pairing approval, debounced discovery, `sendAirPlayTestPulse`, ambient events (`lastAmbientEvent`, `isAmbientPulseBusy`).
+- Invites: `.noxpair` JSON, `nox://pair` deep link, `NoxPresenceMeshShareBridge`, manual import in dev panel.
+
+### Entitlements & plist
+
+- `Nox.entitlements` — local network client/server, Bluetooth.
+- Info.plist — `NSLocalNetworkUsageDescription`, `NSBluetoothAlwaysUsageDescription`, `NSBonjourServices` (nox + listed Apple types).
+
+### Not shipped
+
+- Cloud sync, CloudKit, timeline replication, silent join, auto-AirDrop, SF Symbol device icons as final artwork.
 
 ## Current Gaps And Risks
 
@@ -486,6 +534,8 @@ Module: `Nox/Core/Observatory/` plus `Nox/Features/Observatory/`
 - Settings row labels are not tap-to-toggle (only the switch/picker is interactive).
 - Phase 13 Focus detection is coarse (`isFocused` only); Sleep/Work/DND distinction depends on what Apple exposes to `INFocusStatusCenter`.
 - Status item in Control Center overflow may behave differently than primary menu bar placement.
+- **`NOX_PROFILE` currently relocates all Application Support** (`NoxPersistencePaths.appFolderName` follows mesh profile), so timeline/memory may appear empty when switching Xcode scheme profile — mesh-only isolation is not yet split from main DB path.
+- Device artwork requires network for first fetch (AppleDB + GitHub raw PNG); offline shows Nox generic silhouettes only.
 
 ## Best Next-Step Candidates
 
