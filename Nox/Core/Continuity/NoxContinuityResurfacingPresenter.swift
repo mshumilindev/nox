@@ -31,7 +31,7 @@ nonisolated enum NoxContinuityResurfacingPresenter {
 
     static func threadDetailLine(_ thread: NoxContinuityThread) -> String {
         if thread.sensitivityLevel != .normal {
-            return "Generalized continuity only"
+            return "Generalized activity only"
         }
         var parts: [String] = []
         if thread.totalResumptions > 0 {
@@ -64,7 +64,7 @@ nonisolated enum NoxContinuityResurfacingPresenter {
         case .fragmentedWorkflow: return NoxHumanContextCopy.fragmentedAttentionPeriod
         case .passiveViewing: return "Watching"
         case .privateContext, .sensitiveContext: return "Private context"
-        case .general: return "Context continuity"
+        case .general: return "Recurring context"
         }
     }
 
@@ -89,6 +89,6 @@ nonisolated enum NoxContinuityResurfacingPresenter {
         if thread.totalResumptions >= 2 {
             return "Resumed several times"
         }
-        return "Continuity across time"
+        return "Recurring across recent days"
     }
 }

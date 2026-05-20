@@ -81,11 +81,11 @@ nonisolated enum NoxObservatoryMaturityLevel: Int, Comparable, Sendable {
 
     var copy: String {
         switch self {
-        case .gathering: "Observatory is still gathering continuity."
-        case .weak: "Signal confidence is weak. Hard conclusions are withheld."
+        case .gathering: "Observatory is still gathering local activity signals."
+        case .weak: "Signal confidence is low. Nox is avoiding strong conclusions."
         case .tentative: "Tentative trends are visible, but still provisional."
-        case .normal: "Continuity interpretation is active."
-        case .longHorizon: "Long-horizon observations are enabled."
+        case .normal: "Activity interpretation is active."
+        case .longHorizon: "Long-term trend observations are enabled."
         }
     }
 

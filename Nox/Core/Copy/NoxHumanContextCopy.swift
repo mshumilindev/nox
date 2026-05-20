@@ -41,15 +41,15 @@ nonisolated enum NoxHumanContextCopy {
 
     // MARK: - Memory emergence
 
-    static let todayBeginningToTakeShape = "Today is beginning to take shape."
-    static let recentContextSettling = "Recent context is beginning to settle."
-    static let shapeOfTodayEmerging = "The shape of today is emerging."
-    static let contextsGathering = "Today's contexts are beginning to gather."
+    static let todayBeginningToTakeShape = "Today's activity is still forming."
+    static let recentContextSettling = "Recent activity is still forming."
+    static let shapeOfTodayEmerging = "Today's activity patterns are still forming."
+    static let contextsGathering = "Today's sessions are beginning to repeat."
 
   // MARK: - Live / observing
 
-    static let watchingQuietly = "Watching quietly"
-    static let contextSettlingIntoMemory = "Recent context is beginning to settle into memory"
+    static let watchingQuietly = "Passive viewing"
+    static let contextSettlingIntoMemory = "Recent activity is being stored locally"
 
     // MARK: - Development gating
 

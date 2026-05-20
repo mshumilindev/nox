@@ -8,7 +8,7 @@ struct NoxAmbientUtilityTrustControls: View {
             Text("Ambient notifications")
                 .noxSectionLabel()
 
-            Text("Rare continuity surfaces — not reminders, tasks, or coaching. Cooldowns lengthen when relevance is uncertain.")
+            Text("Rare activity observations — not reminders, tasks, or coaching. Cooldowns lengthen when relevance is uncertain.")
                 .noxMetadata()
                 .fixedSize(horizontal: false, vertical: true)
 

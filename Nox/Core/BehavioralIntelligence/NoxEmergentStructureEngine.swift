@@ -50,7 +50,7 @@ nonisolated enum NoxEmergentStructureEngine {
             results.append(candidate(
                 id: "structure-travel-prep",
                 label: "Travel-preparation phase",
-                detail: "Travel-related continuity has been forming locally.",
+                detail: "Travel-related activity has been recurring locally.",
                 confidence: 0.55
             ))
         }
@@ -69,7 +69,7 @@ nonisolated enum NoxEmergentStructureEngine {
         if let expectations, expectations.confidence >= 0.55, !expectations.continuityExpectations.isEmpty {
             results.append(candidate(
                 id: "structure-expected-continuity",
-                label: "Recurring continuity shape",
+                label: "Recurring activity pattern",
                 detail: expectations.continuityExpectations.first ?? "",
                 confidence: expectations.confidence * 0.92
             ))

@@ -225,7 +225,7 @@ enum NoxLiveContextPresenter {
     private static func pulseTitle(for signal: NoxLiveSignal) -> String? {
         let text = signal.text.trimmingCharacters(in: .whitespaces)
         guard !text.isEmpty else { return nil }
-        if text.lowercased().contains("watching quietly") { return nil }
+        if text.lowercased().contains("passive viewing") { return nil }
         if text.lowercased().contains("stabilizing") { return nil }
         return NoxSemanticLabelCatalog.normalizePulseTitle(text)
     }

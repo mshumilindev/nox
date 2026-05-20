@@ -37,7 +37,7 @@ nonisolated enum NoxEraEvolutionEngine {
             ) > 0.35
 
             let softLabel = era.title.isEmpty
-                ? "A longer stretch with a familiar shape"
+                ? "A longer-running activity period"
                 : era.title
             hints.append(NoxEraEvolutionHint(
                 id: era.id,

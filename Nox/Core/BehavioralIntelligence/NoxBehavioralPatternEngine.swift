@@ -74,7 +74,7 @@ nonisolated enum NoxBehavioralPatternEngine {
                 id: "pattern-fragmented-context",
                 kind: .fragmentedContext,
                 label: "Fragmented context period",
-                detail: "Attention has been switching often between contexts.",
+                detail: "App and workflow switching increased recently.",
                 confidence: 0.72,
                 horizonDays: 2,
                 evidence: ["switch_count:\(switches)"]
@@ -110,7 +110,7 @@ nonisolated enum NoxBehavioralPatternEngine {
                 id: "pattern-instability-phase",
                 kind: .instabilityPhase,
                 label: "Instability phase",
-                detail: "Weekly memory suggests unusually scattered continuity.",
+                detail: "Weekly activity shows unusually scattered sessions.",
                 confidence: 0.56,
                 horizonDays: 21,
                 evidence: ["weekly_fragmentation"]

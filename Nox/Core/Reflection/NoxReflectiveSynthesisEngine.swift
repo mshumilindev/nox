@@ -69,13 +69,13 @@ enum NoxReflectiveSynthesisEngine {
         if let arcName {
             text = "\(arcName) picked up again after interruption — \(input.continuityResumptions) resumptions across recent sessions."
         } else {
-            text = "Interrupted continuity picked up again — \(input.continuityResumptions) resumptions across recent sessions."
+            text = "Interrupted activity picked up again — \(input.continuityResumptions) returns across recent sessions."
         }
         return candidate(
             id: "reflection-resurfaced-arc",
             text: text,
             detailLine: detail(
-                "Semantic arcs and continuity threads from the last two weeks.",
+                "Activity threads from the last two weeks.",
                 themes: input.resurfacedArcLabels + input.dominantArcLabels
             ),
             confidence: 0.6,
@@ -93,15 +93,15 @@ enum NoxReflectiveSynthesisEngine {
         let others = input.recurringThreadTitles.dropFirst().prefix(2)
         let text: String
         if others.isEmpty {
-            text = "\(cleaned) has been a recurring continuity thread this \(input.periodLabel.lowercased())."
+            text = "\(cleaned) has been a recurring activity thread this \(input.periodLabel.lowercased())."
         } else {
             let also = others.map { $0.replacingOccurrences(of: " continuity", with: "") }.joined(separator: ", ")
-            text = "\(cleaned) keeps returning alongside \(also) — recurring local threads, not goals."
+            text = "\(cleaned) keeps returning alongside \(also) — recurring sessions, not goals."
         }
         return candidate(
             id: "reflection-recurring-thread",
             text: text,
-            detailLine: "Thread recurrence inferred from resumptions and strength over ~14 days.",
+            detailLine: "Thread recurrence from repeated returns and strength over ~14 days.",
             confidence: 0.57,
             signals: ["recurring_thread", cleaned],
             at: date
@@ -125,7 +125,7 @@ enum NoxReflectiveSynthesisEngine {
         return candidate(
             id: "reflection-behavioral-pattern",
             text: text,
-            detailLine: "Probabilistic pattern from local activity density and cadence — observational.",
+            detailLine: "From local activity density and session cadence on this Mac.",
             confidence: 0.58,
             signals: ["behavioral_pattern", label],
             at: date
@@ -140,7 +140,7 @@ enum NoxReflectiveSynthesisEngine {
         return candidate(
             id: "reflection-behavioral-drift",
             text: drift,
-            detailLine: "Compared with your prior-week rhythm on this Mac — low certainty.",
+            detailLine: "Compared with your prior-week rhythm on this Mac — confidence is low.",
             confidence: 0.55,
             signals: ["behavioral_drift"],
             at: date
@@ -156,7 +156,7 @@ enum NoxReflectiveSynthesisEngine {
         return candidate(
             id: "reflection-life-structure",
             text: detailText,
-            detailLine: "Soft era label (\(label)) — revisable if activity shifts.",
+            detailLine: "Longer-running period (\(label)) — may change if activity shifts.",
             confidence: 0.54,
             signals: ["life_structure", label],
             at: date
@@ -174,8 +174,8 @@ enum NoxReflectiveSynthesisEngine {
         let researchLabel = research.first ?? "research"
         return candidate(
             id: "reflection-context-switching",
-            text: "Sessions moved between \(devLabel.lowercased()) and \(researchLabel.lowercased()) — a familiar mix, not a score.",
-            detailLine: "Themes from semantic memory spans over ~\(input.observationHours)h observed.",
+            text: "Sessions moved between \(devLabel.lowercased()) and \(researchLabel.lowercased()) — a recurring mix, not a score.",
+            detailLine: "Themes from stored activity spans over ~\(input.observationHours)h on this Mac.",
             confidence: 0.62,
             signals: ["theme_mix", devLabel, researchLabel],
             at: date
@@ -192,7 +192,7 @@ enum NoxReflectiveSynthesisEngine {
         return candidate(
             id: "reflection-creative-arc",
             text: "\(arc) appeared in bursts this week rather than as one long stretch.",
-            detailLine: "Arc evolution from grouped semantic spans — intermittent, not failed focus.",
+            detailLine: "From grouped activity spans — intermittent sessions, not failed focus.",
             confidence: 0.56,
             signals: ["creative_arc", arc],
             at: date
@@ -206,8 +206,8 @@ enum NoxReflectiveSynthesisEngine {
         guard input.fragmentedSessions >= 2 || input.focusSummary == "fragmented attention" else { return nil }
         return candidate(
             id: "reflection-fragmentation",
-            text: "Attention split across \(input.fragmentedSessions) fragmented spans — context kept shifting.",
-            detailLine: "From focus analysis and fragmented semantic states today.",
+            text: "Attention split across \(input.fragmentedSessions) fragmented sessions — apps and workflows kept shifting.",
+            detailLine: "From focus analysis and fragmented activity today.",
             confidence: 0.55,
             signals: ["fragmentation"],
             at: date

@@ -10,10 +10,10 @@ nonisolated enum NoxObservatoryObservationEngine {
                 NoxObservatoryObservation(
                     id: "maturity-\(maturity.rawValue)",
                     severity: .note,
-                    title: "Signal confidence withheld",
+                    title: "Low signal confidence",
                     detail: maturity.copy,
                     confidence: maturity.confidenceCeiling,
-                    evidence: ["Observed continuity is below the threshold for strong interpretation."]
+                    evidence: ["Observed activity is below the threshold for strong interpretation."]
                 )
             ]
         }
@@ -38,8 +38,8 @@ nonisolated enum NoxObservatoryObservationEngine {
             observations.append(observation(
                 id: "fragmentation-dominates-focus",
                 severity: .elevated,
-                title: "Fragmentation is dominating continuity",
-                detail: "Fragmentation remains elevated even during periods where focus continuity should be carrying more of the day.",
+                title: "Fragmentation is dominating focus",
+                detail: "App switching remains elevated even during periods where sustained focus should carry more of the day.",
                 confidence: min(fragmentation.confidence, focus.confidence),
                 evidence: ["Fragmentation average \(formatAverage(average(fragmentation))).", "Focus continuity average \(formatAverage(average(focus)))."]
             ))
@@ -49,8 +49,8 @@ nonisolated enum NoxObservatoryObservationEngine {
             observations.append(observation(
                 id: "deep-work-collapse",
                 severity: .severe,
-                title: "Deep work continuity is dropping",
-                detail: "Deep work continuity has collapsed relative to the earlier part of this range.",
+                title: "Deep work periods are dropping",
+                detail: "Sustained deep work has decreased relative to the earlier part of this range.",
                 confidence: deepWork.confidence,
                 evidence: ["Deep work trend \(formatTrend(trend(deepWork)))."]
             ))
@@ -96,8 +96,8 @@ nonisolated enum NoxObservatoryObservationEngine {
             observations.append(observation(
                 id: "stable-continuity",
                 severity: .note,
-                title: "Continuity has a stable window",
-                detail: "Most sustained continuity is clustering inside a stable rhythm rather than appearing randomly.",
+                title: "A stable activity window",
+                detail: "Most sustained focus is clustering inside a stable rhythm rather than appearing randomly.",
                 confidence: min(rhythm.confidence, focus.confidence),
                 evidence: ["Rhythm stability average \(formatAverage(average(rhythm))).", "Focus continuity average \(formatAverage(average(focus)))."]
             ))
@@ -107,7 +107,7 @@ nonisolated enum NoxObservatoryObservationEngine {
             observations.append(observation(
                 id: "no-hard-observation",
                 severity: .note,
-                title: "No hard continuity claim",
+                title: "No strong conclusion",
                 detail: "The collected signals do not justify a strong interpretation for this range.",
                 confidence: maturity.confidenceCeiling,
                 evidence: ["No signal crossed the confidence-gated observation thresholds."]

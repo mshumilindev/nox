@@ -27,7 +27,7 @@ struct NoxPatternsSurfaceView: View {
                 emptyPatterns
             } else {
                 if !snapshot.emergingPatterns.isEmpty {
-                    patternGroup(title: "Emerging", symbol: "leaf") {
+                    patternGroup(title: "Recently forming", symbol: "leaf") {
                         ForEach(snapshot.emergingPatterns) { pattern in
                             VStack(alignment: .leading, spacing: NoxSpacing.xxs) {
                                 Text(pattern.title)
@@ -46,8 +46,8 @@ struct NoxPatternsSurfaceView: View {
 
                 if !snapshot.semanticArcs.isEmpty {
                     NoxCollapsibleSection(
-                        title: "Semantic arcs",
-                        subtitle: "\(snapshot.semanticArcs.count) arcs",
+                        title: "Activity threads",
+                        subtitle: "\(snapshot.semanticArcs.count) threads",
                         defaultExpanded: environment.preferences.surfaceDensity.showsDetailByDefault
                     ) {
                         LazyVGrid(
@@ -65,7 +65,7 @@ struct NoxPatternsSurfaceView: View {
                 }
 
                 if snapshot.behavioralDrift != nil || !snapshot.behavioralSignatures.isEmpty {
-                    NoxCollapsibleSection(title: "Continuity shapes", defaultExpanded: false) {
+                    NoxCollapsibleSection(title: "Activity patterns", defaultExpanded: false) {
                         if let drift = snapshot.behavioralDrift {
                             NoxFixedLineText(
                                 text: drift.detail,
@@ -85,7 +85,7 @@ struct NoxPatternsSurfaceView: View {
                 }
 
                 if !snapshot.lifeStructureCandidates.isEmpty {
-                    NoxCollapsibleSection(title: "Life-shaped periods", defaultExpanded: false) {
+                    NoxCollapsibleSection(title: "Longer-running periods", defaultExpanded: false) {
                         ForEach(snapshot.lifeStructureCandidates) { structure in
                             VStack(alignment: .leading, spacing: NoxSpacing.xxs) {
                                 Text(structure.label)
@@ -122,7 +122,7 @@ struct NoxPatternsSurfaceView: View {
                 }
 
                 if !snapshot.connectorEnrichmentNotes.isEmpty {
-                    NoxCollapsibleSection(title: "Continuity enrichment", defaultExpanded: false) {
+                    NoxCollapsibleSection(title: "Related activity", defaultExpanded: false) {
                         ForEach(snapshot.connectorEnrichmentNotes, id: \.self) { note in
                             Text(note)
                                 .noxMetadata()
@@ -136,7 +136,7 @@ struct NoxPatternsSurfaceView: View {
                 }
 
                 if showsTemporalContinuity {
-                    NoxCollapsibleSection(title: "Temporal continuity", defaultExpanded: false) {
+                    NoxCollapsibleSection(title: "Activity over time", defaultExpanded: false) {
                         if let line = memoryEvolution.temporalCoherenceLine {
                             NoxFixedLineText(
                                 text: line,
@@ -169,7 +169,7 @@ struct NoxPatternsSurfaceView: View {
             NoxSectionHeader(
                 title: "Patterns",
                 symbol: "square.grid.3x3",
-                subtitle: "Arcs and rhythms gather as activity repeats."
+                subtitle: "Long-term behavioral patterns detected locally."
             )
             Text("Patterns appear as activity repeats across sessions.")
                 .font(NoxTypography.reflectionSoft)

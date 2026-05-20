@@ -36,12 +36,12 @@ nonisolated enum NoxMemoryEcologyEngine {
             profileMap[$0.id]?.band == .resurfacing && $0.totalResumptions >= 1
         }
         if restorative.count >= 2 {
-            notes.append("Returning continuity has been quietly strengthening nearby structures.")
+            notes.append("Returning activity threads have been strengthening related sessions.")
         }
 
         let suppressed = fading.filter { (temporalWeights[$0.id] ?? 0) < 0.25 }.count
         if suppressed >= 2, strongThreads.count >= 1 {
-            notes.append("Newer continuity has been making room for older shapes to rest.")
+            notes.append("Newer activity has been making room for older threads to fade.")
         }
 
         return Array(notes.prefix(2))

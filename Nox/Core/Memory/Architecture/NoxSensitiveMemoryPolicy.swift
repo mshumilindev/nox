@@ -13,7 +13,7 @@ enum NoxSensitiveMemoryPolicy {
     static func memorySubtitle(sensitivity: NoxSensitivityLevel) -> String {
         switch sensitivity {
         case .privateContext:
-            "Generalized private continuity"
+            "Generalized private activity"
         case .sensitive:
             "Sensitive browsing — minimal detail retained"
         case .personal:

@@ -68,7 +68,7 @@ final class NoxLiveSignalBuffer {
             if hasActivitySignals {
                 signals.removeAll { signal in
                     signal.kind == .awareness &&
-                        signal.text == "Watching quietly"
+                        signal.text == "Passive viewing"
                 }
             }
         }

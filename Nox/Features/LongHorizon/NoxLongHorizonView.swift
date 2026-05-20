@@ -7,7 +7,7 @@ struct NoxLongHorizonView: View {
     var body: some View {
         VStack(alignment: .leading, spacing: NoxSpacing.lg) {
             if let morningSummary, !morningSummary.isEmpty {
-                section("CONTINUITY") {
+                section("RECURRING ACTIVITY") {
                     NoxMorningSummaryBanner(summary: morningSummary)
                 }
             }
@@ -32,7 +32,7 @@ struct NoxLongHorizonView: View {
             }
 
             if !snapshot.semanticArcs.isEmpty {
-                section("SEMANTIC ARCS") {
+                section("ACTIVITY THREADS") {
                     ForEach(snapshot.semanticArcs) { arc in
                         NoxSemanticArcCard(arc: arc, evolution: snapshot.memoryEvolution)
                     }
@@ -64,7 +64,7 @@ struct NoxLongHorizonView: View {
             }
 
             if !snapshot.longHorizonNarratives.isEmpty {
-                section("LONG-HORIZON MEMORY") {
+                section("LONG-TERM MEMORY") {
                     ForEach(snapshot.longHorizonNarratives) { narrative in
                         narrativeRow(narrative)
                     }

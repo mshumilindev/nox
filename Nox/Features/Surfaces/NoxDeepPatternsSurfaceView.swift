@@ -1,6 +1,6 @@
 import SwiftUI
 
-/// Deep window mode — pattern topology (arcs, emerging signals, rhythms).
+/// Deep window mode — pattern overview (activity threads, forming signals, rhythms).
 struct NoxDeepPatternsSurfaceView: View {
     @Environment(AppEnvironment.self) private var environment
 
@@ -38,9 +38,9 @@ struct NoxDeepPatternsSurfaceView: View {
 
     private var header: some View {
         VStack(alignment: .leading, spacing: NoxSpacing.sm) {
-            Text("Pattern layer")
+            Text("Pattern overview")
                 .noxPageTitle()
-            Text("Semantic arcs and rhythms gathered locally — not scores or goals.")
+            Text("Long-term behavioral patterns detected locally — not scores or goals.")
                 .font(NoxTypography.reflectionSoft)
                 .foregroundStyle(NoxDesignTokens.ColorRole.textSecondary.opacity(NoxDesignTokens.Opacity.secondary))
                 .fixedSize(horizontal: false, vertical: true)
@@ -49,7 +49,7 @@ struct NoxDeepPatternsSurfaceView: View {
 
     private var emergingSection: some View {
         VStack(alignment: .leading, spacing: NoxSpacing.md) {
-            NoxSectionHeader(title: "Emerging", symbol: "leaf")
+            NoxSectionHeader(title: "Recently forming", symbol: "leaf")
             ForEach(snapshot.emergingPatterns) { pattern in
                 VStack(alignment: .leading, spacing: NoxSpacing.xxs) {
                     Text(pattern.title)
@@ -66,7 +66,7 @@ struct NoxDeepPatternsSurfaceView: View {
 
     private var arcTopology: some View {
         VStack(alignment: .leading, spacing: NoxSpacing.md) {
-            NoxSectionHeader(title: "Semantic arcs", symbol: "square.grid.3x3")
+            NoxSectionHeader(title: "Activity threads", symbol: "square.grid.3x3")
             LazyVGrid(
                 columns: [
                     GridItem(.flexible(), spacing: NoxSpacing.md),
@@ -94,7 +94,7 @@ struct NoxDeepPatternsSurfaceView: View {
     }
 
     private var sparseState: some View {
-        Text("Patterns appear as activity repeats across sessions. Arcs and rhythms will gather here.")
+        Text("Patterns appear as activity repeats across sessions. Threads and rhythms will appear here.")
             .font(NoxTypography.reflectionSoft)
             .foregroundStyle(NoxDesignTokens.ColorRole.textSecondary.opacity(NoxDesignTokens.Opacity.secondary))
             .noxSurface(.inset, padding: NoxMaterials.cardPaddingLoose)

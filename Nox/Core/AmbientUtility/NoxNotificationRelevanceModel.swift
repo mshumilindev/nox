@@ -17,7 +17,7 @@ nonisolated enum NoxNotificationRelevanceModel {
                 id: "notification-fragmentation-quiet",
                 kind: "fragmentation_quiet",
                 title: "Nox",
-                body: "Recent continuity has been unusually fragmented. Nox is reducing active resurfacing temporarily.",
+                body: "Recent activity has been unusually fragmented. Nox is reducing active resurfacing temporarily.",
                 confidence: 0.6
             )
         }
@@ -27,7 +27,7 @@ nonisolated enum NoxNotificationRelevanceModel {
                 id: "notification-unfinished-\(top.id)",
                 kind: "unfinished_continuity",
                 title: "Nox",
-                body: "A previously interrupted continuity thread resurfaced again this week.",
+                body: "A previously interrupted activity thread returned again this week.",
                 confidence: min(0.7, top.persistenceScore + 0.1)
             )
         }
@@ -38,7 +38,7 @@ nonisolated enum NoxNotificationRelevanceModel {
                 id: "notification-late-evening",
                 kind: "late_evening_pattern",
                 title: "Nox",
-                body: "A recurring late-evening continuity pattern has remained stable across recent days.",
+                body: "A recurring late-evening activity pattern has remained stable across recent days.",
                 confidence: 0.58
             )
         }

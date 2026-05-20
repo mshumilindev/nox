@@ -92,7 +92,7 @@ enum NoxPresenceDeviceCopy {
         case .trusted:
             return "Part of your environment"
         case .expanding:
-            return "Connecting quietly…"
+            return "Connecting…"
         }
     }
 }

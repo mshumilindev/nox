@@ -8,7 +8,7 @@ struct NoxDashboardHeader: View {
             VStack(alignment: .leading, spacing: NoxSpacing.xxs) {
                 Text("Ambient layer")
                     .noxPageTitle()
-                Text("Quiet contextual memory")
+                Text("Local activity memory")
                     .noxPageSubtitle()
             }
 

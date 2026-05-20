@@ -255,7 +255,7 @@ final class NoxContinuityEngine {
         case .writing: return "Writing continuity"
         case .development: return "Development continuity"
         case .fragmentedWorkflow: return "Fragmented attention"
-        case .passiveViewing: return "Passive viewing continuity"
+        case .passiveViewing: return "Repeated passive viewing"
         case .privateContext, .sensitiveContext: return "Private continuity"
         case .general: return span.title
         }

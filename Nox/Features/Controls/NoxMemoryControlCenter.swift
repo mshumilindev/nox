@@ -33,10 +33,10 @@ struct NoxMemoryControlCenter: View {
       }
 
       VStack(alignment: .leading, spacing: NoxSpacing.sm) {
-        actionButton("Clear recent continuity") {
+        actionButton("Clear recent activity") {
           Task { await environment.clearRecentMemory() }
         }
-        actionButton("Clear semantic continuity") {
+        actionButton("Clear stored patterns") {
           Task { await environment.clearSemanticContinuity() }
         }
       }

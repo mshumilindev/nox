@@ -38,7 +38,7 @@ nonisolated enum NoxInterventionSubtletyPass {
         case .resurfacingAfterReturn:
             intervention = soften(
                 intervention,
-                label: "Something familiar may be back.",
+                label: "A recurring workflow may be returning.",
                 detail: "A quiet note from local memory — easy to ignore."
             )
         case .fragmentedDayAck:

@@ -23,16 +23,16 @@ nonisolated enum NoxMemoryRelationPresenter {
       let name = partner.title
         .replacingOccurrences(of: " continuity", with: "")
         .lowercased()
-      return "connected to recent \(name) continuity"
+      return "connected to recent \(name) activity"
     }
 
     if ecologyNotes.contains(where: { $0.localizedCaseInsensitiveContains("strengthening") }),
        semanticType == .development || semanticType == .aiDevelopment {
-      return "returned alongside development continuity"
+      return "returned alongside repeated development activity"
     }
 
     if let arc = arcs.first(where: { ($0.strength) >= 0.55 && $0.id != subjectId }) {
-      return "returned alongside \(arc.label.lowercased()) continuity"
+      return "returned alongside repeated \(arc.label.lowercased()) activity"
     }
 
     return nil

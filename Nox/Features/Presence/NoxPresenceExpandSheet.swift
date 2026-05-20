@@ -22,7 +22,7 @@ struct NoxPresenceExpandSheet: View {
                 }
             }
 
-            Text("Nox can quietly extend your environment to another nearby Mac — only when you choose.")
+            Text("Extend Nox to another nearby Mac — only when you choose.")
                 .font(.system(size: 13))
                 .foregroundStyle(NoxDesignTokens.ColorRole.textSecondary.opacity(0.9))
                 .fixedSize(horizontal: false, vertical: true)

@@ -21,7 +21,7 @@ nonisolated enum NoxTemporalCoherenceEngine {
         if let first = snapshot.longHorizonStructures.first {
             coherenceLine = first
         } else if snapshot.unresolvedSignals.count >= 2 {
-            coherenceLine = "A few continuity shapes have been staying open across longer stretches of time."
+            coherenceLine = "Several activity threads have stayed open across longer stretches of time."
         } else if snapshot.eraHints.count >= 2 {
             coherenceLine = "Longer periods overlap softly rather than switching all at once."
         } else {

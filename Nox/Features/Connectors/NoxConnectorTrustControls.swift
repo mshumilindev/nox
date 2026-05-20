@@ -8,7 +8,7 @@ struct NoxConnectorTrustControls: View {
             Text("Connector awareness")
                 .noxSectionLabel()
 
-            Text("Used only for generalized continuity — never inbox automation.")
+            Text("Used only for generalized activity signals — never inbox automation.")
                 .noxMetadata()
                 .fixedSize(horizontal: false, vertical: true)
 
@@ -30,7 +30,7 @@ struct NoxConnectorTrustControls: View {
                 divider
 
                 connectorToggle(
-                    title: "Pause continuity enrichment",
+                    title: "Pause related-activity signals",
                     detail: "Mac awareness may continue; connector signals pause.",
                     isOn: environment.preferences.connectors.continuityEnrichmentPaused
                 ) { environment.setContinuityEnrichmentPaused($0) }
@@ -43,7 +43,7 @@ struct NoxConnectorTrustControls: View {
                 .font(NoxTypography.caption)
                 .buttonStyle(.noxBorderless)
 
-                Button("Clear connector continuity") {
+                Button("Clear connector activity") {
                     Task { await environment.clearConnectorContinuity() }
                 }
                 .font(NoxTypography.caption)

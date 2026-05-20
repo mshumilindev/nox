@@ -61,13 +61,13 @@ struct NoxShellChrome: View {
 
   private var chromeSubtitle: String {
     switch destination {
-    case .now: "Live ambient context"
-    case .presence: "Nearby environments"
-    case .threads: "Continuity across time"
+    case .now: "Live activity context"
+    case .presence: "Nearby devices"
+    case .threads: "Recurring activity patterns"
     case .memory: "Structured local memory"
-    case .patterns: "Semantic arcs and rhythms"
-    case .observatory: "Unified continuity signals"
-    case .reflections: "Calm local observations"
+    case .patterns: "Behavior patterns"
+    case .observatory: "Combined activity signals"
+    case .reflections: "Recent pattern summaries"
     case .local: "On-device only"
     case .trust: "Boundaries and control"
     }

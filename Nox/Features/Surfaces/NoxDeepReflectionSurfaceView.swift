@@ -32,9 +32,9 @@ struct NoxDeepReflectionSurfaceView: View {
 
     private var header: some View {
         VStack(alignment: .leading, spacing: NoxSpacing.sm) {
-            Text("Reflection layer")
+            Text("Reflection overview")
                 .noxPageTitle()
-            Text("A slower read of local continuity — memory shapes over days.")
+            Text("Patterns summarized from recent memory and activity over time.")
                 .font(NoxTypography.reflectionSoft)
                 .foregroundStyle(NoxDesignTokens.ColorRole.textSecondary.opacity(NoxDesignTokens.Opacity.secondary))
                 .fixedSize(horizontal: false, vertical: true)
@@ -63,7 +63,7 @@ struct NoxDeepReflectionSurfaceView: View {
 
     private var horizonNarratives: some View {
         VStack(alignment: .leading, spacing: NoxSpacing.md) {
-            NoxSectionHeader(title: "Horizon memory", symbol: "clock.arrow.circlepath")
+            NoxSectionHeader(title: "Long-term memory", symbol: "clock.arrow.circlepath")
             ForEach(snapshot.longHorizonNarratives) { narrative in
                 VStack(alignment: .leading, spacing: NoxSpacing.xs) {
                     Text(narrative.horizonLabel)
@@ -79,7 +79,7 @@ struct NoxDeepReflectionSurfaceView: View {
     }
 
     private var sparseState: some View {
-        Text("Reflections appear infrequently when patterns stabilize. They are calm observations, not advice.")
+        Text("Reflections appear when repeated patterns stabilize. They summarize activity — not advice.")
             .font(NoxTypography.reflectionSoft)
             .foregroundStyle(NoxDesignTokens.ColorRole.textSecondary.opacity(NoxDesignTokens.Opacity.secondary))
             .noxSurface(.inset, padding: NoxMaterials.cardPaddingLoose)

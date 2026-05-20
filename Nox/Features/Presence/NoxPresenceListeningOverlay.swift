@@ -65,7 +65,7 @@ struct NoxPresenceListeningOverlay: View {
                 Text("Listening for nearby Nox presence…")
                     .font(.system(size: 14, weight: .medium))
                     .foregroundStyle(NoxDesignTokens.ColorRole.textPrimary.opacity(0.92))
-                Text("Nox quietly listens for nearby Apple environments.")
+                Text("Listening for nearby Apple devices on this network.")
                     .font(.system(size: 12))
                     .foregroundStyle(NoxDesignTokens.ColorRole.textSecondary.opacity(0.78))
             }

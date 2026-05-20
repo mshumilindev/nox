@@ -16,7 +16,7 @@ struct NoxMenuBarHeaderView: View {
                     .font(NoxTypography.wordmark)
                     .foregroundStyle(NoxDesignTokens.ColorRole.textPrimary)
 
-                Text("Quiet contextual memory")
+                Text("Local activity memory")
                     .font(NoxTypography.tagline)
                     .foregroundStyle(NoxDesignTokens.ColorRole.textSecondary)
             }
@@ -24,7 +24,7 @@ struct NoxMenuBarHeaderView: View {
             Spacer(minLength: 0)
         }
         .accessibilityElement(children: .combine)
-        .accessibilityLabel("Nox, quiet contextual memory")
+        .accessibilityLabel("Nox, local activity memory")
     }
 }
 

@@ -100,7 +100,7 @@ nonisolated enum NoxSemanticLabelCatalog {
         span: NoxSemanticMemorySpan
     ) -> String {
         if span.sensitivityLevel != .normal {
-            return "Generalized continuity only"
+            return "Generalized activity only"
         }
 
         if let inference {

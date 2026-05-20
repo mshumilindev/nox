@@ -69,7 +69,7 @@ enum NoxLiveSignalCompressor {
         }
 
         if signal.kind == .awareness,
-           text.contains("watching quietly") || text.contains("stabilizing") || text.contains("settling") {
+           text.contains("passive viewing") || text.contains("stabilizing") || text.contains("settling") {
             return all.contains { $0.kind == .app || $0.kind == .window }
         }
 

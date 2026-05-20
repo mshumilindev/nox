@@ -65,17 +65,17 @@ enum NoxDaySemanticFraming {
             return "Development context returned several times today."
         }
         if research >= 1 && resumedToday >= 1 {
-            return "Research continuity appeared repeatedly today."
+            return "Research activity appeared repeatedly today."
         }
         if fragmented >= 2 {
             return "Attention moved between several contexts today."
         }
         if threads.count >= 2 {
-            return "A few distinct threads shaped today."
+            return "Several distinct activity threads appeared today."
         }
         if let first = threads.first {
             let name = first.title.replacingOccurrences(of: " continuity", with: "")
-            return "\(name) carried through the day."
+            return "\(name) activity appeared throughout the day."
         }
         return overview(blocks: blocks, stats: stats, continuityThreads: [])
     }

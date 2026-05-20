@@ -16,7 +16,7 @@ enum NoxTrustContent {
             title: "Stored locally",
             lines: [
                 "Activity spans and calm semantic summaries",
-                "Continuity threads and reflections",
+                "Recurring activity threads and reflections",
                 "Presence and session rhythm metadata"
             ]
         ),
@@ -36,7 +36,7 @@ enum NoxTrustContent {
             title: "Sensitive contexts",
             lines: [
                 "Banking, adult, and private browsing are generalized",
-                "Sensitive continuity stores shape — not detail",
+                "Sensitive activity is generalized before long-term storage",
                 "Titles and domains may be redacted before memory"
             ]
         ),
@@ -44,16 +44,16 @@ enum NoxTrustContent {
             id: "retention",
             title: "Memory retention",
             lines: [
-                "Warm timeline noise is pruned on a schedule",
-                "Compressed horizons age into calmer summaries",
-                "You can clear recent continuity at any time"
+                "Short-term activity detail is automatically reduced over time",
+                "Older activity is compressed into higher-level summaries",
+                "You can clear recent activity at any time"
             ]
         ),
         NoxTrustSection(
             id: "generalization",
-            title: "Semantic generalization",
+            title: "Activity generalization",
             lines: [
-                "Private contexts become generalized continuity",
+                "Private contexts become generalized activity summaries",
                 "Reflections avoid inventing detail",
                 "Ambiguity is preserved when confidence is low"
             ]
@@ -64,7 +64,7 @@ enum NoxTrustContent {
             lines: [
                 "Reflections are infrequent and cooldown-protected",
                 "No coaching, scoring, or optimization language",
-                "You can pause continuity or enter a quiet mode"
+                "You can pause pattern detection or enter quiet mode"
             ]
         ),
         NoxTrustSection(
@@ -74,7 +74,7 @@ enum NoxTrustContent {
                 "Calendar and communication signals stay generalized",
                 "Meeting titles and message bodies are not stored",
                 "Each connector category can be disabled independently",
-                "Connector-derived continuity can be cleared locally"
+                "Connector-derived activity can be cleared locally"
             ]
         )
     ]

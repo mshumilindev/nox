@@ -57,11 +57,21 @@ struct NoxSemanticArcCard: View {
     case .fading: return "fading"
     case .dormant: return "quiet"
     case .archival: return "distant"
-    case .active: return arc.continuityState.rawValue.capitalized
+    case .active: return continuityStateLabel(arc.continuityState)
     }
   }
 
   private var arcDetail: String? {
     NoxTemporalContinuityCopyBuilder.arcDetail(arc: arc, state: temporalState, thread: nil)
+  }
+
+  private func continuityStateLabel(_ state: NoxArcContinuityState) -> String {
+    switch state {
+    case .active: return "Active"
+    case .merging: return "Increasing overlap"
+    case .fading: return "Fading"
+    case .dormant: return "Quiet"
+    case .resurfaced: return "Returned"
+    }
   }
 }

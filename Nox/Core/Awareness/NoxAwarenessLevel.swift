@@ -22,10 +22,10 @@ enum NoxAwarenessLevel: Int, CaseIterable, Codable, Sendable, Comparable {
 
     var scopeLabel: String {
         switch self {
-        case .minimal: "Limited semantic continuity"
+        case .minimal: "Limited recent activity available"
         case .appAwareness: "Apps in focus, generalized detail"
-        case .contextAwareness: "Additional context available"
-        case .fullSemantic: "Rich local semantic continuity"
+        case .contextAwareness: "More detailed window context available"
+        case .fullSemantic: "Rich local activity context"
         }
     }
 
@@ -36,9 +36,9 @@ enum NoxAwarenessLevel: Int, CaseIterable, Codable, Sendable, Comparable {
         case .appAwareness:
             "Knows which apps are active — not window titles."
         case .contextAwareness:
-            "Understands window context and interaction shape."
+            "Reads window titles and interaction context locally."
         case .fullSemantic:
-            "Forms calm memory, threads, and reflections locally."
+            "Forms local memory, recurring threads, and reflections."
         }
     }
 }

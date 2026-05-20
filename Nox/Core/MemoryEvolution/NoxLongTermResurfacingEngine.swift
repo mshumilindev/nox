@@ -39,7 +39,7 @@ nonisolated enum NoxLongTermResurfacingEngine {
 
             if let thread = dormantReturn, NoxContinuityDecay.canResurface(thread, at: date) {
                 let name = thread.title.replacingOccurrences(of: " continuity", with: "").lowercased()
-                notes.append("Something in \(name) quietly returned after a longer absence.")
+                notes.append("\(name) activity returned after a longer absence.")
             }
         }
 
@@ -49,7 +49,7 @@ nonisolated enum NoxLongTermResurfacingEngine {
                    && $0.strength >= 0.5
                    && (profileMap[$0.id]?.temporalDistance ?? 1) >= 0.35
            }) {
-            notes.append("\(arc.label) carried a faint long-term resonance recently.")
+            notes.append("\(arc.label) activity returned in recent long-term memory.")
         }
 
         return Array(notes.prefix(1))

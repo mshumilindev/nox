@@ -51,7 +51,7 @@ enum NoxLiveSignalDeduplicator {
     }
 
     private static func isRedundantBootstrap(_ signal: NoxLiveSignal, recent: [NoxLiveSignal]) -> Bool {
-        guard signal.text == "Watching quietly" else { return false }
+        guard signal.text == "Passive viewing" else { return false }
         return recent.contains { $0.kind == .app || $0.kind == .window }
     }
 

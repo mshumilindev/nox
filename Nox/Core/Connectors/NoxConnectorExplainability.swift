@@ -26,7 +26,7 @@ enum NoxConnectorExplainability {
 
         if preferences.continuityEnrichmentPaused {
             collected = []
-            notCollected.append("Continuity enrichment is paused")
+            notCollected.append("Related-activity signals are paused")
         }
 
         let collectedSummary = collected.isEmpty

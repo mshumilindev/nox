@@ -20,7 +20,7 @@ nonisolated enum NoxAmbientInterventionEngine {
             return intervention(
                 id: "intervention-return",
                 kind: .resurfacingAfterReturn,
-                label: "Continuity may feel familiar again.",
+                label: "A recurring workflow may be returning.",
                 detail: "A calm resurfacing — nothing to act on.",
                 at: date
             )

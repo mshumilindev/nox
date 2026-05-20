@@ -25,7 +25,7 @@ enum NoxMemoryCompressionLevel: String, Codable, Sendable, CaseIterable {
     /// What this horizon answers — guides deterministic compression.
     var semanticIntent: String {
         switch self {
-        case .hourly: "Short continuity windows"
+        case .hourly: "Short activity windows"
         case .daily: "What happened?"
         case .weekly: "What repeated?"
         case .monthly: "What became a pattern?"

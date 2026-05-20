@@ -69,7 +69,7 @@ enum NoxAwarenessPresenter {
             return "Memory is still forming — explanations stay light."
         case .building:
             return level >= .contextAwareness
-                ? "Patterns are emerging across recent sessions."
+                ? "Patterns are forming across recent sessions."
                 : nil
         case .ready:
             return nil

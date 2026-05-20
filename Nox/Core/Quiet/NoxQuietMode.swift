@@ -13,7 +13,7 @@ enum NoxQuietMode: String, Codable, Sendable, CaseIterable {
         case .quietEvening: "Quiet evening"
         case .privateSession: "Private session"
         case .lowAwareness: "Low awareness"
-        case .pauseContinuity: "Pause continuity"
+        case .pauseContinuity: "Pause pattern detection"
         }
     }
 
@@ -24,7 +24,7 @@ enum NoxQuietMode: String, Codable, Sendable, CaseIterable {
         case .quietEvening:
             "Softer signals and fewer resurfacing moments."
         case .privateSession:
-            "Observation continues lightly; semantic memory pauses."
+            "Observation continues lightly; pattern storage pauses."
         case .lowAwareness:
             "App-level awareness only; deeper context waits."
         case .pauseContinuity:

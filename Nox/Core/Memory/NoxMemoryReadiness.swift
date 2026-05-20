@@ -45,7 +45,7 @@ enum NoxMemoryReadiness: Equatable, Sendable {
             case .transient:
                 return "Recent context is filling in."
             case .emerging:
-                return "Continuity may be emerging across sessions."
+                return "Repeated activity may be forming across sessions."
             case .stable, .durable:
                 return "Recent context is filling in."
             }

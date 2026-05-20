@@ -23,11 +23,11 @@ enum NoxExplainabilityPresenter {
     static func whyContinuityAppeared(thread: NoxContinuityThread) -> NoxInferenceReason {
         let headline: String
         if thread.totalResumptions > 0 {
-            headline = "A familiar context returned after time away."
+            headline = "Repeated activity returned after time away."
         } else if thread.totalSessions >= 2 {
             headline = "Repeated \(thread.title.lowercased()) across recent sessions."
         } else {
-            headline = "Compatible activity formed a continuity thread."
+            headline = "Repeated activity formed a recurring thread."
         }
         return NoxInferenceReason(
             id: "thread-\(thread.id)",
@@ -77,7 +77,7 @@ enum NoxExplainabilityPresenter {
     static func whyMemorySpan(_ span: NoxSemanticMemorySpan) -> NoxInferenceReason {
         let detail = span.sensitivityLevel != .normal
             ? NoxSemanticVisibilityPresenter.mode(for: span.sensitivityLevel).detail
-            : "Repeated context stabilized into local memory."
+            : "Repeated activity stabilized into local memory."
         return NoxInferenceReason(
             id: span.id,
             headline: NoxEmotionalSafetyCopy.sanitize(span.title),

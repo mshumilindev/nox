@@ -80,16 +80,16 @@ enum NoxMorningContinuityEngine {
         at date: Date
     ) -> String? {
         if let note, note.contains("restart") {
-            return "Development continuity resumed after a restart."
+            return "Development activity resumed after a restart."
         }
         switch trigger {
         case .newDay:
             if let shutdown, date.timeIntervalSince(shutdown) < 36 * 3600 {
-                return "Continuity picked up from yesterday evening."
+                return "Activity picked up from yesterday evening."
             }
-            return "A new day boundary — recent threads remain available."
+            return "A new day boundary — recent activity threads remain available."
         case .longIdleReturn:
-            return "Context continuity resumed after time away."
+            return "Activity resumed after time away."
         case .morningWindow, .appLaunch:
             if let note, !note.isEmpty {
                 return humanizeNote(note)
@@ -100,7 +100,7 @@ enum NoxMorningContinuityEngine {
 
     private static func humanizeNote(_ note: String) -> String {
         if note.contains("Last observed") {
-            return "Recent activity continuity is still forming."
+            return "Recent activity patterns are still forming."
         }
         return note
     }
@@ -114,18 +114,18 @@ enum NoxMorningContinuityEngine {
 
         switch top.semanticType {
         case .travelPlanning:
-            return "Travel planning continuity remains active this week."
+            return "Travel planning activity remains active this week."
         case .research:
             return "Research-related activity appeared repeatedly across recent sessions."
         case .development, .aiDevelopment:
-            return "Development continuity resumed from recent sessions."
+            return "Development activity resumed from recent sessions."
         case .writing:
-            return "Writing continuity is still present in recent memory."
+            return "Writing activity is still present in recent memory."
         case .fragmentedWorkflow:
             return "Attention moved between several contexts recently."
         default:
             if top.totalResumptions >= 2 {
-                return "A familiar context thread resurfaced recently."
+                return "A recurring activity thread returned recently."
             }
             return nil
         }
@@ -146,7 +146,7 @@ enum NoxMorningContinuityEngine {
             return "Research-related activity appeared repeatedly across recent sessions."
         }
         if threads.filter({ $0.semanticType == .travelPlanning }).count >= 1 {
-            return "Travel planning continuity remains active this week."
+            return "Travel planning activity remains active this week."
         }
         return nil
     }
@@ -178,15 +178,15 @@ enum NoxMorningContinuityEngine {
 
     private static func fallbackLine(trigger: NoxMorningTrigger, stats: NoxMemoryDayStats) -> String {
         if stats.totalActiveMs > 0 {
-            return "Recent context is beginning to settle into continuity."
+            return "Recent activity is still forming into patterns."
         }
         switch trigger {
         case .appLaunch:
-            return "Nox is observing local context — continuity will emerge with activity."
+            return "Nox is observing local activity — patterns will form as sessions repeat."
         case .newDay:
-            return "Today is open — continuity will gather as context appears."
+            return "Today is open — patterns will appear as activity repeats."
         case .longIdleReturn:
-            return "Welcome back — recent continuity threads are still available."
+            return "Welcome back — recent activity threads are still available."
         case .morningWindow:
             return "Morning context is still forming from recent activity."
         }

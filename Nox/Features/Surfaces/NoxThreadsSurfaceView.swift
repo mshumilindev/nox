@@ -6,12 +6,12 @@ struct NoxThreadsSurfaceView: View {
     var body: some View {
         NoxSurfacePage {
             NoxPageIntro(
-                title: "Continuity topology",
-                subtitle: "Threads link repeated context across sessions — not tasks or projects."
+                title: "Recurring activity patterns",
+                subtitle: "Threads connect repeated activity across sessions — not tasks or projects."
             )
 
             if environment.longHorizonSnapshot.activeThreads.isEmpty {
-                emptyLine("Continuity threads appear as patterns repeat across sessions.")
+                emptyLine("Recurring threads appear as activity repeats across sessions.")
             } else {
                 NoxCollapsibleSection(
                     title: "Active threads",

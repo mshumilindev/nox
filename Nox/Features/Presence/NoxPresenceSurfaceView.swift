@@ -14,7 +14,7 @@ struct NoxPresenceSurfaceView: View {
         NoxSurfacePage {
             NoxPageIntro(
                 title: "Presence",
-                subtitle: "Nox quietly senses nearby environments — only what matters to your ecosystem."
+                subtitle: "Nearby Apple devices and environments detected locally."
             )
 
             thisMacHero
@@ -148,7 +148,7 @@ struct NoxPresenceSurfaceView: View {
             Text("No nearby Nox presence yet.")
                 .font(.system(size: 15, weight: .medium))
                 .foregroundStyle(NoxDesignTokens.ColorRole.textPrimary.opacity(0.9))
-            Text("Nox quietly listens for nearby Apple environments.")
+            Text("Listening for nearby Apple devices on this network.")
                 .font(.system(size: 13))
                 .foregroundStyle(NoxDesignTokens.ColorRole.textSecondary.opacity(0.78))
         }
@@ -166,7 +166,7 @@ struct NoxPresenceSurfaceView: View {
     }
 
     private var emptyTrustedHint: some View {
-        Text("Trusted environments will gather here — quietly, as you approve them.")
+        Text("Approved nearby environments will appear here.")
             .noxMetadata()
             .frame(maxWidth: .infinity, alignment: .leading)
             .padding(NoxSpacing.lg)

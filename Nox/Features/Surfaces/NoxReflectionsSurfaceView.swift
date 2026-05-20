@@ -8,11 +8,11 @@ struct NoxReflectionsSurfaceView: View {
             NoxSectionHeader(
                 title: "Reflections",
                 symbol: "text.quote",
-                subtitle: "Calm observations from local memory — not advice."
+                subtitle: "Patterns summarized from recent days — not advice."
             )
 
             if environment.longHorizonSnapshot.reflections.isEmpty {
-                Text("Reflections appear infrequently when patterns stabilize.")
+                Text("Reflections appear when repeated patterns stabilize across sessions.")
                     .font(NoxTypography.reflectionSoft)
                     .foregroundStyle(NoxDesignTokens.ColorRole.textSecondary.opacity(NoxDesignTokens.Opacity.secondary))
                     .frame(maxWidth: .infinity, alignment: .leading)

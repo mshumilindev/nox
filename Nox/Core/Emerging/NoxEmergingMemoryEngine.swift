@@ -77,7 +77,7 @@ enum NoxEmergingMemoryEngine {
                 id: "emerging-dev",
                 maturity: dev >= 2 ? .emerging : .transient,
                 title: "Repeated development-related activity detected.",
-                detail: "A continuity thread may be emerging.",
+                detail: "A recurring activity thread may be forming.",
                 confidence: 0.55
             )
         }
@@ -85,7 +85,7 @@ enum NoxEmergingMemoryEngine {
             return NoxEmergingMemoryObservation(
                 id: "emerging-research",
                 maturity: .emerging,
-                title: "Fragmented but recurring research behavior observed.",
+                title: "Research activity is recurring, but attention remains fragmented.",
                 detail: nil,
                 confidence: 0.5
             )
@@ -111,7 +111,7 @@ enum NoxEmergingMemoryEngine {
         return NoxEmergingMemoryObservation(
             id: "thread-\(candidate.id)",
             maturity: .emerging,
-            title: "A continuity thread may be emerging.",
+            title: "A recurring activity thread may be forming.",
             detail: candidate.title,
             confidence: candidate.confidence
         )
@@ -129,7 +129,7 @@ enum NoxEmergingMemoryEngine {
         return NoxEmergingMemoryObservation(
             id: "fragmented-recurring",
             maturity: fragmented >= 2 ? .stable : .transient,
-            title: "Fragmented but recurring context switching observed.",
+            title: "App and workflow switching is recurring, but attention remains fragmented.",
             detail: nil,
             confidence: 0.48
         )

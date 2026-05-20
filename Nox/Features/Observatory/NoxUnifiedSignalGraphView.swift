@@ -200,7 +200,7 @@ struct NoxUnifiedSignalGraphView: View {
                 }
             }
             if snapshot.maturity == .gathering {
-                Text("Continuity note withheld.")
+                Text("Observation withheld due to limited signal confidence.")
                     .font(NoxTypography.caption)
                     .foregroundStyle(NoxDesignTokens.ColorRole.textSecondary.opacity(0.50))
             }

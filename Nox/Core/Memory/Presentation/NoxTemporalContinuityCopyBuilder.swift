@@ -24,9 +24,9 @@ nonisolated enum NoxTemporalContinuityCopyBuilder {
       }
       if gap < 90 * 60 { return "recently active" }
       if gap < 8 * 3600 { return "active earlier today" }
-      return "kept returning today"
+      return "appeared repeatedly today"
     case .fading:
-      if gap < 36 * 3600 { return "fading from recent continuity" }
+      if gap < 36 * 3600 { return "fading from recent activity" }
       if gap < 5 * 86_400 { return "quiet for a few days" }
       return "quiet for several days"
     case .dormant:
@@ -50,7 +50,7 @@ nonisolated enum NoxTemporalContinuityCopyBuilder {
     at: Date = Date()
   ) -> String? {
     guard thread.sensitivityLevel == .normal else {
-      return "Generalized continuity only"
+      return "Generalized activity only"
     }
     guard thread.confidence >= confidenceFloor else { return nil }
 
@@ -71,7 +71,7 @@ nonisolated enum NoxTemporalContinuityCopyBuilder {
       return "returned after interruptions"
     }
     if thread.recurrenceStrength >= 0.5 {
-      return "still open across recent continuity"
+      return "still open across recent sessions"
     }
     if state == .resurfacing {
       return "returned after interruptions"
@@ -128,16 +128,16 @@ nonisolated enum NoxTemporalContinuityCopyBuilder {
   static func arcEvolutionLine(arc: NoxSemanticArc, state: NoxMemoryTemporalState) -> String {
     switch state {
     case .archival, .dormant:
-      return "older \(arc.label.lowercased()) continuity"
+      return "older \(arc.label.lowercased()) activity"
     case .resurfacing:
-      return "\(arc.label) continuity resurfaced"
+      return "\(arc.label) activity returned"
     case .fading:
-      return "\(arc.label) continuity is fading"
+      return "\(arc.label) activity is fading"
     default:
       if arc.evolution == .strengthening {
-        return "\(arc.spanCount) spans · strengthening"
+        return "\(arc.spanCount) spans · increasing"
       }
-      return "\(arc.spanCount) spans · \(arc.evolution.rawValue)"
+      return "\(arc.spanCount) spans · \(arcEvolutionLabel(arc.evolution))"
     }
   }
 
@@ -147,12 +147,12 @@ nonisolated enum NoxTemporalContinuityCopyBuilder {
   ) -> String {
     if let thread, thread.sensitivityLevel == .normal {
       let name = thread.title.replacingOccurrences(of: " continuity", with: "")
-      return "Returning \(name.lowercased()) continuity"
+      return "Returning \(name.lowercased()) activity"
     }
     if let arc {
-      return "Older \(arc.label.lowercased()) continuity resurfaced"
+      return "Older \(arc.label.lowercased()) activity returned"
     }
-    return "Returning continuity"
+    return "Returning activity"
   }
 
   static func longTermResurfacingSubtitle(
@@ -176,15 +176,15 @@ nonisolated enum NoxTemporalContinuityCopyBuilder {
   static func eraObservation(for hint: NoxEraEvolutionHint) -> String {
     let label = hint.softLabel.trimmingCharacters(in: .whitespacesAndNewlines)
     guard !label.isEmpty else {
-      return "A familiar rhythm still shapes recent days."
+      return "A recurring activity pattern still appears in recent days."
     }
     if hint.overlapping {
-      return "\(label) still shapes recent days."
+      return "\(label) still appears across recent days."
     }
     if hint.resonance >= 0.55 {
-      return "A quieter \(label.lowercased()) rhythm has recently returned."
+      return "A quieter \(label.lowercased()) pattern has recently returned."
     }
-    return "\(label) continuity is fading."
+    return "\(label) activity is fading from recent days."
   }
 
   private static func sameDayContext(period: NoxMemoryPeriod, gap: TimeInterval) -> Bool {
@@ -206,8 +206,17 @@ nonisolated enum NoxTemporalContinuityCopyBuilder {
       return "recurring across recent days"
     }
     if state == .fading {
-      return "fading from recent continuity"
+      return "fading from recent activity"
     }
-    return "continuity across time"
+    return "recurring across recent days"
+  }
+
+  private static func arcEvolutionLabel(_ evolution: NoxArcEvolution) -> String {
+    switch evolution {
+    case .strengthening: return "increasing"
+    case .stable: return "stable"
+    case .fragmenting: return "fragmenting"
+    case .decaying: return "declining"
+    }
   }
 }
