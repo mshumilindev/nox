@@ -15,7 +15,6 @@ import NoxDesignCore
 
 @MainActor
 final class NoxContextService {
-    private let eventBus = NoxEventBus()
     private let permissionService = NoxPermissionService()
     private let presenceEngine = NoxPresenceEngine()
     private let presenceStabilizer = NoxPresenceStabilizer()
@@ -23,7 +22,6 @@ final class NoxContextService {
     private let memoryCoordinator = NoxMemoryCoordinator()
     private let ambientStateStore = NoxAmbientStateStore()
     private let sessionStore = NoxSessionStore()
-    private let activityObserver = NoxActivityObserver()
     private let interactionCollector = NoxInteractionSignalCollector()
     private let metricsAggregator = NoxInteractionMetricsAggregator()
     private let semanticEngine = NoxSemanticInferenceEngine()
@@ -32,6 +30,7 @@ final class NoxContextService {
     private let domainClassifier = NoxDomainClassifier()
     private var contextPipeline = NoxContextAcquisitionPipeline()
     private let contextHeartbeat = NoxContextHeartbeat()
+    private var semanticCadence = NoxSemanticEvaluationCadence()
     private var latestContextEvidence: NoxContextEvidence?
 
     private var sessionDetector = NoxSessionDetector()
@@ -49,8 +48,6 @@ final class NoxContextService {
     var latestFocusAnalysis: NoxFocusAnalysis?
     private var memoryReloadTask: Task<Void, Never>?
     private var semanticEvaluationTask: Task<Void, Never>?
-    private var semanticHeartbeatTask: Task<Void, Never>?
-    private var maintenanceTask: Task<Void, Never>?
     var continuityNote: String?
     var ambientState: NoxAmbientState = .empty
     var preferences = NoxAmbientPreferences.default
@@ -71,7 +68,8 @@ final class NoxContextService {
     )
     private let retentionPolicy = NoxMemoryRetentionPolicy.default
     weak var environment: AppEnvironment?
-    private var eventBusSubscriptionID: UUID?
+    private let eventPipeline = NoxContextEventPipeline()
+    private let observationPipeline = NoxContextObservationPipeline()
 
     private lazy var memoryPipeline = NoxContextMemoryPipeline(
         memoryCoordinator: memoryCoordinator,
@@ -113,22 +111,16 @@ final class NoxContextService {
             environment?.memoryReadiness = .observing
         }
 
-        eventBusSubscriptionID = eventBus.subscribe { [weak self] event in
-            Task { @MainActor in
-                await self?.handle(event)
-            }
+        eventPipeline.startEventHandling { [weak self] event in
+            await self?.handle(event)
         }
 
-        activityObserver.start(
-            onEvent: { [weak self] event in
-                Task { @MainActor [weak self] in
-                    self?.eventBus.publish(event)
-                }
+        observationPipeline.start(
+            publishEvent: { [weak self] event in
+                self?.eventPipeline.publish(event)
             },
-            onSnapshot: { [weak self] snapshot in
-                Task { @MainActor [weak self] in
-                    await self?.ingestSnapshot(snapshot)
-                }
+            ingestSnapshot: { [weak self] snapshot in
+                await self?.ingestSnapshot(snapshot)
             }
         )
 
@@ -139,11 +131,10 @@ final class NoxContextService {
     }
 
     func stop() {
-        activityObserver.stop()
+        observationPipeline.stop()
+        eventPipeline.stop()
         memoryReloadTask?.cancel()
         semanticEvaluationTask?.cancel()
-        semanticHeartbeatTask?.cancel()
-        maintenanceTask?.cancel()
     }
 
     func checkpointBeforeTerminate() async {
@@ -210,6 +201,15 @@ final class NoxContextService {
         )
     }
 
+    func performanceDiagnosticsSnapshot() -> NoxPerformanceDiagnosticsSnapshot {
+        eventPipeline.diagnosticsSnapshot(
+            panelOpen: NoxAppRuntime.panelState.isDashboardOpen,
+            presencePageActive: NoxAppRuntime.presenceMesh.isPresencePageActive,
+            liveSignalBufferSize: liveBuffer.signals.count,
+            recentBundleBufferSize: recentBundleIds.count
+        )
+    }
+
     func requestAccessibilityAccess() {
         permissionService.requestAccessibilityPrompt()
         refreshPermissionState(force: true)
@@ -227,7 +227,7 @@ final class NoxContextService {
         }
 
         capabilities = runtimeCapabilities(from: base.capabilities)
-        activityObserver.refreshAccessibilityBridge()
+        observationPipeline.refreshAccessibilityBridge()
         permissionState = NoxPermissionState(
             accessibilityGranted: base.accessibilityGranted,
             screenRecordingGranted: base.screenRecordingGranted,
@@ -247,7 +247,7 @@ final class NoxContextService {
 
         publishLiveSignals()
 
-        eventBus.publish(
+        eventPipeline.publish(
             NoxEvent(
                 type: .permissionChanged,
                 payload: .permission(
@@ -274,40 +274,29 @@ final class NoxContextService {
     }
 
     private func startPermissionPolling() {
-        Task {
-            while !Task.isCancelled {
-                try? await Task.sleep(for: .seconds(5))
-                refreshPermissionState(force: false)
-            }
+        eventPipeline.startPermissionPolling { [weak self] in
+            self?.refreshPermissionState(force: false)
         }
     }
 
     private func startInteractionSampling() {
-        Task {
-            while !Task.isCancelled {
-                try? await Task.sleep(for: .seconds(2))
-                interactionCollector.sample { [weak self] event in
-                    self?.eventBus.publish(event)
-                }
+        eventPipeline.startInteractionSampling { [weak self] publish in
+            self?.interactionCollector.sample { event in
+                publish(event)
             }
         }
     }
 
     private func startSemanticHeartbeat() {
-        semanticHeartbeatTask?.cancel()
-        semanticHeartbeatTask = Task { @MainActor in
-            while !Task.isCancelled {
-                try? await Task.sleep(for: .seconds(3))
-                guard !Task.isCancelled else { return }
-                guard let snapshot = lastSnapshot else { continue }
-                if NoxSelfExclusion.shouldIgnore(snapshot: snapshot) { continue }
-                let evidence = evaluateContext(for: snapshot, resetDominance: false)
-                guard contextHeartbeat.shouldEvaluate(snapshot: snapshot, evidence: evidence) else {
-                    continue
-                }
-                publishContextLabel(from: evidence, snapshot: snapshot)
-                await evaluateSemantics(at: snapshot.capturedAt)
+        eventPipeline.startSemanticHeartbeat { [weak self] in
+            guard let self, let snapshot = self.lastSnapshot else { return }
+            if NoxSelfExclusion.shouldIgnore(snapshot: snapshot) { return }
+            let evidence = self.evaluateContext(for: snapshot, resetDominance: false)
+            guard self.contextHeartbeat.shouldEvaluate(snapshot: snapshot, evidence: evidence) else {
+                return
             }
+            self.publishContextLabel(from: evidence, snapshot: snapshot)
+            await self.evaluateSemanticsIfNeeded(for: snapshot, force: false, at: snapshot.capturedAt)
         }
     }
 
@@ -387,6 +376,7 @@ final class NoxContextService {
         let contextSurfaceChanged = resetDominance || titleChanged || documentURLChanged
         if resetDominance {
             contextHeartbeat.reset()
+            semanticCadence.reset()
             metricsAggregator.resetForContextShift(at: snapshot.capturedAt)
             NoxSemanticLiveSignalPresenter.reset()
         } else if contextSurfaceChanged {
@@ -428,7 +418,7 @@ final class NoxContextService {
             }
             _ = sessionDetector.ingest(snapshot: snapshot, isProductive: isProductive) { [weak self] event in
                 Task { @MainActor in
-                    self?.eventBus.publish(event)
+                    self?.eventPipeline.publish(event)
                 }
             }
             await persistActiveSessionIfNeeded()
@@ -437,7 +427,11 @@ final class NoxContextService {
         if engagement.becameHard {
             trackRecentBundle(snapshot.bundleId)
         }
-        await evaluateSemantics(at: snapshot.capturedAt)
+        await evaluateSemanticsIfNeeded(
+            for: snapshot,
+            force: contextSurfaceChanged || engagement.becameHard,
+            at: snapshot.capturedAt
+        )
         recalculatePresence()
 
         if NoxQuietModeEngine.shouldIngestTimeline(preferences.pauseState) {
@@ -523,7 +517,7 @@ final class NoxContextService {
     }
 
     private func publishLiveSignals() {
-        environment?.liveSignals = liveBuffer.visibleSignals(capabilities: capabilities)
+        environment?.setLiveSignalsIfChanged(liveBuffer.visibleSignals(capabilities: capabilities))
         syncDerivedEnvironmentState(memoryReadiness: environment?.memoryReadiness ?? .observing)
     }
 
@@ -610,9 +604,9 @@ final class NoxContextService {
     private func applyPermissionStateToEnvironment() {
         environment?.capabilities = capabilities
         environment?.permissionState = permissionState
-        environment?.semanticHint = latestSemanticInference.shouldSurface
-            ? latestSemanticInference.displayPhrase
-            : nil
+        environment?.setSemanticHintIfChanged(
+            latestSemanticInference.shouldSurface ? latestSemanticInference.displayPhrase : nil
+        )
         syncDerivedEnvironmentState(memoryReadiness: environment?.memoryReadiness ?? .observing)
     }
 
@@ -624,12 +618,13 @@ final class NoxContextService {
         guard let environment else { return }
         let observations = emerging ?? environment.memoryEmergence.emergingObservations
         let resolvedMaturity = maturity ?? environment.memoryEmergence.maturity
-        environment.capabilityRows = NoxCapabilityMatrix.rows(
+        let rows = NoxCapabilityMatrix.rows(
             capabilities: capabilities,
             memoryReadiness: memoryReadiness,
             interactionPipelineActive: interactionCollector.isPipelineActive
         )
-        environment.memoryEmergence = NoxMemoryEmergence(
+        environment.setCapabilityRowsIfChanged(rows)
+        let emergence = NoxMemoryEmergence(
             continuitySeconds: signalTracker.observationContinuitySeconds(),
             readiness: memoryReadiness,
             liveSignalCount: liveBuffer.signals.count,
@@ -637,10 +632,9 @@ final class NoxContextService {
             maturity: resolvedMaturity,
             emergingObservations: observations
         )
+        environment.setMemoryEmergenceIfChanged(emergence)
         environment.memoryMaturity = resolvedMaturity
-        environment.semanticHint = latestSemanticInference.shouldSurface
-            ? primarySemanticHint()
-            : nil
+        environment.setSemanticHintIfChanged(latestSemanticInference.shouldSurface ? primarySemanticHint() : nil)
     }
 
     private func ingestInteractionEvent(_ event: NoxEvent) {
@@ -734,11 +728,9 @@ final class NoxContextService {
            let snapshot = lastSnapshot,
            evidence.semantic.dominanceScore >= 0.4,
            evidence.safeOutput.displayLabel != snapshot.appName {
-            environment?.semanticHint = evidence.safeOutput.displayLabel
+            environment?.setSemanticHintIfChanged(evidence.safeOutput.displayLabel)
         } else {
-            environment?.semanticHint = latestSemanticInference.shouldSurface
-                ? primarySemanticHint()
-                : nil
+            environment?.setSemanticHintIfChanged(latestSemanticInference.shouldSurface ? primarySemanticHint() : nil)
         }
 
         if let signal = NoxSemanticLiveSignalPresenter.makeSignal(
@@ -779,6 +771,17 @@ final class NoxContextService {
         scheduleMemoryReload()
     }
 
+    private func evaluateSemanticsIfNeeded(
+        for snapshot: NoxActivitySnapshot,
+        force: Bool,
+        at date: Date
+    ) async {
+        guard semanticCadence.shouldEvaluate(snapshot: snapshot, force: force, now: date) else {
+            return
+        }
+        await evaluateSemantics(at: date)
+    }
+
     private func primarySemanticHint() -> String? {
         NoxSemanticLabelCatalog.presenceHint(from: latestSemanticInference)
     }
@@ -811,14 +814,14 @@ final class NoxContextService {
         guard label != snapshot.appName else {
             if force || contextHeartbeat.shouldPublishLabel("") {
                 environment?.activeContextLabel = nil
-                environment?.semanticHint = nil
+                environment?.setSemanticHintIfChanged(nil)
                 liveBuffer.replaceLivePulse(label: "")
             }
             return
         }
         guard force || contextHeartbeat.shouldPublishLabel(label) else { return }
         environment?.activeContextLabel = label
-        environment?.semanticHint = label
+        environment?.setSemanticHintIfChanged(label)
         liveBuffer.replaceLivePulse(label: label, at: snapshot.capturedAt)
         publishLiveSignals()
         contextHeartbeat.recordEvaluation(
@@ -886,10 +889,8 @@ final class NoxContextService {
     }
 
     private func scheduleMemoryMaintenance() {
-        maintenanceTask?.cancel()
-        maintenanceTask = Task { @MainActor in
-            try? await Task.sleep(for: .seconds(45))
-            guard !Task.isCancelled else { return }
+        eventPipeline.scheduleStartupMaintenance { [weak self] in
+            guard let self else { return }
             _ = try? await memoryCoordinator.runMemoryMaintenance(
                 timelineStore: timelineStore,
                 sessionStore: sessionStore,
@@ -899,16 +900,15 @@ final class NoxContextService {
     }
 
     private func startMaintenanceLoop() {
-        Task { @MainActor in
-            while !Task.isCancelled {
-                try? await Task.sleep(for: .seconds(retentionPolicy.maintenanceIntervalSeconds))
-                guard !Task.isCancelled else { return }
-                _ = try? await memoryCoordinator.runMemoryMaintenance(
-                    timelineStore: timelineStore,
-                    sessionStore: sessionStore,
-                    policy: retentionPolicy
-                )
-            }
+        eventPipeline.startMaintenanceLoop(
+            intervalSeconds: retentionPolicy.maintenanceIntervalSeconds
+        ) { [weak self] in
+            guard let self else { return }
+            _ = try? await memoryCoordinator.runMemoryMaintenance(
+                timelineStore: timelineStore,
+                sessionStore: sessionStore,
+                policy: retentionPolicy
+            )
         }
     }
 

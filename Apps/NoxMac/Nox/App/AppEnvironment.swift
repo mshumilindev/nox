@@ -246,4 +246,24 @@ final class AppEnvironment {
     func clearSystemActionHistory() {
         Task { await contextService.clearSystemActionHistory() }
     }
+
+    func setLiveSignalsIfChanged(_ signals: [NoxLiveSignal]) {
+        guard liveSignals != signals else { return }
+        liveSignals = signals
+    }
+
+    func setCapabilityRowsIfChanged(_ rows: [NoxCapabilityRow]) {
+        guard capabilityRows != rows else { return }
+        capabilityRows = rows
+    }
+
+    func setMemoryEmergenceIfChanged(_ emergence: NoxMemoryEmergence) {
+        guard memoryEmergence != emergence else { return }
+        memoryEmergence = emergence
+    }
+
+    func setSemanticHintIfChanged(_ hint: String?) {
+        guard semanticHint != hint else { return }
+        semanticHint = hint
+    }
 }
