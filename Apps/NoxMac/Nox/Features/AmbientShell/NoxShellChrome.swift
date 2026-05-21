@@ -18,19 +18,32 @@ struct NoxShellChrome: View {
   var destination: NoxSemanticDestination
   var compact: Bool = false
 
+  private var isEcologyDestination: Bool {
+    destination == .memory
+  }
+
   var body: some View {
     HStack(alignment: .center, spacing: NoxSpacing.md) {
       VStack(alignment: .leading, spacing: NoxSpacing.xxs) {
         HStack(spacing: NoxSpacing.sm) {
-          NoxIcon(systemName: destination.symbolName, role: .chrome)
+          NoxIcon(
+            systemName: environment.navigationSymbolName(for: destination),
+            role: .chrome,
+            tint: isEcologyDestination
+              ? NoxDesignTokens.ColorRole.textSecondary.opacity(0.72)
+              : nil
+          )
           Text(environment.navigationTitle(for: destination))
             .font(NoxTypography.destinationTitle)
-            .foregroundStyle(NoxDesignTokens.ColorRole.textPrimary.opacity(0.94))
+            .foregroundStyle(
+              NoxDesignTokens.ColorRole.textPrimary.opacity(isEcologyDestination ? 0.9 : 0.94)
+            )
             .lineLimit(1)
         }
         if !compact {
           Text(environment.chromeSubtitle(for: destination))
-            .noxMetadata()
+            .font(.system(size: 12))
+            .foregroundStyle(NoxDesignTokens.ColorRole.textSecondary.opacity(0.62))
             .lineLimit(2)
             .fixedSize(horizontal: false, vertical: true)
         }

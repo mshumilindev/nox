@@ -25,10 +25,28 @@ struct NoxPresenceDeviceCard: View {
     var subtitleOverride: String?
     var primaryDetailOverride: String?
     var metadataOverride: String?
+    var roleSymbolName: String?
     var isGroupedDevice = false
     var isPrimaryEnvironment = false
 
     @State private var appeared = false
+
+    @ViewBuilder
+    private func roleSubtitleLine(_ text: String) -> some View {
+        HStack(spacing: NoxSpacing.xxs) {
+            if let roleSymbolName {
+                NoxIcon(
+                    systemName: roleSymbolName,
+                    role: .inline,
+                    tint: NoxDesignTokens.ColorRole.textSecondary.opacity(0.65)
+                )
+                .frame(width: 14, height: 14)
+            }
+            Text(text)
+                .font(.system(size: isPrimaryEnvironment ? 13 : 12))
+                .foregroundStyle(NoxDesignTokens.ColorRole.textSecondary.opacity(0.82))
+        }
+    }
 
     var body: some View {
         HStack(spacing: isPrimaryEnvironment ? NoxSpacing.lg : NoxSpacing.md) {
@@ -52,9 +70,9 @@ struct NoxPresenceDeviceCard: View {
                 Text(deviceName)
                     .font(.system(size: isPrimaryEnvironment ? 18 : 16, weight: .semibold))
                     .foregroundStyle(NoxDesignTokens.ColorRole.textPrimary)
-                Text(subtitleOverride ?? NoxPresenceDeviceCopy.subtitle(for: kind, tone: tone))
-                    .font(.system(size: isPrimaryEnvironment ? 13 : 12))
-                    .foregroundStyle(NoxDesignTokens.ColorRole.textSecondary.opacity(0.82))
+                roleSubtitleLine(
+                    subtitleOverride ?? NoxPresenceDeviceCopy.subtitle(for: kind, tone: tone)
+                )
                 if let primaryDetailOverride, isPrimaryEnvironment {
                     Text(primaryDetailOverride)
                         .font(.system(size: 12))

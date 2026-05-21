@@ -15,7 +15,10 @@ import NoxDesignCore
 struct NoxSemanticNavigationRail: View {
   @Environment(AppEnvironment.self) private var environment
 
-  private let primary: [NoxSemanticDestination] = [.now, .presence, .threads, .memory, .observatory]
+  private var primary: [NoxSemanticDestination] {
+    [.now, .presence, .threads, .memory, .observatory]
+      .filter { environment.showsDestinationInNavigation($0) }
+  }
   private let reflective: [NoxSemanticDestination] = [.patterns, .reflections]
   private let system: [NoxSemanticDestination] = [.local, .trust]
 
@@ -82,41 +85,46 @@ struct NoxSemanticNavigationRail: View {
 
   private func navRow(_ destination: NoxSemanticDestination) -> some View {
     let selected = environment.preferences.navigationDestination == destination
+    let isEcology = destination == .memory
     return Button {
       environment.setNavigationDestination(destination)
     } label: {
-      HStack(spacing: NoxSpacing.sm) {
+      HStack(alignment: .top, spacing: NoxSpacing.sm) {
         NoxIcon(
-          systemName: destination.symbolName,
-          role: .inline,
-          emphasized: selected
+          systemName: environment.navigationSymbolName(for: destination),
+          role: .rail,
+          emphasized: selected,
+          tint: isEcology && !selected
+            ? NoxDesignTokens.ColorRole.textSecondary.opacity(0.55)
+            : nil
         )
-        Text(environment.navigationTitle(for: destination))
-          .font(selected ? Font.system(size: 11, weight: .medium) : NoxTypography.railLabel)
-          .foregroundStyle(
-            selected
-              ? NoxDesignTokens.ColorRole.textPrimary.opacity(0.92)
-              : NoxDesignTokens.ColorRole.textSecondary.opacity(0.68)
-          )
-          .lineLimit(1)
-          .fixedSize(horizontal: true, vertical: false)
+        .padding(.top, isEcology ? 1 : 0)
+
+        NoxSemanticNavigationLabel(
+          title: environment.navigationTitle(for: destination),
+          secondaryHint: environment.navigationSecondaryHint(for: destination),
+          isEcologyMode: isEcology,
+          selected: selected
+        )
         Spacer(minLength: 0)
       }
       .padding(.leading, NoxSpacing.md)
       .padding(.trailing, NoxSpacing.sm)
-      .padding(.vertical, 7)
+      .padding(.vertical, isEcology ? 8 : 7)
       .background {
         if selected {
           HStack(spacing: 0) {
             Rectangle()
-              .fill(NoxDesignTokens.ColorRole.accent.opacity(0.55))
+              .fill(
+                NoxDesignTokens.ColorRole.accent.opacity(isEcology ? 0.42 : 0.55)
+              )
               .frame(width: 2)
             Spacer(minLength: 0)
           }
           .allowsHitTesting(false)
         }
       }
-      .noxHitTarget(minHeight: 36)
+      .noxHitTarget(minHeight: isEcology ? 44 : 36)
     }
     .buttonStyle(.noxBorderless(hover: .row, isSelected: selected))
   }

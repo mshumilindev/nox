@@ -27,6 +27,26 @@ extension AppEnvironment {
         return destination.title
     }
 
+    func navigationSecondaryHint(for destination: NoxSemanticDestination) -> String? {
+        guard destination == .memory else { return nil }
+        let hint = memoryEcologyOwnership.navigationSecondaryHint
+        return hint.isEmpty ? nil : hint
+    }
+
+    func navigationSymbolName(for destination: NoxSemanticDestination) -> String {
+        if destination == .memory {
+            return memoryEcologyOwnership.navigationSymbolName
+        }
+        return destination.symbolName
+    }
+
+    func showsDestinationInNavigation(_ destination: NoxSemanticDestination) -> Bool {
+        if destination == .memory {
+            return memoryEcologyOwnership.showsInNavigation
+        }
+        return true
+    }
+
     func chromeSubtitle(for destination: NoxSemanticDestination) -> String {
         if destination == .memory {
             return memoryEcologyOwnership.chromeSubtitle

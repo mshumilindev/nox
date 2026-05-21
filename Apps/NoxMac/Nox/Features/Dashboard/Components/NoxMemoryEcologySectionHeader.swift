@@ -30,6 +30,14 @@ enum NoxMemoryEcologyLayerVisualWeight {
         case .deepSpace: 0.78
         }
     }
+
+    var layer: NoxMemoryEcologyPrimaryLayer {
+        switch self {
+        case .galaxy: .galaxy
+        case .orbit: .orbit
+        case .deepSpace: .deepSpace
+        }
+    }
 }
 
 struct NoxMemoryEcologySectionHeader: View {
@@ -43,15 +51,24 @@ struct NoxMemoryEcologySectionHeader: View {
     }
 
     var body: some View {
-        VStack(alignment: .leading, spacing: NoxSpacing.xxs) {
-            Text(title)
-                .font(.system(size: 11, weight: .semibold))
-                .foregroundStyle(NoxDesignTokens.ColorRole.textPrimary.opacity(effectiveWeight.titleOpacity))
-                .textCase(.uppercase)
-                .tracking(1.2)
-            Text(subtitle)
-                .font(.system(size: 12))
-                .foregroundStyle(NoxDesignTokens.ColorRole.textSecondary.opacity(effectiveWeight.subtitleOpacity))
+        HStack(alignment: .top, spacing: NoxSpacing.sm) {
+            NoxIcon(
+                systemName: NoxMemoryEcologyIcons.symbol(for: effectiveWeight.layer),
+                role: .section,
+                tint: NoxDesignTokens.ColorRole.textSecondary.opacity(0.7)
+            )
+            .padding(.top, 1)
+
+            VStack(alignment: .leading, spacing: NoxSpacing.xxs) {
+                Text(title)
+                    .font(.system(size: 11, weight: .semibold))
+                    .foregroundStyle(NoxDesignTokens.ColorRole.textPrimary.opacity(effectiveWeight.titleOpacity))
+                    .textCase(.uppercase)
+                    .tracking(1.2)
+                Text(subtitle)
+                    .font(.system(size: 12))
+                    .foregroundStyle(NoxDesignTokens.ColorRole.textSecondary.opacity(effectiveWeight.subtitleOpacity))
+            }
         }
         .frame(maxWidth: .infinity, alignment: .leading)
     }

@@ -16,10 +16,16 @@ import NoxDesignCore
 struct NoxCompactNavigationBar: View {
     @Environment(AppEnvironment.self) private var environment
 
+    private var visibleDestinations: [NoxSemanticDestination] {
+        NoxSemanticDestination.compactRailOrder.filter {
+            environment.showsDestinationInNavigation($0)
+        }
+    }
+
     var body: some View {
         ScrollView(.horizontal, showsIndicators: false) {
             HStack(spacing: NoxSpacing.xs) {
-                ForEach(NoxSemanticDestination.compactRailOrder) { destination in
+                ForEach(visibleDestinations) { destination in
                     compactItem(destination)
                 }
             }
@@ -37,18 +43,28 @@ struct NoxCompactNavigationBar: View {
 
     private func compactItem(_ destination: NoxSemanticDestination) -> some View {
         let selected = environment.preferences.navigationDestination == destination
+        let isEcology = destination == .memory
         return Button {
             environment.setNavigationDestination(destination)
         } label: {
-            VStack(spacing: NoxSpacing.xxs) {
+            VStack(spacing: 3) {
                 NoxIcon(
-                    systemName: destination.symbolName,
+                    systemName: environment.navigationSymbolName(for: destination),
                     role: .rail,
-                    emphasized: selected
+                    emphasized: selected,
+                    tint: isEcology && !selected
+                        ? NoxDesignTokens.ColorRole.textSecondary.opacity(0.55)
+                        : nil
                 )
                 Text(environment.navigationTitle(for: destination))
                     .font(NoxTypography.metadata)
                     .lineLimit(1)
+                if let hint = environment.navigationSecondaryHint(for: destination) {
+                    Text(hint)
+                        .font(.system(size: 9))
+                        .foregroundStyle(NoxDesignTokens.ColorRole.textSecondary.opacity(0.5))
+                        .lineLimit(1)
+                }
             }
             .padding(.horizontal, NoxSpacing.sm)
             .padding(.vertical, NoxSpacing.xs)
@@ -66,7 +82,7 @@ struct NoxCompactNavigationBar: View {
                         .allowsHitTesting(false)
                 }
             }
-            .noxHitTarget(minHeight: 44)
+            .noxHitTarget(minHeight: isEcology ? 48 : 44)
         }
         .buttonStyle(.noxBorderless(hover: .chip, isSelected: selected))
     }

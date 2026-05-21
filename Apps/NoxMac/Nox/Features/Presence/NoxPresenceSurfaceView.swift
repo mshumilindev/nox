@@ -83,6 +83,7 @@ struct NoxPresenceSurfaceView: View {
             onPulse: nil,
             subtitleOverride: NoxConstellationCopy.currentDeviceSubtitle(isNoxIActive: isNoxI),
             primaryDetailOverride: NoxConstellationCopy.currentDeviceDetail(isNoxIActive: isNoxI),
+            roleSymbolName: NoxConstellationRoleIcons.symbol(for: .noxI),
             isPrimaryEnvironment: true
         )
         .onTapGesture(count: 5) {
@@ -129,6 +130,7 @@ struct NoxPresenceSurfaceView: View {
                             } : nil,
                             subtitleOverride: presentation.roleLabel,
                             metadataOverride: presentation.metadata,
+                            roleSymbolName: NoxConstellationRoleIcons.symbolForRoleLabel(presentation.roleLabel),
                             isGroupedDevice: isGroupedDevice(node)
                         )
                     }
@@ -156,7 +158,10 @@ struct NoxPresenceSurfaceView: View {
                             onTrust: nil,
                             onDecline: nil,
                             onPulse: { Task { await mesh.sendTestPulse(to: node.trustedNodeId) } },
-                            subtitleOverride: NoxConstellationCopy.trustedSubtitle(assignedRole: node.constellationRole)
+                            subtitleOverride: NoxConstellationCopy.trustedSubtitle(assignedRole: node.constellationRole),
+                            roleSymbolName: node.constellationRole.map {
+                                NoxConstellationRoleIcons.symbol(for: $0)
+                            }
                         )
                     }
                 }

@@ -21,6 +21,10 @@ public struct NoxMemoryEcologyOwnership: Sendable, Equatable {
     public let hasConfiguredStation: Bool
     public let primaryLayer: NoxMemoryEcologyPrimaryLayer
     public let navigationTitle: String
+    /// Short ecology hint under the rail label (~11–12pt).
+    public let navigationSecondaryHint: String
+    public let navigationSymbolName: String
+    public let showsInNavigation: Bool
     public let chromeSubtitle: String
     /// Galaxy exists as a distinct visible layer (requires Station externalization).
     public let ecologyIsSeparated: Bool
@@ -41,6 +45,9 @@ public struct NoxMemoryEcologyOwnership: Sendable, Equatable {
         hasConfiguredStation: Bool,
         primaryLayer: NoxMemoryEcologyPrimaryLayer,
         navigationTitle: String,
+        navigationSecondaryHint: String,
+        navigationSymbolName: String,
+        showsInNavigation: Bool,
         chromeSubtitle: String,
         ecologyIsSeparated: Bool,
         showsGalaxySection: Bool,
@@ -57,6 +64,9 @@ public struct NoxMemoryEcologyOwnership: Sendable, Equatable {
         self.hasConfiguredStation = hasConfiguredStation
         self.primaryLayer = primaryLayer
         self.navigationTitle = navigationTitle
+        self.navigationSecondaryHint = navigationSecondaryHint
+        self.navigationSymbolName = navigationSymbolName
+        self.showsInNavigation = showsInNavigation
         self.chromeSubtitle = chromeSubtitle
         self.ecologyIsSeparated = ecologyIsSeparated
         self.showsGalaxySection = showsGalaxySection
@@ -88,6 +98,9 @@ public enum NoxMemoryEcologyOwnershipResolver {
                 hasConfiguredStation: hasConfiguredStation,
                 primaryLayer: .orbit,
                 navigationTitle: orbitName,
+                navigationSecondaryHint: "",
+                navigationSymbolName: NoxMemoryEcologyIcons.symbol(for: .orbit),
+                showsInNavigation: false,
                 chromeSubtitle: "Ambient beacon",
                 ecologyIsSeparated: false,
                 showsGalaxySection: false,
@@ -107,6 +120,9 @@ public enum NoxMemoryEcologyOwnershipResolver {
                 hasConfiguredStation: hasConfiguredStation,
                 primaryLayer: .orbit,
                 navigationTitle: orbitName,
+                navigationSecondaryHint: "Temporary memory",
+                navigationSymbolName: NoxMemoryEcologyIcons.symbol(for: .orbit),
+                showsInNavigation: true,
                 chromeSubtitle: "Temporary device memory",
                 ecologyIsSeparated: false,
                 showsGalaxySection: false,
@@ -126,6 +142,9 @@ public enum NoxMemoryEcologyOwnershipResolver {
                 hasConfiguredStation: true,
                 primaryLayer: .deepSpace,
                 navigationTitle: deepSpaceName,
+                navigationSecondaryHint: "Historical archive",
+                navigationSymbolName: NoxMemoryEcologyIcons.symbol(for: .deepSpace),
+                showsInNavigation: true,
                 chromeSubtitle: "Historical memory archive",
                 ecologyIsSeparated: true,
                 showsGalaxySection: false,
@@ -146,6 +165,9 @@ public enum NoxMemoryEcologyOwnershipResolver {
                     hasConfiguredStation: true,
                     primaryLayer: .galaxy,
                     navigationTitle: galaxyName,
+                    navigationSecondaryHint: "Active memory",
+                    navigationSymbolName: NoxMemoryEcologyIcons.symbol(for: .galaxy),
+                    showsInNavigation: true,
                     chromeSubtitle: "Active memory on Nox I",
                     ecologyIsSeparated: true,
                     showsGalaxySection: true,
@@ -164,6 +186,9 @@ public enum NoxMemoryEcologyOwnershipResolver {
                 hasConfiguredStation: false,
                 primaryLayer: .deepSpace,
                 navigationTitle: deepSpaceName,
+                navigationSecondaryHint: "Historical + active memory",
+                navigationSymbolName: NoxMemoryEcologyIcons.symbol(for: .deepSpace),
+                showsInNavigation: true,
                 chromeSubtitle: "Historical and active memory on Nox I",
                 ecologyIsSeparated: false,
                 showsGalaxySection: false,
