@@ -14,14 +14,21 @@ import NoxDesignCore
 
 /// Ensures SF Symbol names used in UI exist on this macOS version.
 nonisolated enum NoxSFSymbol {
-    static func validated(_ name: String, fallback: String = "circle.fill") -> String {
+    static func validated(
+        _ name: String,
+        fallback: String = "circle.fill",
+        ultimate: String = "circle.fill"
+    ) -> String {
         let trimmed = name.trimmingCharacters(in: .whitespacesAndNewlines)
-        guard !trimmed.isEmpty else { return validated(fallback, fallback: "circle.fill") }
+        guard !trimmed.isEmpty else { return validated(fallback, fallback: ultimate, ultimate: ultimate) }
         if NSImage(systemSymbolName: trimmed, accessibilityDescription: nil) != nil {
             return trimmed
         }
         if trimmed != fallback {
-            return validated(fallback, fallback: "circle.fill")
+            return validated(fallback, fallback: ultimate, ultimate: ultimate)
+        }
+        if fallback != ultimate {
+            return validated(ultimate, fallback: ultimate, ultimate: ultimate)
         }
         return "circle.fill"
     }

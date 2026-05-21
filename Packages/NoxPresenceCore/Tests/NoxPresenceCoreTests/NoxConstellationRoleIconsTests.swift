@@ -8,6 +8,7 @@ struct NoxConstellationRoleIconsTests {
         #expect(NoxConstellationRoleIcons.symbol(for: .noxI) == "circle.hexagongrid.fill")
         #expect(NoxConstellationRoleIcons.symbol(for: .station) == "internaldrive")
         #expect(NoxConstellationRoleIcons.symbol(for: .satellite) == "point.3.connected.trianglepath.dotted")
+        #expect(NoxConstellationRoleIcons.symbol(for: .beacon) == "beacon.max.fill")
     }
 
     @Test func candidateLabelMapsToRoleIcon() {

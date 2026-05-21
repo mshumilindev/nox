@@ -9,22 +9,28 @@ struct NoxSemanticNavigationLabel: View {
     var isEcologyMode: Bool
     var selected: Bool
 
+    @ViewBuilder
     var body: some View {
-        VStack(alignment: .leading, spacing: 2) {
-            Text(title)
-                .font(selected ? Font.system(size: 11, weight: .medium) : NoxTypography.railLabel)
-                .foregroundStyle(primaryForeground)
-                .lineLimit(1)
-                .fixedSize(horizontal: true, vertical: false)
-
-            if let secondaryHint, !secondaryHint.isEmpty {
+        if let secondaryHint, !secondaryHint.isEmpty {
+            VStack(alignment: .leading, spacing: 2) {
+                titleLabel
                 Text(secondaryHint)
                     .font(.system(size: 10))
                     .foregroundStyle(NoxDesignTokens.ColorRole.textSecondary.opacity(0.52))
                     .lineLimit(2)
                     .fixedSize(horizontal: false, vertical: true)
             }
+        } else {
+            titleLabel
         }
+    }
+
+    private var titleLabel: some View {
+        Text(title)
+            .font(selected ? Font.system(size: 11, weight: .medium) : NoxTypography.railLabel)
+            .foregroundStyle(primaryForeground)
+            .lineLimit(1)
+            .fixedSize(horizontal: true, vertical: false)
     }
 
     private var primaryForeground: Color {

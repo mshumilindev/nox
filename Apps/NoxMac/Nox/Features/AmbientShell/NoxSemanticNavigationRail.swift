@@ -30,7 +30,7 @@ struct NoxSemanticNavigationRail: View {
 
   var body: some View {
     VStack(alignment: .leading, spacing: 0) {
-      HStack(spacing: NoxSpacing.sm) {
+      HStack(alignment: .center, spacing: NoxSpacing.sm) {
         Image("NoxTriskelionMark")
           .resizable()
           .renderingMode(.template)
@@ -89,7 +89,7 @@ struct NoxSemanticNavigationRail: View {
     return Button {
       environment.setNavigationDestination(destination)
     } label: {
-      HStack(alignment: .top, spacing: NoxSpacing.sm) {
+      HStack(alignment: .center, spacing: NoxSpacing.sm) {
         NoxIcon(
           systemName: environment.navigationSymbolName(for: destination),
           role: .rail,
@@ -98,7 +98,6 @@ struct NoxSemanticNavigationRail: View {
             ? NoxDesignTokens.ColorRole.textSecondary.opacity(0.55)
             : nil
         )
-        .padding(.top, isEcology ? 1 : 0)
 
         NoxSemanticNavigationLabel(
           title: environment.navigationTitle(for: destination),

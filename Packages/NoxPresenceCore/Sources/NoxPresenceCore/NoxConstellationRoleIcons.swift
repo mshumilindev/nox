@@ -3,7 +3,7 @@ import Foundation
 /// SF Symbol names for constellation device roles (validated in the app shell).
 public enum NoxConstellationRoleIcons {
     public static let noxIPrimary = "circle.hexagongrid.fill"
-    public static let noxIAlternative = "sparkles.rectangle.stack"
+    public static let noxIAlternative = "sparkles.rectangle.stack.fill"
 
     public static let stationPrimary = "internaldrive"
     public static let stationAlternative = "archivebox"
@@ -11,8 +11,8 @@ public enum NoxConstellationRoleIcons {
     public static let satellitePrimary = "point.3.connected.trianglepath.dotted"
     public static let satelliteAlternative = "sensor"
 
-    public static let beaconPrimary = "sensor.tag.radiowaves.forward"
-    public static let beaconAlternative = "wave.3.right.circle"
+    public static let beaconPrimary = "beacon.max.fill"
+    public static let beaconAlternative = "wave.3.right.circle.fill"
 
     public static func symbol(for role: NoxConstellationAssignedRole) -> String {
         switch role {

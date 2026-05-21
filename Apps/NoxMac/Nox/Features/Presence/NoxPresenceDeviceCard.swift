@@ -98,7 +98,7 @@ struct NoxPresenceDeviceCard: View {
         .scaleEffect(appeared ? 1 : 0.97)
         .opacity(appeared ? 1 : 0)
         .onTapGesture(count: 1) {
-            if tone == .nearby { onExpand?() }
+            if tone == .nearby || tone == .unavailable { onExpand?() }
             if tone == .awaitingTrust { onTrust?() }
         }
         .onAppear {
@@ -112,7 +112,7 @@ struct NoxPresenceDeviceCard: View {
     private var rowActions: some View {
         HStack(spacing: NoxSpacing.sm) {
             switch tone {
-            case .nearby:
+            case .nearby, .unavailable:
                 if let onExpand {
                     Button("Expand", action: onExpand)
                         .buttonStyle(NoxPresenceGhostButtonStyle())
@@ -127,15 +127,7 @@ struct NoxPresenceDeviceCard: View {
                         .buttonStyle(NoxPresenceGhostButtonStyle(emphasized: false))
                 }
             case .trusted:
-                if let onPulse {
-                    Button("Pulse", action: onPulse)
-                        .buttonStyle(NoxPresenceGhostButtonStyle())
-                }
-            case .unavailable:
-                if let onPulse {
-                    Button("AirPlay Test", action: onPulse)
-                        .buttonStyle(NoxPresenceGhostButtonStyle())
-                }
+                EmptyView()
             case .expanding:
                 ProgressView()
                     .controlSize(.small)

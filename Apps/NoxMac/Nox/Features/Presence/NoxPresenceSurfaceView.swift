@@ -55,14 +55,16 @@ struct NoxPresenceSurfaceView: View {
         .sheet(item: $expandTarget) { target in
             NoxPresenceExpandSheet(
                 deviceName: target.deviceName,
-                deviceKind: target.kind,
-                hardwareIdentity: target.hardwareIdentity,
+                roleLabel: target.roleLabel,
+                roleSymbolName: target.roleSymbolName,
+                deviceArtwork: target.deviceArtwork,
                 onBeginExpansion: {
                     Task { await mesh.expandToDevice(target.node) }
                 },
-                onInviteNearbyMac: { prepareAndShare() },
                 onCopySetupLink: { copySetupLink() }
             )
+            .presentationBackground(.clear)
+            .presentationCornerRadius(14)
         }
     }
 
@@ -83,7 +85,7 @@ struct NoxPresenceSurfaceView: View {
             onPulse: nil,
             subtitleOverride: NoxConstellationCopy.currentDeviceSubtitle(isNoxIActive: isNoxI),
             primaryDetailOverride: NoxConstellationCopy.currentDeviceDetail(isNoxIActive: isNoxI),
-            roleSymbolName: NoxConstellationRoleIcons.symbol(for: .noxI),
+            roleSymbolName: NoxConstellationRoleIconResolver.symbol(for: .noxI),
             isPrimaryEnvironment: true
         )
         .onTapGesture(count: 5) {
@@ -105,33 +107,37 @@ struct NoxPresenceSurfaceView: View {
             } else {
                 ForEach(mesh.ambientNearbyNodes) { node in
                     if let kind = resolvedKind(for: node) {
-                        let presentation = candidatePresentation(for: node, kind: kind)
-                        let hardwareIdentity = NoxPresenceHardwareIdentityResolver.hardwareIdentity(
+                        let tone = cardTone(for: node)
+                        let deviceArtwork = deviceArtworkPresentation(for: node, kind: kind, tone: tone)
+                        let presentation = candidatePresentation(
                             for: node,
-                            expectedKind: kind
+                            kind: kind,
+                            isGroupedDevice: deviceArtwork.isGroupedDevice
                         )
                         NoxPresenceDeviceCard(
                             deviceName: node.deviceName,
                             kind: kind,
-                            hardwareIdentity: hardwareIdentity,
-                            tone: cardTone(for: node),
-                            onExpand: node.state == .unavailable ? nil : {
+                            hardwareIdentity: deviceArtwork.hardwareIdentity,
+                            tone: tone,
+                            onExpand: {
                                 expandTarget = ExpandTarget(
                                     node: node,
                                     deviceName: node.deviceName,
                                     kind: kind,
-                                    hardwareIdentity: hardwareIdentity
+                                    deviceArtwork: deviceArtwork,
+                                    roleLabel: presentation.roleLabel,
+                                    roleSymbolName: NoxConstellationRoleIconResolver.symbolForRoleLabel(
+                                        presentation.roleLabel
+                                    )
                                 )
                             },
                             onTrust: nil,
                             onDecline: nil,
-                            onPulse: node.state == .unavailable ? {
-                                Task<Void, Never> { await mesh.sendAirPlayTestPulse(to: node.deviceId) }
-                            } : nil,
+                            onPulse: nil,
                             subtitleOverride: presentation.roleLabel,
                             metadataOverride: presentation.metadata,
-                            roleSymbolName: NoxConstellationRoleIcons.symbolForRoleLabel(presentation.roleLabel),
-                            isGroupedDevice: isGroupedDevice(node)
+                            roleSymbolName: NoxConstellationRoleIconResolver.symbolForRoleLabel(presentation.roleLabel),
+                            isGroupedDevice: deviceArtwork.isGroupedDevice
                         )
                     }
                 }
@@ -157,10 +163,10 @@ struct NoxPresenceSurfaceView: View {
                             onExpand: nil,
                             onTrust: nil,
                             onDecline: nil,
-                            onPulse: { Task { await mesh.sendTestPulse(to: node.trustedNodeId) } },
+                            onPulse: nil,
                             subtitleOverride: NoxConstellationCopy.trustedSubtitle(assignedRole: node.constellationRole),
                             roleSymbolName: node.constellationRole.map {
-                                NoxConstellationRoleIcons.symbol(for: $0)
+                                NoxConstellationRoleIconResolver.symbol(for: $0)
                             }
                         )
                     }
@@ -285,20 +291,25 @@ struct NoxPresenceSurfaceView: View {
         NoxConstellationClassificationContext(hasConfiguredStation: mesh.hasConfiguredNoxStation)
     }
 
+    private func deviceArtworkPresentation(
+        for node: NoxDiscoveredNode,
+        kind: NoxPresenceDeviceKind,
+        tone: NoxPresenceCardTone
+    ) -> NoxConstellationDeviceArtworkPresentation {
+        .nearby(node: node, kind: kind, tone: tone)
+    }
+
     private func candidatePresentation(
         for node: NoxDiscoveredNode,
-        kind: NoxPresenceDeviceKind
+        kind: NoxPresenceDeviceKind,
+        isGroupedDevice: Bool
     ) -> NoxConstellationCandidatePresentation {
         NoxConstellationRoleResolver.nearbyCandidatePresentation(
             for: node,
             kind: kind,
-            isGroupedHomePodStereo: kind == .homePod && isGroupedDevice(node),
+            isGroupedHomePodStereo: kind == .homePod && isGroupedDevice,
             context: constellationContext
         )
-    }
-
-    private func isGroupedDevice(_ node: NoxDiscoveredNode) -> Bool {
-        node.appleGroupMemberNames.count > 1
     }
 
     private func prepareAndShare() {
@@ -320,7 +331,9 @@ private struct ExpandTarget: Identifiable {
     let node: NoxDiscoveredNode
     let deviceName: String
     let kind: NoxPresenceDeviceKind
-    let hardwareIdentity: NoxPresenceHardwareIdentity
+    let deviceArtwork: NoxConstellationDeviceArtworkPresentation
+    let roleLabel: String
+    let roleSymbolName: String?
     var id: String { node.deviceId }
 }
 

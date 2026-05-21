@@ -50,7 +50,7 @@ public enum NoxConstellationCopy {
     public static let listeningOverlayDetail = "Searching for nearby devices on this network."
 
     public static let expandSheetTitle = "Expand constellation"
-    public static let expandSheetDetail = "Bring Nox to another device — only when you choose."
+    public static let expandSheetClose = "Close"
     public static let beginExpansion = "Begin expansion"
     public static let inviteDevice = "Invite to constellation"
     public static let copySetupLink = "Copy setup link"
