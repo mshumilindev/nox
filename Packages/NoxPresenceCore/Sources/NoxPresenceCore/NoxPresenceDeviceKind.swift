@@ -65,34 +65,16 @@ public enum NoxPresenceCardTone: Sendable {
     case expanding
 
     var contextLine: String {
-        switch self {
-        case .nearby:
-            "Nearby Nox presence detected"
-        case .unavailable:
-            "Nearby Apple device detected"
-        case .awaitingTrust:
-            "Ready to join your environment"
-        case .trusted:
-            "Part of your active Nox environment"
-        case .expanding:
-            "Expanding your environment…"
-        }
+        NoxConstellationRoleResolver.contextLine(for: self)
     }
 }
 
 public enum NoxPresenceDeviceCopy {
-    public static func subtitle(for kind: NoxPresenceDeviceKind, tone: NoxPresenceCardTone) -> String {
-        switch tone {
-        case .nearby:
-            return "Ready to extend your Nox environment"
-        case .unavailable:
-            return "Nearby Apple ecosystem presence"
-        case .awaitingTrust:
-            return "Waiting for your approval"
-        case .trusted:
-            return "Part of your environment"
-        case .expanding:
-            return "Connecting…"
-        }
+    public static func subtitle(
+        for kind: NoxPresenceDeviceKind,
+        tone: NoxPresenceCardTone,
+        node: NoxDiscoveredNode? = nil
+    ) -> String {
+        NoxConstellationRoleResolver.defaultCardSubtitle(for: kind, tone: tone, node: node)
     }
 }

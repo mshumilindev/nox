@@ -23,13 +23,13 @@ struct NoxShellChrome: View {
       VStack(alignment: .leading, spacing: NoxSpacing.xxs) {
         HStack(spacing: NoxSpacing.sm) {
           NoxIcon(systemName: destination.symbolName, role: .chrome)
-          Text(destination.title)
+          Text(environment.navigationTitle(for: destination))
             .font(NoxTypography.destinationTitle)
             .foregroundStyle(NoxDesignTokens.ColorRole.textPrimary.opacity(0.94))
             .lineLimit(1)
         }
         if !compact {
-          Text(chromeSubtitle)
+          Text(environment.chromeSubtitle(for: destination))
             .noxMetadata()
             .lineLimit(2)
             .fixedSize(horizontal: false, vertical: true)
@@ -68,20 +68,6 @@ struct NoxShellChrome: View {
         .fill(NoxDesignTokens.ColorRole.border.opacity(0.24))
         .frame(height: 0.5)
         .allowsHitTesting(false)
-    }
-  }
-
-  private var chromeSubtitle: String {
-    switch destination {
-    case .now: "Live activity context"
-    case .presence: "Nearby devices"
-    case .threads: "Recurring activity patterns"
-    case .memory: "Structured local memory"
-    case .patterns: "Behavior patterns"
-    case .observatory: "Combined activity signals"
-    case .reflections: "Recent pattern summaries"
-    case .local: "On-device only"
-    case .trust: "Boundaries and control"
     }
   }
 

@@ -57,6 +57,11 @@ final class PresenceMeshManager {
         isPresencePageActive && discoveryPhase == .listening && ambientNearbyNodes.isEmpty && trustedNodes.isEmpty
     }
 
+    /// True only when a trusted device has an explicit Nox Station role assigned.
+    var hasConfiguredNoxStation: Bool {
+        NoxConstellationRoleResolver.hasConfiguredStation(in: trustedNodes)
+    }
+
     private let identityProvider: LocalIdentityProvider
     private let discovery: CompositePresenceDiscoveryProvider
     private let transport: LocalHTTPPresenceTransport

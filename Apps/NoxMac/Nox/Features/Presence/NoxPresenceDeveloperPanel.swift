@@ -22,7 +22,7 @@ struct NoxPresenceDeveloperPanel: View {
     var body: some View {
         NoxCollapsibleSection(title: "Developer Mode", defaultExpanded: false) {
             VStack(alignment: .leading, spacing: NoxSpacing.md) {
-                Text("Simulate and validate multi-device presence on this Mac.")
+                Text("Simulate and validate constellation pairing on this Mac.")
                     .noxMetadata()
 
                 Button("Launch Secondary Node") {
@@ -30,7 +30,7 @@ struct NoxPresenceDeveloperPanel: View {
                 }
                 .buttonStyle(NoxPresencePrimaryButtonStyle())
 
-                Button("Run Simulated Nearby Presence") {
+                Button("Run Simulated Nearby Candidate") {
                     Task { await mesh.launchSimulatedSecondaryNode() }
                 }
 

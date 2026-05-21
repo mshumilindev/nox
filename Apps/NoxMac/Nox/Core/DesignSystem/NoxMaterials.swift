@@ -26,6 +26,8 @@ enum NoxSurfaceTier: Sendable {
 
 enum NoxMaterials {
   static let railWidth: CGFloat = 120
+  /// Deep Reflection — full destination titles without truncation.
+  static let deepReflectionRailWidth: CGFloat = 148
   static let contentPadding: CGFloat = NoxSpacing.lg
   static let readableWidth: CGFloat = NoxSurfaceLayout.contentMaxReadable
   static let clusterSpacing: CGFloat = NoxSpacing.md

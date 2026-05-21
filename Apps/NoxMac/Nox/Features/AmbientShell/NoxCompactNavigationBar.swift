@@ -46,7 +46,7 @@ struct NoxCompactNavigationBar: View {
                     role: .rail,
                     emphasized: selected
                 )
-                Text(destination.title)
+                Text(environment.navigationTitle(for: destination))
                     .font(NoxTypography.metadata)
                     .lineLimit(1)
             }

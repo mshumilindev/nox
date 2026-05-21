@@ -130,7 +130,7 @@ Procedural Canvas aurora was **removed**. Current stack:
 | Destination | Long-horizon content |
 | --- | --- |
 | **Threads** | Active continuity threads + explainability cards (`NoxContinuityThreadCard` + evolution-aware copy) |
-| **Memory** | Layered timeline + era observation line (`NoxMemoryTimelineView`, `NoxTemporalMemoryRowPresenter`) |
+| **Memory** | Role-dependent ecology ownership (`NoxMemoryEcologyOwnershipResolver`): Nox I without Station → sidebar/chrome **Deep Space** (active + historical unified); Nox I with Station → **Galaxy** primary + Orbit + Deep Space on Station; Station/Satellite/Beacon cases adjust nav title and section visibility (`NoxMemorySurfaceView`, `NoxMemoryEcologyNavigation`) |
 | **Patterns** | Emerging patterns, semantic arcs, continuity shapes, life-shaped periods, rhythms, cadence, connector enrichment, **temporal continuity** (Phase 12), era observation |
 | **Reflections** | `NoxReflectionCandidate` cards from synthesis pipeline |
 | **Now** | Morning summary, resurfacing notes, connector/utility/**system-state** interventions when gated (`NoxConnectorInterventionBanner` with optional actions) |

@@ -65,10 +65,10 @@ struct NoxPresenceListeningOverlay: View {
             }
 
             VStack(alignment: .leading, spacing: NoxSpacing.xs) {
-                Text("Listening for nearby Nox presence…")
+                Text(NoxConstellationCopy.listeningOverlayTitle)
                     .font(.system(size: 14, weight: .medium))
                     .foregroundStyle(NoxDesignTokens.ColorRole.textPrimary.opacity(0.92))
-                Text("Listening for nearby Apple devices on this network.")
+                Text(NoxConstellationCopy.listeningOverlayDetail)
                     .font(.system(size: 12))
                     .foregroundStyle(NoxDesignTokens.ColorRole.textSecondary.opacity(0.78))
             }

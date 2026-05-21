@@ -98,13 +98,13 @@ struct NoxPresenceMeshAmbientOverlay: View {
     private func eventTitle(_ event: NoxMeshAmbientEvent) -> String {
         switch event {
         case .trustEstablished(let name):
-            "Nox presence expanded — \(name) joined"
+            "\(name) joined your constellation"
         case .pulseReceived(let name):
-            "Pulse received from \(name)"
+            "Signal received from \(name)"
         case .pulseSentConfirmed(let name):
-            "Pulse reached \(name)"
+            "Signal reached \(name)"
         case .presenceExpanded:
-            "Nox presence expanded"
+            "Constellation expanded"
         }
     }
 }

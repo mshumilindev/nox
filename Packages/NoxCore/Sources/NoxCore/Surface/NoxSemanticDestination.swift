@@ -17,7 +17,7 @@ public nonisolated enum NoxSemanticDestination: String, CaseIterable, Identifiab
     public var title: String {
         switch self {
         case .now: "Now"
-        case .presence: "Presence"
+        case .presence: "Constellation"
         case .threads: "Threads"
         case .memory: "Memory"
         case .patterns: "Patterns"

@@ -107,7 +107,9 @@ final class NoxContextService {
             scheduleMemoryMaintenance()
         } catch {
             environment?.timelineEvents = []
-            environment?.timelineSections = []
+            environment?.galaxyTimelineSections = []
+            environment?.deepSpaceTimelineSections = []
+            environment?.deepSpaceEntries = []
             environment?.memoryReadiness = .observing
         }
 

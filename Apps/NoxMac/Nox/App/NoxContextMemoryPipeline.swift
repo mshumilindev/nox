@@ -121,16 +121,6 @@ final class NoxContextMemoryPipeline {
                 connectorSnapshot: connectorSnapshot,
                 at: date
             )
-            environment.timelineSections = NoxTemporalMemoryRowPresenter.enrich(
-                sections: view.sections,
-                threads: view.continuityThreads,
-                arcs: continuityArcs,
-                evolution: memoryEvolution,
-                ecologyCoupling: host.ambientState.memoryEvolution.ecologyCoupling,
-                period: environment.memoryPeriod,
-                at: presentationAnchor
-            )
-
             if !host.preferences.connectors.continuityEnrichmentPaused {
                 let intervention = utilitySnapshot.refinedIntervention
                     ?? behavioralSnapshot.recommendedIntervention
@@ -198,6 +188,57 @@ final class NoxContextMemoryPipeline {
                 stats: view.stats,
                 host: host
             )
+
+            let enrichedSelectedPeriod = NoxTemporalMemoryRowPresenter.enrich(
+                sections: view.sections,
+                threads: view.continuityThreads,
+                arcs: continuityArcs,
+                evolution: memoryEvolution,
+                ecologyCoupling: host.ambientState.memoryEvolution.ecologyCoupling,
+                period: environment.memoryPeriod,
+                at: presentationAnchor
+            )
+            let todayQuery = NoxMemoryQuery(text: environment.memorySearchText, period: .today)
+            let galaxyView = try await memoryCoordinator.loadView(period: .today, query: todayQuery)
+            let galaxyItems = galaxyView.sections.flatMap(\.items)
+            let galaxyArcs = NoxSemanticArcEngine.buildArcs(
+                spans: semanticSpans,
+                threads: galaxyView.continuityThreads,
+                at: date
+            )
+            environment.galaxyTimelineSections = NoxTemporalMemoryRowPresenter.enrich(
+                sections: galaxyView.sections,
+                threads: galaxyView.continuityThreads,
+                arcs: galaxyArcs,
+                evolution: memoryEvolution,
+                ecologyCoupling: host.ambientState.memoryEvolution.ecologyCoupling,
+                period: .today,
+                at: Date()
+            )
+            environment.galaxyDayOverview = NoxDaySemanticFraming.overview(
+                blocks: galaxyItems,
+                stats: galaxyView.stats,
+                continuityThreads: galaxyView.continuityThreads
+            )
+            environment.dayStats = galaxyView.stats
+            environment.galaxyEmergence = NoxMemoryEmergence(
+                continuitySeconds: host.signalTracker.observationContinuitySeconds(),
+                readiness: readiness,
+                liveSignalCount: host.liveBuffer.signals.count,
+                continuityNote: host.continuityNote,
+                maturity: reflective.memoryMaturity,
+                emergingObservations: periodEmerging.observations
+            )
+            if environment.memoryPeriod == .today {
+                environment.deepSpaceTimelineSections = []
+            } else {
+                environment.deepSpaceTimelineSections = enrichedSelectedPeriod
+            }
+            environment.deepSpaceEntries = NoxMemoryEcologyPresenter.deepSpaceEntries(
+                longHorizon: reflective.longHorizon,
+                evolution: memoryEvolution
+            )
+
             host.syncDerivedEnvironmentState(
                 memoryReadiness: readiness,
                 emerging: periodEmerging.observations,
@@ -207,7 +248,9 @@ final class NoxContextMemoryPipeline {
             host.refreshPrimaryExplanation()
             host.recalculatePresence()
         } catch {
-            environment.timelineSections = []
+            environment.galaxyTimelineSections = []
+            environment.deepSpaceTimelineSections = []
+            environment.deepSpaceEntries = []
             environment.dayStats = .empty
             environment.memoryReadiness = .building
         }

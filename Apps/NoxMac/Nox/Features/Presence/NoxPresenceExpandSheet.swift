@@ -26,7 +26,7 @@ struct NoxPresenceExpandSheet: View {
             HStack(spacing: NoxSpacing.lg) {
                 NoxPresenceDeviceVisual(identity: hardwareIdentity, tone: .nearby, large: true)
                 VStack(alignment: .leading, spacing: NoxSpacing.xs) {
-                    Text("Expand Nox Here")
+                    Text(NoxConstellationCopy.expandSheetTitle)
                         .font(.system(size: 18, weight: .semibold))
                     Text(deviceName)
                         .font(.system(size: 14, weight: .medium))
@@ -34,25 +34,25 @@ struct NoxPresenceExpandSheet: View {
                 }
             }
 
-            Text("Extend Nox to another nearby Mac — only when you choose.")
+            Text(NoxConstellationCopy.expandSheetDetail)
                 .font(.system(size: 13))
                 .foregroundStyle(NoxDesignTokens.ColorRole.textSecondary.opacity(0.9))
                 .fixedSize(horizontal: false, vertical: true)
 
             VStack(spacing: NoxSpacing.sm) {
-                Button("Begin Expansion") {
+                Button(NoxConstellationCopy.beginExpansion) {
                     onBeginExpansion()
                     dismiss()
                 }
                 .buttonStyle(NoxPresencePrimaryButtonStyle())
                 .frame(maxWidth: .infinity)
 
-                Button("Invite Nearby Mac") {
+                Button(NoxConstellationCopy.inviteDevice) {
                     onInviteNearbyMac()
                 }
                 .frame(maxWidth: .infinity)
 
-                Button("Copy Setup Link") {
+                Button(NoxConstellationCopy.copySetupLink) {
                     onCopySetupLink()
                 }
                 .frame(maxWidth: .infinity)

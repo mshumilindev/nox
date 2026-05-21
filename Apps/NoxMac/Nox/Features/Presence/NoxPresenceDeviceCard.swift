@@ -23,6 +23,8 @@ struct NoxPresenceDeviceCard: View {
     let onDecline: (() -> Void)?
     let onPulse: (() -> Void)?
     var subtitleOverride: String?
+    var primaryDetailOverride: String?
+    var metadataOverride: String?
     var isGroupedDevice = false
     var isPrimaryEnvironment = false
 
@@ -41,7 +43,7 @@ struct NoxPresenceDeviceCard: View {
                 .padding(.leading, NoxSpacing.md)
             VStack(alignment: .leading, spacing: isPrimaryEnvironment ? NoxSpacing.xs : 3) {
                 if isPrimaryEnvironment {
-                    Text("This environment")
+                    Text(NoxConstellationCopy.sectionCurrentDevice)
                         .font(.system(size: 10, weight: .semibold))
                         .foregroundStyle(NoxDesignTokens.ColorRole.accent.opacity(0.76))
                         .textCase(.uppercase)
@@ -53,6 +55,16 @@ struct NoxPresenceDeviceCard: View {
                 Text(subtitleOverride ?? NoxPresenceDeviceCopy.subtitle(for: kind, tone: tone))
                     .font(.system(size: isPrimaryEnvironment ? 13 : 12))
                     .foregroundStyle(NoxDesignTokens.ColorRole.textSecondary.opacity(0.82))
+                if let primaryDetailOverride, isPrimaryEnvironment {
+                    Text(primaryDetailOverride)
+                        .font(.system(size: 12))
+                        .foregroundStyle(NoxDesignTokens.ColorRole.textSecondary.opacity(0.72))
+                }
+                if let metadataOverride, !isPrimaryEnvironment {
+                    Text(metadataOverride)
+                        .font(.system(size: 11))
+                        .foregroundStyle(NoxDesignTokens.ColorRole.textSecondary.opacity(0.65))
+                }
             }
             Spacer(minLength: NoxSpacing.md)
             rowActions

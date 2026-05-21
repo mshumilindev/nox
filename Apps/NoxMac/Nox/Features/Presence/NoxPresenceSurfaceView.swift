@@ -13,7 +13,7 @@ import NoxObservatoryCore
 import NoxPresenceCore
 import NoxDesignCore
 
-/// Ambient Apple ecosystem presence — curated Nox environments, not LAN enumeration.
+/// Constellation — curated device ecosystem, not a network browser.
 struct NoxPresenceSurfaceView: View {
     @Environment(AppEnvironment.self) private var environment
     @State private var expandTarget: ExpandTarget?
@@ -25,8 +25,8 @@ struct NoxPresenceSurfaceView: View {
     var body: some View {
         NoxSurfacePage {
             NoxPageIntro(
-                title: "Presence",
-                subtitle: "Nearby Apple devices and environments detected locally."
+                title: NoxConstellationCopy.pageTitle,
+                subtitle: NoxConstellationCopy.pageSubtitle
             )
 
             thisMacHero
@@ -36,8 +36,9 @@ struct NoxPresenceSurfaceView: View {
             }
 
             if !mesh.isListeningForPresence {
-                nearbyEnvironmentsSection
-                trustedEnvironmentsSection
+                nearbyCandidatesSection
+                trustedConstellationSection
+                expandActionsSection
             }
 
             if showDeveloperTools || optionKeyDown {
@@ -70,6 +71,7 @@ struct NoxPresenceSurfaceView: View {
     private var thisMacHero: some View {
         let name = mesh.identity?.deviceName ?? "This Mac"
         let kind = resolvedKind(for: name) ?? .macBookPro
+        let isNoxI = NoxConstellationRoleResolver.isNoxIActiveOnThisDevice(isMacOSCanonicalApp: true)
         return NoxPresenceDeviceCard(
             deviceName: name,
             kind: kind,
@@ -79,6 +81,8 @@ struct NoxPresenceSurfaceView: View {
             onTrust: nil,
             onDecline: nil,
             onPulse: nil,
+            subtitleOverride: NoxConstellationCopy.currentDeviceSubtitle(isNoxIActive: isNoxI),
+            primaryDetailOverride: NoxConstellationCopy.currentDeviceDetail(isNoxIActive: isNoxI),
             isPrimaryEnvironment: true
         )
         .onTapGesture(count: 5) {
@@ -90,9 +94,9 @@ struct NoxPresenceSurfaceView: View {
 
     // MARK: - Sections
 
-    private var nearbyEnvironmentsSection: some View {
+    private var nearbyCandidatesSection: some View {
         VStack(alignment: .leading, spacing: NoxSpacing.md) {
-            Text("Nearby Environments")
+            Text(NoxConstellationCopy.sectionNearbyCandidates)
                 .noxSectionLabel()
 
             if mesh.ambientNearbyNodes.isEmpty {
@@ -100,6 +104,7 @@ struct NoxPresenceSurfaceView: View {
             } else {
                 ForEach(mesh.ambientNearbyNodes) { node in
                     if let kind = resolvedKind(for: node) {
+                        let presentation = candidatePresentation(for: node, kind: kind)
                         let hardwareIdentity = NoxPresenceHardwareIdentityResolver.hardwareIdentity(
                             for: node,
                             expectedKind: kind
@@ -122,7 +127,8 @@ struct NoxPresenceSurfaceView: View {
                             onPulse: node.state == .unavailable ? {
                                 Task<Void, Never> { await mesh.sendAirPlayTestPulse(to: node.deviceId) }
                             } : nil,
-                            subtitleOverride: subtitle(for: node, kind: kind),
+                            subtitleOverride: presentation.roleLabel,
+                            metadataOverride: presentation.metadata,
                             isGroupedDevice: isGroupedDevice(node)
                         )
                     }
@@ -131,9 +137,9 @@ struct NoxPresenceSurfaceView: View {
         }
     }
 
-    private var trustedEnvironmentsSection: some View {
+    private var trustedConstellationSection: some View {
         VStack(alignment: .leading, spacing: NoxSpacing.md) {
-            Text("Trusted Presence")
+            Text(NoxConstellationCopy.sectionTrustedDevices)
                 .noxSectionLabel()
 
             if mesh.trustedNodes.isEmpty {
@@ -149,7 +155,8 @@ struct NoxPresenceSurfaceView: View {
                             onExpand: nil,
                             onTrust: nil,
                             onDecline: nil,
-                            onPulse: { Task { await mesh.sendTestPulse(to: node.trustedNodeId) } }
+                            onPulse: { Task { await mesh.sendTestPulse(to: node.trustedNodeId) } },
+                            subtitleOverride: NoxConstellationCopy.trustedSubtitle(assignedRole: node.constellationRole)
                         )
                     }
                 }
@@ -157,12 +164,39 @@ struct NoxPresenceSurfaceView: View {
         }
     }
 
+    private var expandActionsSection: some View {
+        VStack(alignment: .leading, spacing: NoxSpacing.md) {
+            Text(NoxConstellationCopy.sectionExpandActions)
+                .noxSectionLabel()
+
+            VStack(alignment: .leading, spacing: NoxSpacing.sm) {
+                Text("Share a setup link or invite another Mac when you are ready.")
+                    .font(.system(size: 13))
+                    .foregroundStyle(NoxDesignTokens.ColorRole.textSecondary.opacity(0.82))
+
+                HStack(spacing: NoxSpacing.sm) {
+                    Button(NoxConstellationCopy.inviteDevice) {
+                        prepareAndShare()
+                    }
+                    .buttonStyle(NoxPresenceGhostButtonStyle(emphasized: true))
+
+                    Button(NoxConstellationCopy.copySetupLink) {
+                        copySetupLink()
+                    }
+                    .buttonStyle(NoxPresenceGhostButtonStyle())
+                }
+            }
+            .padding(NoxSpacing.lg)
+            .noxSurface(.inset, padding: 0)
+        }
+    }
+
     private var emptyNearbyState: some View {
         VStack(alignment: .leading, spacing: NoxSpacing.sm) {
-            Text("No nearby Nox presence yet.")
+            Text(NoxConstellationCopy.emptyNearbyTitle)
                 .font(.system(size: 15, weight: .medium))
                 .foregroundStyle(NoxDesignTokens.ColorRole.textPrimary.opacity(0.9))
-            Text("Listening for nearby Apple devices on this network.")
+            Text(NoxConstellationCopy.emptyNearbyDetail)
                 .font(.system(size: 13))
                 .foregroundStyle(NoxDesignTokens.ColorRole.textSecondary.opacity(0.78))
         }
@@ -180,7 +214,7 @@ struct NoxPresenceSurfaceView: View {
     }
 
     private var emptyTrustedHint: some View {
-        Text("Approved nearby environments will appear here.")
+        Text(NoxConstellationCopy.emptyTrustedHint)
             .noxMetadata()
             .frame(maxWidth: .infinity, alignment: .leading)
             .padding(NoxSpacing.lg)
@@ -242,14 +276,20 @@ struct NoxPresenceSurfaceView: View {
         return .nearby
     }
 
-    private func subtitle(for node: NoxDiscoveredNode, kind: NoxPresenceDeviceKind) -> String? {
-        if kind == .homePod, isGroupedDevice(node) {
-            return "Stereo pair nearby"
-        }
-        if node.state == .unavailable {
-            return "Nearby Apple ecosystem presence"
-        }
-        return nil
+    private var constellationContext: NoxConstellationClassificationContext {
+        NoxConstellationClassificationContext(hasConfiguredStation: mesh.hasConfiguredNoxStation)
+    }
+
+    private func candidatePresentation(
+        for node: NoxDiscoveredNode,
+        kind: NoxPresenceDeviceKind
+    ) -> NoxConstellationCandidatePresentation {
+        NoxConstellationRoleResolver.nearbyCandidatePresentation(
+            for: node,
+            kind: kind,
+            isGroupedHomePodStereo: kind == .homePod && isGroupedDevice(node),
+            context: constellationContext
+        )
     }
 
     private func isGroupedDevice(_ node: NoxDiscoveredNode) -> Bool {

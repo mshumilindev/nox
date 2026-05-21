@@ -19,6 +19,12 @@ struct NoxSemanticNavigationRail: View {
   private let reflective: [NoxSemanticDestination] = [.patterns, .reflections]
   private let system: [NoxSemanticDestination] = [.local, .trust]
 
+  private var railWidth: CGFloat {
+    environment.preferences.windowMode == .deepReflection
+      ? NoxMaterials.deepReflectionRailWidth
+      : NoxMaterials.railWidth
+  }
+
   var body: some View {
     VStack(alignment: .leading, spacing: 0) {
       HStack(spacing: NoxSpacing.sm) {
@@ -46,7 +52,7 @@ struct NoxSemanticNavigationRail: View {
 
       Spacer(minLength: NoxSpacing.md)
     }
-    .frame(width: NoxMaterials.railWidth)
+    .frame(width: railWidth)
     .background(NoxDesignTokens.ColorRole.rail)
     .overlay(alignment: .trailing) {
       Rectangle()
@@ -85,7 +91,7 @@ struct NoxSemanticNavigationRail: View {
           role: .inline,
           emphasized: selected
         )
-        Text(destination.title)
+        Text(environment.navigationTitle(for: destination))
           .font(selected ? Font.system(size: 11, weight: .medium) : NoxTypography.railLabel)
           .foregroundStyle(
             selected
@@ -93,6 +99,7 @@ struct NoxSemanticNavigationRail: View {
               : NoxDesignTokens.ColorRole.textSecondary.opacity(0.68)
           )
           .lineLimit(1)
+          .fixedSize(horizontal: true, vertical: false)
         Spacer(minLength: 0)
       }
       .padding(.leading, NoxSpacing.md)

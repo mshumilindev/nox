@@ -11,6 +11,8 @@ public nonisolated struct NoxTrustedNode: Codable, Equatable, Sendable, Identifi
     public let protocolVersion: Int
     public var lastHost: String?
     public var lastPairingPort: Int?
+    /// Explicit constellation role when assigned — never inferred in UI.
+    public var constellationRole: NoxConstellationAssignedRole?
 
     public var id: String { trustedNodeId }
 
@@ -24,7 +26,8 @@ public nonisolated struct NoxTrustedNode: Codable, Equatable, Sendable, Identifi
         systemId: String,
         protocolVersion: Int,
         lastHost: String? = nil,
-        lastPairingPort: Int? = nil
+        lastPairingPort: Int? = nil,
+        constellationRole: NoxConstellationAssignedRole? = nil
     ) {
         self.trustedNodeId = trustedNodeId
         self.trustedDeviceName = trustedDeviceName
@@ -36,5 +39,6 @@ public nonisolated struct NoxTrustedNode: Codable, Equatable, Sendable, Identifi
         self.protocolVersion = protocolVersion
         self.lastHost = lastHost
         self.lastPairingPort = lastPairingPort
+        self.constellationRole = constellationRole
     }
 }

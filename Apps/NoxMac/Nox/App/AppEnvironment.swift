@@ -21,10 +21,22 @@ final class AppEnvironment {
     var permissionState: NoxPermissionState = .limited
     var liveSignals: [NoxLiveSignal] = []
     var timelineEvents: [NoxTimelineRecord] = []
-    var timelineSections: [NoxTimelineSection] = []
+    var galaxyTimelineSections: [NoxTimelineSection] = []
+    var galaxyDayOverview: String?
+    var galaxyEmergence: NoxMemoryEmergence = NoxMemoryEmergence(
+        continuitySeconds: 0,
+        readiness: .observing,
+        liveSignalCount: 0
+    )
+    var deepSpaceTimelineSections: [NoxTimelineSection] = []
+    var deepSpaceEntries: [NoxMemoryDeepSpaceEntry] = []
+
+    var timelineSections: [NoxTimelineSection] {
+        galaxyTimelineSections
+    }
 
     var timelineBlocks: [NoxTimelineBlockItem] {
-        timelineSections.flatMap(\.items)
+        galaxyTimelineSections.flatMap(\.items)
     }
     var memoryPeriod: NoxMemoryPeriod = .today
     var memorySearchText: String = ""
