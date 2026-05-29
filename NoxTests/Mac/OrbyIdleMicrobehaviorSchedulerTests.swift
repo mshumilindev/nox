@@ -36,13 +36,13 @@ final class OrbyIdleMicrobehaviorSchedulerTests: XCTestCase {
       cursorInsideOrb: false,
       secondsUntilSleepThreshold: 20
     )
-    for _ in 0..<80 {
+    for _ in 0..<160 {
       if let pick = OrbyIdleMicrobehaviorWeights.pickRandom(context: context) {
         kinds.insert(pick)
       }
     }
     XCTAssertGreaterThanOrEqual(kinds.count, 4)
-    XCTAssertEqual(OrbyIdleMicrobehavior.allCases.count, 19)
+    XCTAssertEqual(OrbyIdleMicrobehavior.allCases.count, 20)
     XCTAssertEqual(OrbyIdleMicrobehavior.allCases.filter(\.isStylized).count, 5)
   }
 

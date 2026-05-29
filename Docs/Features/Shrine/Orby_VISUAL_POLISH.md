@@ -10,7 +10,7 @@ Visual polish pass: eye-shape blink/sleep (no eyelid overlays), morphing mouth, 
 
 Blink/sleep/squint = **eye height morph** only. `eyelidClosure` in API = **narrow amount** (0 open → 1 thin slit). No separate lid shapes. No opacity-only blink.
 
-**Canonical awake layout** (`OrbyEmotionAppearance`): spacing **16**, width **9.5**, default heights **9.5 / 7.5**; all awake moods share spacing/width/shift — expression varies **height only**. `OrbyEyeMetrics.sizeScale` **1.08**. `passive` / `muted` use full `neutralDefault` eyes (not extra-dimmed slits). `eyesDimmed` reserved for `disconnected`.
+**Canonical awake layout** (`OrbyEmotionAppearance`): spacing **16**, width **9.5**, default heights **9.5 / 7.5**; all awake moods share spacing/width/shift — expression varies **height only**. `OrbyEyeMetrics.sizeScale` **1.08**. `passive` / `muted` use full `neutralDefault` eyes (not extra-dimmed slits). `eyesDimmed` reserved for `disconnected`. **Hard drop shadows** on eyes/mouth (offset duplicate, no blur) toward bottom-right via `OrbyFaceShadowStyle`.
 
 ## 2. Ambient blink
 
@@ -38,13 +38,16 @@ Close 0.10s → hold 0.05s → open 0.14s per pulse. Interval between events: mo
 
 ## Cosmic orb body (internal material)
 
-Layer order inside `OrbyOrbChrome` orb shell (back → front): **cosmic material** (`OrbyCosmicMaterialView`: base gradient → nebula → starfield → vignette) → emotion **tint** → **stylized sky overlays** (noir, black hole) → **rim strokes** → **adaptive bezel** → face (eyes/mouth above shell). No separate gloss highlight layer.
+Layer order inside `OrbyOrbChrome` orb shell (back → front): **cosmic material** (`OrbyCosmicMaterialView`: base fill with **sleep-aware body gradient** (`OrbyOrbLighting`) → nebula → starfield → **ambient meteors** → vignette) → emotion **tint** → **stylized sky overlays** (noir, black hole) → **rim strokes** → **adaptive bezel** (legacy inline angular gradient) → face (eyes/mouth above shell). No separate gloss highlight layer.
+
+- **Body lighting:** continuous `sleepDepth` drives night-purple base + smooth awake↔sleep transitions (0.72 s ease); vignette fades with sleep.
+- **Ambient meteors:** passive internal streaks — see [Orby_AMBIENT_SKY.md](Orby_AMBIENT_SKY.md). Orby does not react.
 
 - **Starfield:** 24 deterministic stars (`OrbyCosmicStarCatalog`), twinkle at 20 Hz opacity only, clipped to circle.
 - **Nebula:** soft violet + blue/magenta clouds; ~48 s drift; center falloff for face readability.
 - **Tuning:** `OrbyCosmicMaterialConfig` (`starCount`, opacity/twinkle/nebula multipliers, `faceSafeZoneDimming`).
 - **Separate from** external post-drag dazed stars and sleep Zzz.
-- Wake yawn (**~4.6 s**): one morphing mouth — sleepy line → **vertical rounded capsule** (preferred ~16×20 pt, clamp max 18×22); deep violet fill ~0.86 opacity when open (`OrbyFaceView`); `verticalYawnCapsule` from low openness (no wide horizontal bar first). Thin sleepy eyes (~0.93 closure) entire yawn. Hold at max ~30% of phase; head arc `OrbyWakeYawnMotion`. `startFullWake` resets mouth settle (no pre-yawn stretch/snap). **`wakePhaseGapSeconds` (~0.16 s)** between steps. **Mouth settle** (~0.45 s) after ritual only. Envelope **30×22 pt**; gaze/drag must not wrap mouth.
+- Wake yawn (**~4.6 s**): standard mouth color; opacity ramps **0.68 → 1.0** with `sleepDepth` during yawn (no special violet fill). One morphing mouth — sleepy line → **vertical rounded capsule** (preferred ~16×20 pt, clamp max 18×22); `verticalYawnCapsule` from low openness (no wide horizontal bar first). Thin sleepy eyes (~0.93 closure) entire yawn. Hold at max ~30% of phase; head arc `OrbyWakeYawnMotion`. `startFullWake` resets mouth settle (no pre-yawn stretch/snap). **`wakePhaseGapSeconds` (~0.16 s)** between steps. **Mouth settle** (~0.45 s) after ritual only. Envelope **30×22 pt**; gaze/drag must not wrap mouth.
 
 ## 4. Mouth
 
@@ -73,6 +76,8 @@ Full spec: [Orby_DRAG_PHYSICS.md](Orby_DRAG_PHYSICS.md).
 ## 6. Dizzy (post-drag dazed)
 
 4 yellow cartoon stars on an elliptical orbit (~1.0s per revolution); pseudo-3D front/back via size, opacity, and zIndex; ~3.5s duration.
+
+**Face while dazed:** eyes **9×6** with partial closure (**0.46**); mouth **closed sleep slit** at **0.68** opacity (static — no asleep breathing animation). Cursor follow off.
 
 **Trigger:** `OrbyDragGestureClassifier` only — **throw-like** release (short, straight, hot), violent sustained drag, shake, or jerk. Normal reposition never dazes. **Not** distance, duration, or deformation intensity alone. See [Orby_DRAG_DAZED.md](Orby_DRAG_DAZED.md).
 

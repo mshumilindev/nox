@@ -216,11 +216,21 @@ struct OrbyFaceView: View {
     return false
   }
 
+  private var usesAsleepFaceLayout: Bool {
+    isAsleep || isSleepTransition
+  }
+
+  private var sleepyFeatureDim: Double {
+    if isAsleep || isPostDragDazed { return 0.68 }
+    let depth = Double(mouthSleepDepth)
+    return 0.68 + 0.32 * (1 - depth)
+  }
+
   @ViewBuilder
   private func eye(isLeft: Bool) -> some View {
     let spec = isLeft ? emotion.leftEye : emotion.rightEye
     let metrics = resolvedMetrics(isLeft: isLeft, spec: spec)
-    let asleepDim: Double = isAsleep ? 0.68 : 1
+    let asleepDim: Double = sleepyFeatureDim
 
     OrbyEyeView(
       width: metrics.width,
@@ -239,21 +249,22 @@ struct OrbyFaceView: View {
       parameters: presentation.mouthParameters,
       color: mouthFillColor
     )
-    // While asleep the eyes dim to 0.68; match the mouth so the whole face
-    // reads as softly "off" rather than the mouth staying fully opaque.
-    .opacity(isAsleep ? 0.68 : 1)
+    .opacity(mouthOpacity)
+    .animation(OrbyOrbLighting.sleepLightingAnimation, value: mouthSleepDepth)
+    .animation(sleepWakeAnimation, value: presentation.phase)
+  }
+
+  private var mouthSleepDepth: CGFloat {
+    OrbySleepDepth.depth(for: presentation.phase)
+  }
+
+  /// Matches asleep eye dim (0.68); ramps to full opacity as sleep depth clears (wake yawn).
+  private var mouthOpacity: Double {
+    sleepyFeatureDim
   }
 
   private var mouthFillColor: Color {
-    if isWakeYawnMouth {
-      return Color(red: 0.44, green: 0.28, blue: 0.58)
-    }
-    return presentation.isExcited ? excitedFaceForeground : faceForeground
-  }
-
-  private var isWakeYawnMouth: Bool {
-    guard case .wakingYawn = presentation.phase else { return false }
-    return presentation.mouthParameters.openness > 0.1
+    presentation.isExcited ? excitedFaceForeground : faceForeground
   }
 
   private var faceForeground: Color {
@@ -275,7 +286,7 @@ struct OrbyFaceView: View {
 
   private func resolvedMetrics(isLeft: Bool, spec: OrbyEyeAppearance) -> EyeMetrics {
     let scaled = scaleEye(spec)
-    if isAsleep || isSleepTransition {
+    if usesAsleepFaceLayout {
       return EyeMetrics(
         width: OrbyEyeMetrics.scaled(9),
         height: OrbyEyeMetrics.scaled(9),

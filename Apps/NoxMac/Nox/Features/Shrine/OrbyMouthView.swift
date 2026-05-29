@@ -10,11 +10,20 @@ struct OrbyMouthView: View {
   private static let envelopeHeight: CGFloat = 22
 
   var body: some View {
-    OrbyMouthShape(parameters: parameters)
-      .fill(color.opacity(mouthFillOpacity))
-      .frame(width: Self.envelopeWidth, height: Self.envelopeHeight)
-      .offset(y: parameters.verticalOffset)
-      .transaction { $0.animation = nil }
+    ZStack {
+      OrbyMouthShape(parameters: parameters)
+        .fill(OrbyFaceShadowStyle.color)
+        .offset(
+          x: OrbyFaceShadowStyle.offset.width,
+          y: OrbyFaceShadowStyle.offset.height + parameters.verticalOffset
+        )
+
+      OrbyMouthShape(parameters: parameters)
+        .fill(color.opacity(mouthFillOpacity))
+        .offset(y: parameters.verticalOffset)
+    }
+    .frame(width: Self.envelopeWidth, height: Self.envelopeHeight)
+    .transaction { $0.animation = nil }
   }
 
   private var mouthFillOpacity: Double {

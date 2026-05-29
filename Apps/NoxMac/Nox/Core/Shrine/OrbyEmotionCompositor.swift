@@ -213,8 +213,9 @@ enum OrbyEmotionCompositor {
     case .postDragDazed:
       a.leftEye = OrbyEyeAppearance(width: 9, height: 6)
       a.rightEye = a.leftEye
-      a.mouth = OrbyPhaseMouthPresets.postDragDazed
-      a.tint.desaturation = 0.06
+      a.mouth = OrbyWakeMouthParameters.closedSlit
+      a.tint.brightness = 0.9
+      a.tint.coolShift = 0.08
       a.overlayParticles = .none
       a.trackingScale = 0
     case .asleep:

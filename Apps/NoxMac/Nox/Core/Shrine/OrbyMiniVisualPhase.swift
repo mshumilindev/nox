@@ -88,6 +88,8 @@ struct OrbyMiniVisualPresentation: Equatable {
   var sleepBreath: Double = 0
   /// 0 = night cosmos, 1 = clear day sky. Driven by local clock (OrbyInnerSkyClock).
   var dayNightBlend: CGFloat = 0
+  /// Passive internal-sky meteor streaks (not microbehaviors; Orby does not react).
+  var ambientSkyMeteors: [OrbyAmbientMeteorRenderItem] = []
 
   var mouthParameters: OrbyMouthParameters { emotion.mouth }
   var faceBrightness: Double { emotion.faceBrightness }

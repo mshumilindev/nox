@@ -84,6 +84,27 @@ enum OrbyMiniVisualTiming {
 
   static let dizzyStarOrbitPeriodSeconds: TimeInterval = 1.0
 
+  // MARK: - Ambient internal sky events (not microbehaviors)
+
+  static let ambientMeteorInitialDelayRange: ClosedRange<TimeInterval> = 60...120
+  static let ambientMeteorIntervalRange: ClosedRange<TimeInterval> = 180...480
+  static let ambientMeteorMinimumGap: TimeInterval = 90
+  static let ambientMeteorMaxPerTenMinutes = 3
+  static let ambientMeteorDurationRange: ClosedRange<TimeInterval> = 0.35...0.9
+
+  static let perseidInitialDelay: TimeInterval = 10 * 60
+  static let perseidIntervalRange: ClosedRange<TimeInterval> = (45 * 60)...(90 * 60)
+  static let perseidMaxPerSession = 1
+  static let perseidAllowedDayNightBlendMax: CGFloat = 0.65
+  static let perseidShowerDurationSeconds: TimeInterval = 3.5
+
+  // MARK: - Saturn ring orbit microbehavior
+
+  static let saturnRingOrbitDurationRange: ClosedRange<TimeInterval> = 5.0...7.0
+  static let saturnRingOrbitMinCooldownSeconds: TimeInterval = 35 * 60
+  static let saturnRingOrbitMaxPerHour = 1
+  static let saturnRingOrbitStylizedGapSeconds: TimeInterval = 15 * 60
+
   static func ambientBlinkInterval(for mood: OrbyMood) -> ClosedRange<TimeInterval> {
     let base: ClosedRange<TimeInterval> =
       switch mood {

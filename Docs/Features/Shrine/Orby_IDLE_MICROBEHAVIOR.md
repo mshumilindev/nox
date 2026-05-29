@@ -67,7 +67,7 @@ Showing Orby (`noteShow`) still **resets** the scheduler (fresh initial delay).
 - If no behavior is eligible, retry in ~10–18 s.
 - &lt; 8 s until sleep: only `humPulse`, `pixelShiver`, `microSmile`; &lt; 4 s: skip scheduling.
 
-## Behaviors (19)
+## Behaviors (20)
 
 ### Base (14)
 
@@ -76,6 +76,10 @@ Showing Orby (`noteShow`) still **resets** the scheduler (fresh initial delay).
 ### Stylized character beats (5)
 
 `animeSelfSatisfied`, `noirDetective`, `cosmicCometWatch`, `catMode`, `blackHoleNibble` — share min **7 min** gap, max **4/hour**, never consecutive. Overlays: anime/cat stylized eyes, noir grading + light band, comet crossing orb, black hole + nibbled star.
+
+### Orbital moment (1)
+
+`saturnRingOrbit` — rare **5–7 s** tilted Saturn-like rings + orbiting satellite around the orb; **no facial reaction**; own cooldown bucket (**35 min** min gap, **1/hour**). Weight **1** (very rare). Suppressed during focus/deepFocus/passive/muted/alarmed/overloaded/disconnected and when cursor is on orb. Rings extend outside orb circle; **hit testing remains orb-only**.
 
 Mouth: always one morphing blob. Tongue/bubble/sparkle are **overlays**, not a second mouth.
 
@@ -92,6 +96,6 @@ Triggered only by **throw-like** gesture classifier ([Orby_DRAG_DAZED.md](Orby_D
 | `OrbyIdleMicrobehaviorWeights.swift` | Weighted random pick |
 | `OrbyIdleMicrobehaviorScheduler.swift` | When / pause / rate limits / stylized bucket |
 | `OrbyIdleMicrobehaviorAnimation.swift` | Per-behavior curves |
-| `OrbyIdleMicroOverlayViews.swift`, `OrbyStylizedEyeViews.swift`, `OrbyStylizedSkyOverlays.swift` | Overlays |
+| `OrbyIdleMicroOverlayViews.swift`, `OrbyStylizedEyeViews.swift`, `OrbyStylizedSkyOverlays.swift`, `OrbySaturnRingView.swift` | Overlays |
 | `ShrineMiniVisualController.swift` | Tick + gaze gate + merge |
 | `NoxTests/Mac/OrbyIdleMicrobehavior*.swift` | Scheduler, policy |

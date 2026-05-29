@@ -22,6 +22,7 @@ enum OrbyIdleMicrobehavior: String, CaseIterable, Equatable {
   case cosmicCometWatch
   case catMode
   case blackHoleNibble
+  case saturnRingOrbit
 
   /// Rare, visually rich "character beat" behaviors. Share one cooldown bucket
   /// (min gap + max-per-hour) and a mood gate; never back-to-back.
@@ -29,18 +30,15 @@ enum OrbyIdleMicrobehavior: String, CaseIterable, Equatable {
     switch self {
     case .animeSelfSatisfied, .noirDetective, .cosmicCometWatch, .catMode, .blackHoleNibble:
       return true
+    case .saturnRingOrbit:
+      return false
     default:
       return false
     }
   }
 
-  var isPlayful: Bool {
-    switch self {
-    case .tonguePeek, .bubbleBlow, .cheekPuff, .tinySneeze, .pixelShiver:
-      true
-    default:
-      false
-    }
+  var usesOrbitalCooldown: Bool {
+    self == .saturnRingOrbit
   }
 
   var usesParticles: Bool {
@@ -56,7 +54,7 @@ enum OrbyIdleMicrobehavior: String, CaseIterable, Equatable {
   var isSubtleWhileHovering: Bool {
     switch self {
     case .tonguePeek, .bubbleBlow, .cheekPuff, .tinySneeze, .pixelShiver, .sparkleCatch, .selfPolish,
-         .animeSelfSatisfied, .noirDetective, .cosmicCometWatch, .catMode, .blackHoleNibble:
+         .animeSelfSatisfied, .noirDetective, .cosmicCometWatch, .catMode, .blackHoleNibble, .saturnRingOrbit:
       false
     default:
       true
@@ -84,6 +82,7 @@ enum OrbyIdleMicrobehavior: String, CaseIterable, Equatable {
     case .cosmicCometWatch: 4.5...5.5
     case .catMode: 3.0...4.0
     case .blackHoleNibble: 5.5...6.5
+    case .saturnRingOrbit: 5.0...7.0
     }
   }
 }
@@ -125,6 +124,19 @@ struct OrbyIdleMicroOverlay: Equatable {
   var blackHoleSide: CGFloat = 1
   /// 0…1 — progress of the nibbled star being pulled into the black hole.
   var blackHoleStarProgress: Double = 0
+
+  /// 0…1 — Saturn ring overlay strength (`saturnRingOrbit` microbehavior).
+  var saturnRingOpacity: Double = 0
+  /// 0…1 — behavior progress for ring fade in/out.
+  var saturnRingProgress: Double = 0
+  /// Ellipse tilt in degrees.
+  var saturnRingTiltDegrees: Double = -14
+  /// Satellite angle on the ring ellipse (radians).
+  var saturnSatelliteAngle: Double = 0
+  /// -1 back … +1 front pseudo-depth.
+  var saturnSatelliteFrontness: Double = 0
+  /// 0…1 — satellite visibility.
+  var saturnSatelliteOpacity: Double = 0
 }
 
 /// Per-frame idle output merged into presentation (local UI only).

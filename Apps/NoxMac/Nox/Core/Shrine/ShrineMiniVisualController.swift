@@ -56,6 +56,8 @@ final class OrbyMiniVisualController {
   private(set) var backgroundLuminance: Double = 0.5
   /// Bumped while a microbehavior runs so SwiftUI re-renders progress (scheduler is not @Observable).
   private(set) var idleMicroRenderTick: UInt = 0
+  /// Bumped every frame while a passive sky event is visible.
+  private(set) var ambientSkyRenderTick: UInt = 0
   /// Bumped every frame while Orby sleeps so the breathing (mouth + orb) re-renders smoothly.
   private(set) var sleepBreathRenderTick: UInt = 0
   /// Mouth shape captured at the moment Orby starts waking, so the first wake
@@ -63,6 +65,7 @@ final class OrbyMiniVisualController {
   private var wakeEntryMouth: OrbyMouthParameters?
   private var wakeEntryStartedAt: Date?
   private let idleMicroScheduler = OrbyIdleMicrobehaviorScheduler()
+  private let ambientSkyScheduler = OrbyAmbientSkyEventScheduler()
   private var lastResolvedMood: OrbyMood = .neutral
 
   func attach(panel: NSPanel) {
@@ -99,10 +102,12 @@ final class OrbyMiniVisualController {
     pendingHoverExcitedAfterGreeting = false
     if playLaunchGreeting, shouldPlayLaunchGreeting() {
       idleMicroScheduler.noteShow()
+      ambientSkyScheduler.noteShow()
       startLaunchGreeting()
     } else {
       phase = .awake
       idleMicroScheduler.noteManualShowcase()
+      ambientSkyScheduler.noteShow()
     }
   }
 
@@ -211,6 +216,7 @@ final class OrbyMiniVisualController {
     _ = idleMicroRenderTick
     _ = dragPhysicsRenderTick
     _ = sleepBreathRenderTick
+    _ = ambientSkyRenderTick
     let now = Date()
     var sleepBreath = 0.0
     let deformation = dragPhysics.snapshot()
@@ -336,6 +342,14 @@ final class OrbyMiniVisualController {
     let blinkAllowed = allowsAmbientBlink(for: effectivePhase, now: now)
       && idleMicroScheduler.allowsBaselineBlink(now: now)
 
+    let skyContext = ambientSkySchedulingContext(
+      phase: effectivePhase,
+      mood: resolvedMood,
+      now: now,
+      dayNightBlend: CGFloat(idleOverlay.animeEyeReveal)
+    )
+    let ambientSkyMeteors = ambientSkyScheduler.renderItems(now: now, context: skyContext)
+
     return OrbyMiniVisualPresentation(
       resolvedMood: resolvedMood,
       intensity: intensity,
@@ -371,8 +385,48 @@ final class OrbyMiniVisualController {
       // Day sky is NOT clock-driven — Orby is always night by default. It only
       // blooms to day (and back) during the anime self-satisfied beat, tied to
       // that behavior's reveal envelope.
-      dayNightBlend: CGFloat(idleOverlay.animeEyeReveal)
+      dayNightBlend: CGFloat(idleOverlay.animeEyeReveal),
+      ambientSkyMeteors: ambientSkyMeteors
     )
+  }
+
+  private func ambientSkySchedulingContext(
+    phase: OrbyMiniVisualPhase,
+    mood: OrbyMood,
+    now: Date,
+    dayNightBlend: CGFloat
+  ) -> OrbyAmbientSkySchedulingContext {
+    OrbyAmbientSkySchedulingContext(
+      phase: phase,
+      mood: mood,
+      isVisible: panel?.isVisible == true,
+      isDragging: isDragging,
+      isContextMenuOpen: isContextMenuOpen,
+      dayNightBlend: dayNightBlend,
+      zzzOpacity: zzzOpacity(for: phase),
+      activeMicrobehavior: idleMicroScheduler.active?.kind
+    )
+  }
+
+  private func updateAmbientSkyEvents(now: Date, mood: OrbyMood, phase: OrbyMiniVisualPhase) {
+    let dayNight: CGFloat = {
+      guard idleMicroScheduler.active?.kind == .animeSelfSatisfied,
+            let frame = idleMicroScheduler.currentFrame(
+              baseMouth: OrbyEmotionAppearance.neutralDefault.mouth
+            ) else { return 0 }
+      return CGFloat(frame.overlay.animeEyeReveal)
+    }()
+    let context = ambientSkySchedulingContext(
+      phase: phase,
+      mood: mood,
+      now: now,
+      dayNightBlend: dayNight
+    )
+    let hadActive = ambientSkyScheduler.hasActiveEvents
+    ambientSkyScheduler.advance(now: now, context: context)
+    if ambientSkyScheduler.hasActiveEvents || hadActive {
+      ambientSkyRenderTick &+= 1
+    }
   }
 
   private func isWakePhaseForMouth(_ phase: OrbyMiniVisualPhase) -> Bool {
@@ -561,6 +615,7 @@ private extension OrbyMiniVisualController {
       updatePriorityPhase(now: now)
     }
     updateIdleMicrobehaviors(now: now, mood: lastResolvedMood, phase: prioritizedPhase())
+    updateAmbientSkyEvents(now: now, mood: lastResolvedMood, phase: prioritizedPhase())
 
     // Drive the asleep breathing (mouth + orb) at frame rate so it animates
     // smoothly even when no other state is changing.
@@ -1047,6 +1102,7 @@ private extension OrbyMiniVisualController {
     postDragDazedStartedAt = nil
     dragStartedAt = nil
     idleMicroScheduler.reset()
+    ambientSkyScheduler.noteHide()
     wakeMouthCrossfade = 1
     wakeMouthCrossfadeFrom = OrbyWakeMouthParameters.closedSlit
     wakeMouthCrossfadeTo = OrbyEmotionAppearance.neutralDefault.mouth

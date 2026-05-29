@@ -27,6 +27,9 @@ enum OrbyIdleMicrobehaviorPolicy {
 
   static func canRun(_ behavior: OrbyIdleMicrobehavior, context: OrbyIdleMicroContext) -> Bool {
     guard canSchedule(context) else { return false }
+    if behavior == .saturnRingOrbit {
+      return canRunSaturnRingOrbit(context)
+    }
     if context.isHovering || context.cursorInsideOrb { return behavior.isSubtleWhileHovering }
     if context.secondsUntilSleepThreshold < 8 {
       return behavior == .humPulse || behavior == .pixelShiver || behavior == .microSmile
@@ -56,6 +59,16 @@ enum OrbyIdleMicrobehaviorPolicy {
       true
     default:
       false
+    }
+  }
+
+  private static func canRunSaturnRingOrbit(_ context: OrbyIdleMicroContext) -> Bool {
+    guard !context.isHovering, !context.cursorInsideOrb else { return false }
+    switch context.mood {
+    case .focused, .deepFocus, .passive, .muted, .alarmed, .overloaded, .disconnected:
+      return false
+    default:
+      return true
     }
   }
 }

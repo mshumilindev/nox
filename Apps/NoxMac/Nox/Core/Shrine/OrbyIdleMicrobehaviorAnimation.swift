@@ -28,6 +28,7 @@ enum OrbyIdleMicrobehaviorAnimation {
     case .cosmicCometWatch: return cosmicCometWatch(t, base: baseMouth)
     case .catMode: return catMode(t, base: baseMouth)
     case .blackHoleNibble: return blackHoleNibble(t, base: baseMouth)
+    case .saturnRingOrbit: return saturnRingOrbit(t)
     }
   }
 
@@ -496,6 +497,30 @@ enum OrbyIdleMicrobehaviorAnimation {
       blackHoleStrength: strength,
       blackHoleSide: side,
       blackHoleStarProgress: starProgress
+    )
+    return frame
+  }
+
+  /// Rare planetary ring moment — visual overlay only; Orby does not react.
+  private static func saturnRingOrbit(_ t: Double) -> OrbyIdleMicrobehaviorFrame {
+    let ringIn = OrbyMiniVisualEasing.smoothstep(min(max(t / 0.12, 0), 1))
+    let ringOut = 1 - OrbyMiniVisualEasing.smoothstep(min(max((t - 0.82) / 0.18, 0), 1))
+    let ringOpacity = ringIn * ringOut
+    let satelliteIn = OrbyMiniVisualEasing.smoothstep(min(max((t - 0.05) / 0.10, 0), 1))
+    let satelliteOut = 1 - OrbyMiniVisualEasing.smoothstep(min(max((t - 0.85) / 0.12, 0), 1))
+    let satelliteOpacity = satelliteIn * satelliteOut
+    let orbitSpan = min(max((t - 0.12) / 0.70, 0), 1)
+    let angle = -Double.pi / 2 + orbitSpan * 2 * .pi * 1.35
+    let frontness = sin(angle)
+
+    var frame = OrbyIdleMicrobehaviorFrame()
+    frame.overlay = OrbyIdleMicroOverlay(
+      saturnRingOpacity: ringOpacity,
+      saturnRingProgress: t,
+      saturnRingTiltDegrees: -14,
+      saturnSatelliteAngle: angle,
+      saturnSatelliteFrontness: frontness,
+      saturnSatelliteOpacity: satelliteOpacity * ringOpacity
     )
     return frame
   }

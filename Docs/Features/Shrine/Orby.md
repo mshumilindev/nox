@@ -83,6 +83,7 @@ Rendered via `OrbyEmotionCompositor` → `OrbyEmotionAppearance` (eyes, mouth, t
 | Drag deformation | [Orby_DRAG_PHYSICS.md](Orby_DRAG_PHYSICS.md) |
 | Post-drag dazed | [Orby_DRAG_DAZED.md](Orby_DRAG_DAZED.md) |
 | Idle microbehaviors | [Orby_IDLE_MICROBEHAVIOR.md](Orby_IDLE_MICROBEHAVIOR.md) |
+| Ambient sky (meteors) | [Orby_AMBIENT_SKY.md](Orby_AMBIENT_SKY.md) |
 | Feature freeze | [Orby_FEATURE_FREEZE.md](Orby_FEATURE_FREEZE.md) |
 
 This file (`Orby.md`) is the **integration overview**; detail lives in the linked specs. If two docs disagree, prefer the topic-specific doc above and update `Orby.md` summary to match.
@@ -137,7 +138,7 @@ Friendly-state **11×5 pt** rose capsules on an **eye-row overlay** — vertical
 | `launchGreeting` | ~5.4 s greeting on manual show: 2.0 s smile hold, then silent “Hello” (he → llo mouth, **Hello** particles hold 2 s); no audio; blink off; see [Orby_LAUNCH_GREETING.md](Orby_LAUNCH_GREETING.md) |
 | `hoverExcited` | Circle-gated; **surprised round “o” mouth** + cheek blush; bigger eyes (11/10); micro timer **paused** |
 | `dragging` | Panel immediate; [visual deformation](Orby_DRAG_PHYSICS.md); surprised-safe mouth; micro timer **paused** |
-| `postDragDazed` | ~3.5 s dizzy stars only if [throw-like classifier](Orby_DRAG_DAZED.md) fired; micro timer **paused**; on exit, ~0.45 s mouth settle **O → mood** (not wake slit) |
+| `postDragDazed` | ~3.5 s dizzy stars only if [throw-like classifier](Orby_DRAG_DAZED.md) fired; eyes **9×6** + sleep-like closed mouth (**0.68** opacity, no breathing); micro timer **paused**; on exit, ~0.45 s mouth settle **slit → mood** |
 | `sleepyTransition` | ~6 s eyes narrow; mouth eases toward sleep slit; micro **paused** |
 | `asleep` | Thin slits + animated outward Zzz stream; micro **paused** |
 | `waking*` | Full ritual from `asleep` only: yawn (~4.6 s) → 2 blinks → squint → glance R/L → awake (**no** post-yawn smile phase); **0.16 s gap** between steps; micro **paused** |
@@ -151,7 +152,11 @@ Sleep: 30 s cursor idle → `sleepyTransition` → `asleep`. Wake from `asleep` 
 
 ## 17. Idle microbehaviors
 
-**19** rare awake behaviors (**14** base + **5** stylized character beats); weighted random pick without immediate repeat; timer **pause** during hover / drag / dizzy / sleep / wake / context menu (not restart). New behaviors start only when gaze is at rest (eyes centered, cursor quiet ~0.35 s). See [Orby_IDLE_MICROBEHAVIOR.md](Orby_IDLE_MICROBEHAVIOR.md).
+**20** rare awake behaviors (**14** base + **5** stylized + **`saturnRingOrbit`**); weighted random pick without immediate repeat; timer **pause** during hover / drag / dizzy / sleep / wake / context menu (not restart). New behaviors start only when gaze is at rest (eyes centered, cursor quiet ~0.35 s). See [Orby_IDLE_MICROBEHAVIOR.md](Orby_IDLE_MICROBEHAVIOR.md).
+
+## 17b. Ambient internal sky
+
+Passive meteors + rare Perseid shower inside cosmic material — **not** microbehaviors; Orby does not react. See [Orby_AMBIENT_SKY.md](Orby_AMBIENT_SKY.md).
 
 ## 18–25. (Reserved)
 
@@ -170,7 +175,8 @@ Low CPU; cursor loop only while visible; no screen capture; no AI.
 | Layer | Types |
 |-------|--------|
 | Shrine surface | `ShrineSurfaceController`, `ShrineMiniPanelController`, `ShrineMiniBubbleContainerView`, `ShrinePositionStore` |
-| Orby face | `OrbyMiniVisualController`, `OrbyLaunchGreetingAnimator`, `OrbyWakeYawnMotion`, `OrbyCheekBlushGeometry`, `OrbyCheekBlushPolicy`, `OrbyDragPhysicsSimulator`, `OrbyDragGestureClassifier`, `OrbyMoodResolver`, `OrbyEmotionCompositor`, `OrbyFaceView`, `OrbyOrbChrome`, `OrbyCosmicMaterialView`, `OrbyCheekBlushView`, `OrbyMouthView`, `OrbyWakeMouthParameters`, `OrbyZzzView`, `OrbyDazedHaloView`, `OrbyOrbGeometry`, `OrbyStylizedEyeViews`, `OrbyStylizedSkyOverlays` |
+| Orby face | `OrbyMiniVisualController`, `OrbyLaunchGreetingAnimator`, `OrbyWakeYawnMotion`, `OrbyCheekBlushGeometry`, `OrbyCheekBlushPolicy`, `OrbyDragPhysicsSimulator`, `OrbyDragGestureClassifier`, `OrbyMoodResolver`, `OrbyEmotionCompositor`, `OrbyFaceView`, `OrbyOrbChrome`, `OrbyCosmicMaterialView`, `OrbyOrbLighting`, `OrbyFaceShadowStyle`, `OrbyCheekBlushView`, `OrbyMouthView`, `OrbyWakeMouthParameters`, `OrbyZzzView`, `OrbyDazedHaloView`, `OrbyOrbGeometry`, `OrbyStylizedEyeViews`, `OrbyStylizedSkyOverlays`, `OrbySaturnRingView` |
+| Ambient sky | `OrbyAmbientSkyEvent*`, `OrbyMeteorPathGenerator`, `OrbyAmbientMeteorLayerView` |
 | Idle micro | `OrbyIdleMicrobehavior*`, scheduler + policy + weights + overlay views |
 | Menu bar Orby | `OrbyMenuBarSectionView`, `OrbyMenuBarMarkView` |
 
@@ -201,6 +207,9 @@ Low CPU; cursor loop only while visible; no screen capture; no AI.
 | Idle micro initial delay | 5–11 s |
 | Idle micro interval / cooldown | 16–42 s (mood-scaled, cap 60 s) |
 | Stylized micro min gap / max per hour | 7 min / 4 (never back-to-back) |
+| Saturn ring orbit min gap / max per hour | 35 min / 1 |
+| Ambient meteor interval | 180–480 s (first after 60–120 s) |
+| Perseid shower | 1/session max; night only (`dayNightBlend < 0.65`) |
 | `cursorSampleInterval` | 1/60 s |
 | `meaningfulCursorDelta` | 1.5 px |
 | `maxDragFaceLag` | 8.5 pt (physics spring) |
@@ -228,7 +237,7 @@ Low CPU; cursor loop only while visible; no screen capture; no AI.
 
 ## 31. Acceptance Criteria
 
-Shipped: Orby face layer naming; menu bar **whole-plate** Toggle with 32 pt preview + hover; default placement on show; emotion matrix + **canonical eye layout**; circle-gated hover with **surprised “o” mouth**; morphing mouth + vertical wake yawn (long max-open hold, step gaps, **no post-yawn smile**) + post-wake mouth crossfade; **cheek blush** (overlay, midpoint placement, fade); launch greeting with pre-Hello smile hold; **cosmic orb material** (starfield + nebula); **19 idle microbehaviors** (14 base + 5 stylized); immediate panel drag + `OrbyDragPhysicsSimulator` deformation; dazed only via classifier; pause/resume micro scheduling; Zzz + 4-star dizzy; sleep/wake ritual; local-only visual state; no new invasive permissions. **Feature freeze** on flying-sphere scope: [Orby_FEATURE_FREEZE.md](Orby_FEATURE_FREEZE.md).
+Shipped: Orby face layer naming; menu bar **whole-plate** Toggle with 32 pt preview + hover; default placement on show; emotion matrix + **canonical eye layout**; circle-gated hover with **surprised “o” mouth**; morphing mouth + vertical wake yawn (standard mouth color; opacity wake ramp; long max-open hold, step gaps, **no post-yawn smile**) + post-wake mouth crossfade; **cheek blush** (overlay, midpoint placement, fade); **hard face shadows** (eyes/mouth); launch greeting with pre-Hello smile hold; **cosmic orb material** (sleep-aware body gradient, starfield + nebula + **ambient meteors**); **20 idle microbehaviors** (14 base + 5 stylized + **saturnRingOrbit**); immediate panel drag + `OrbyDragPhysicsSimulator` deformation; dazed only via classifier (sleep-like mouth, dizzy eyes); pause/resume micro scheduling; Zzz + 4-star dizzy; sleep/wake ritual; local-only visual state; no new invasive permissions. **Feature freeze** on flying-sphere scope: [Orby_FEATURE_FREEZE.md](Orby_FEATURE_FREEZE.md).
 
 ## Architecture
 
@@ -256,7 +265,8 @@ flowchart TB
 | `Core/Shrine/OrbyMiniVisualTiming.swift`, `OrbyMiniVisualPhase.swift`, `OrbyOrbGeometry.swift` |
 | `Core/Shrine/OrbyDragPhysics.swift`, `OrbyDragGestureClassifier.swift`, `OrbyWakeMouthParameters.swift`, `OrbyWakeYawnMotion.swift`, `OrbyLaunchGreetingAnimator.swift`, `OrbyCheekBlushGeometry.swift`, `OrbyCheekBlushPolicy.swift` |
 | `Core/Shrine/OrbyIdleMicrobehavior*.swift` (enum, policy, scheduler, weights, animation) |
-| `Features/Shrine/OrbyDragDeformationModifier.swift`, `OrbyIdleMicroOverlayViews.swift` |
+| `Core/Shrine/OrbyAmbientSkyEvent*.swift`, `OrbyMeteorPathGenerator.swift` |
+| `Features/Shrine/OrbyDragDeformationModifier.swift`, `OrbyIdleMicroOverlayViews.swift`, `OrbyAmbientMeteorLayerView.swift`, `OrbySaturnRingView.swift` |
 | `Features/Shrine/OrbyFaceView.swift`, `OrbyCheekBlushView.swift`, `OrbyMouthView.swift`, `ShrineMiniOrbChrome.swift` (`OrbyOrbChrome`) |
 | `Features/MenuBar/OrbyMenuBarSectionView.swift`, `OrbyMenuBarMarkView.swift` |
 | `Features/Shrine/OrbyZzzView.swift`, `OrbyDazedHaloView.swift`, `OrbyDizzyStarsGeometry.swift` |

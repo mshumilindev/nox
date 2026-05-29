@@ -13,6 +13,7 @@ final class OrbyIdleMicrobehaviorScheduler {
   private var rareStarts: [Date] = []
   private var particleStarts: [Date] = []
   private var stylizedStarts: [Date] = []
+  private var saturnRingStarts: [Date] = []
   private var lastMood: OrbyMood = .neutral
   private var lastKind: OrbyIdleMicrobehavior?
 
@@ -26,6 +27,7 @@ final class OrbyIdleMicrobehaviorScheduler {
     rareStarts = []
     particleStarts = []
     stylizedStarts = []
+    saturnRingStarts = []
     lastKind = nil
   }
 
@@ -84,6 +86,9 @@ final class OrbyIdleMicrobehaviorScheduler {
         disallow.insert(behavior)
       }
     }
+    if !saturnRingAllowed(now: now) {
+      disallow.insert(.saturnRingOrbit)
+    }
 
     guard let kind = OrbyIdleMicrobehaviorWeights.pickRandom(
       context: context,
@@ -105,6 +110,7 @@ final class OrbyIdleMicrobehaviorScheduler {
     }
     if kind.usesParticles { particleStarts.append(now) }
     if kind.isStylized { stylizedStarts.append(now) }
+    if kind.usesOrbitalCooldown { saturnRingStarts.append(now) }
     baselineBlinkSuppressUntil = nil
   }
 
@@ -118,6 +124,23 @@ final class OrbyIdleMicrobehaviorScheduler {
     }
     let inLastHour = stylizedStarts.filter { now.timeIntervalSince($0) < 3600 }.count
     return inLastHour < OrbyMiniVisualTiming.stylizedMicrobehaviorMaxPerHour
+  }
+
+  private func saturnRingAllowed(now: Date) -> Bool {
+    if let lastKind, lastKind == .saturnRingOrbit { return false }
+    if let last = saturnRingStarts.last,
+       now.timeIntervalSince(last) < OrbyMiniVisualTiming.saturnRingOrbitMinCooldownSeconds {
+      return false
+    }
+    if saturnRingStarts.filter({ now.timeIntervalSince($0) < 3600 }).count
+      >= OrbyMiniVisualTiming.saturnRingOrbitMaxPerHour {
+      return false
+    }
+    if let lastStylized = stylizedStarts.last,
+       now.timeIntervalSince(lastStylized) < OrbyMiniVisualTiming.saturnRingOrbitStylizedGapSeconds {
+      return false
+    }
+    return true
   }
 
   func currentFrame(baseMouth: OrbyMouthParameters) -> OrbyIdleMicrobehaviorFrame? {
@@ -185,6 +208,7 @@ final class OrbyIdleMicrobehaviorScheduler {
     rareStarts.removeAll { now.timeIntervalSince($0) > 1800 }
     particleStarts.removeAll { now.timeIntervalSince($0) > 240 }
     stylizedStarts.removeAll { now.timeIntervalSince($0) > 3600 }
+    saturnRingStarts.removeAll { now.timeIntervalSince($0) > 3600 }
   }
 }
 

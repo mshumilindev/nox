@@ -3,7 +3,7 @@
 | | |
 |--|--|
 | **Status** | **FROZEN** |
-| **Effective** | 2026-05-30 |
+| **Effective** | 2026-05-30 (re-applied after polish pass) |
 | **Scope** | macOS Mini Shrine **floating orb / face** only |
 | **Lift** | Only when product explicitly says otherwise |
 
@@ -35,6 +35,7 @@ Treat the shipped behavior in [Orby.md](Orby.md) and linked topic specs as **com
 | Integration overview | [Orby.md](Orby.md) |
 | Emotions | [Orby_EMOTION_MATRIX.md](Orby_EMOTION_MATRIX.md) |
 | Microbehaviors | [Orby_IDLE_MICROBEHAVIOR.md](Orby_IDLE_MICROBEHAVIOR.md) |
+| Ambient sky (meteors) | [Orby_AMBIENT_SKY.md](Orby_AMBIENT_SKY.md) |
 | Visual polish | [Orby_VISUAL_POLISH.md](Orby_VISUAL_POLISH.md) |
 
 ## Agent / contributor note

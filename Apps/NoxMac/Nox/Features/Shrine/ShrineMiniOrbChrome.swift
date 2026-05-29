@@ -16,7 +16,23 @@ struct OrbyOrbChrome<Face: View>: View {
       OrbyDazedHaloView(opacity: presentation.dazedHaloOpacity, layer: .back)
         .frame(width: diameter + shadowPadding * 2, height: diameter + shadowPadding * 2)
         .allowsHitTesting(false)
+      if presentation.idleMicroOverlay.saturnRingOpacity > 0.001 {
+        OrbySaturnRingView(
+          overlay: presentation.idleMicroOverlay,
+          layer: .back,
+          orbDiameter: diameter
+        )
+        .frame(width: diameter, height: diameter)
+      }
       deformedOrbAndFace
+      if presentation.idleMicroOverlay.saturnRingOpacity > 0.001 {
+        OrbySaturnRingView(
+          overlay: presentation.idleMicroOverlay,
+          layer: .front,
+          orbDiameter: diameter
+        )
+        .frame(width: diameter, height: diameter)
+      }
       OrbyDazedHaloView(opacity: presentation.dazedHaloOpacity, layer: .front)
         .frame(width: diameter + shadowPadding * 2, height: diameter + shadowPadding * 2)
         .allowsHitTesting(false)
@@ -98,8 +114,16 @@ struct OrbyOrbChrome<Face: View>: View {
     .frame(width: diameter, height: diameter)
   }
 
+  private var lightingContext: OrbyOrbLightingContext {
+    OrbyOrbLightingContext(
+      sleepDepth: OrbySleepDepth.depth(for: presentation.phase),
+      backgroundLuminance: presentation.backgroundLuminance
+    )
+  }
+
   private var orbShell: some View {
-    ZStack {
+    let lighting = lightingContext
+    return ZStack {
       OrbyCosmicMaterialView(diameter: diameter, presentation: presentation)
 
       tintOverlay
@@ -128,6 +152,8 @@ struct OrbyOrbChrome<Face: View>: View {
       idleRimGlint
     }
     .frame(width: diameter, height: diameter)
+    .animation(OrbyOrbLighting.sleepLightingAnimation, value: lighting.sleepDepth)
+    .animation(OrbyOrbLighting.sleepLightingAnimation, value: lighting.backgroundLuminance)
   }
 
   private var idleRimGlint: some View {

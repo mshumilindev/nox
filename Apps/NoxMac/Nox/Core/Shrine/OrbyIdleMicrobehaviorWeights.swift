@@ -40,6 +40,8 @@ enum OrbyIdleMicrobehaviorWeights {
       // When the stylized cooldown bucket opens (gated by the scheduler) we want a
       // stylized beat to actually win the draw, so it reads as a deliberate moment.
       return 16
+    case .saturnRingOrbit:
+      return 1
     }
   }
 }

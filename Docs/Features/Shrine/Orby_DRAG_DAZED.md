@@ -40,6 +40,12 @@ Quick reposition (even fast) must stay **normal**. Distance or peak speed alone 
 
 Deformation intensity does **not** trigger dazed; only classifier output does.
 
+## Visual while dazed
+
+- **External:** 4 yellow cartoon stars (~3.5 s) — [Orby_VISUAL_POLISH.md](Orby_VISUAL_POLISH.md) §6
+- **Face:** eyes **9×6**, `eyelidClosure` **0.46**; mouth **closed sleep slit** at **0.68** opacity (static — no asleep breathing)
+- Cursor follow off; micro timer paused
+
 ## Tests
 
 `NoxTests/Mac/OrbyDragGestureClassifierTests.swift` — slow drag, fling, shake, distance-only, etc.

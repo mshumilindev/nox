@@ -23,11 +23,22 @@ struct OrbyEyeView: View {
   }
 
   var body: some View {
-    RoundedRectangle(cornerRadius: cornerRadius, style: .continuous)
-      .fill(color)
-      .frame(width: width, height: renderedHeight)
-      .frame(width: width + 1, height: baseHeight, alignment: .center)
-      .offset(x: horizontalShift, y: verticalShift)
-      .opacity(dimOpacity)
+    ZStack {
+      RoundedRectangle(cornerRadius: cornerRadius, style: .continuous)
+        .fill(OrbyFaceShadowStyle.color)
+        .frame(width: width, height: renderedHeight)
+        .offset(
+          x: horizontalShift + OrbyFaceShadowStyle.offset.width,
+          y: verticalShift + OrbyFaceShadowStyle.offset.height
+        )
+        .opacity(dimOpacity)
+
+      RoundedRectangle(cornerRadius: cornerRadius, style: .continuous)
+        .fill(color)
+        .frame(width: width, height: renderedHeight)
+        .offset(x: horizontalShift, y: verticalShift)
+        .opacity(dimOpacity)
+    }
+    .frame(width: width + 1, height: baseHeight, alignment: .center)
   }
 }
