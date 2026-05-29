@@ -16,14 +16,10 @@ For context reliability work, use standalone builds. TCC (Transparency, Consent,
 ## Standalone build
 
 ```bash
-xcodebuild -scheme Nox -destination 'platform=macOS' -configuration Debug build
+./Scripts/release-local.sh
 ```
 
-Open the built app:
-
-`~/Library/Developer/Xcode/DerivedData/Nox-*/Build/Products/Debug/Nox.app`
-
-Drag to `/Applications` or always launch from the same path so TCC remembers the app.
+This builds `Nox` in Release configuration into deterministic `.build/xcode-derived-data`, installs it at `/Applications/Nox.app`, and launches that stable app. See `LOCAL_INSTALL.md` for login launch, updating, data preservation, and uninstall instructions.
 
 **Why Bluetooth (or other) prompts repeat after every Xcode build:** macOS TCC stores consent per signed app *and* install path. Each clean build under `DerivedData/Nox-<hash>/…` can look like a new app to the system. Permissions you granted still exist for the old path; the new binary asks again. Fix: copy `Nox.app` to `/Applications` (or a fixed folder) and run that copy for day-to-day testing. Bundle id stays `dev.nox.Nox`; path stability is what matters.
 

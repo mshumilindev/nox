@@ -22,6 +22,7 @@ So: **folder structure alone is not enough** in Swift; real decomposition is **p
 ```
 Packages/                    # Universal domain — swift test per package
   NoxPlatformContracts/
+  NoxShrineCore/
   NoxCore/
   NoxContextCore/
   …
@@ -50,6 +51,7 @@ NoxTests/
 | Deterministic inference / rollups (no I/O) | `*Store.swift`, `timeline.db` |
 | Mesh **crypto**, message shapes, curator rules | HTTP/BT transport, keychain, invites |
 | Copy / label catalogs (Foundation) | SwiftUI views, AppKit helpers |
+| Shrine contracts, behavior packets, pure selection policy | Notch/Bubble panels, sound playback, fullscreen/video adapters |
 
 ## Decomposition phases (after migration green)
 
@@ -94,6 +96,8 @@ Prefer adding tests next to the module they assert — not only in the app test 
 - `@_exported import` barrels in the app — hides dependencies; use explicit imports.
 - Duplicating domain types in `Core/` and `Packages/` — one canonical type in the package.
 - Huge `Core/BehavioralIntelligence/` without package extraction — OK temporarily; track in migration blockers.
+- Putting AppKit/SwiftUI Shrine windows in `NoxShrineCore` — ShrineCore is contracts and pure policy only.
+- Assuming Raspberry Pi can run the macOS app — Pi Shrine needs a separate Linux-safe runtime speaking shared contracts.
 
 ## Performance (separate from decomposition)
 

@@ -19,7 +19,7 @@ struct NoxApp: App {
     var body: some Scene {
         // Menu bar UI is owned by NoxStatusBarController (NSStatusItem), not MenuBarExtra.
         Settings {
-            EmptyView()
+            NoxSettingsView()
         }
     }
 }

@@ -1,5 +1,19 @@
 # Presence Mesh — Dev Testing
 
+## Shrine capability plan
+
+Shrine is planned as a Presence Mesh-aware ambient surface layer. Existing Presence Mesh behavior remains unchanged today.
+
+Future Shrine integration should add:
+
+- Shrine surface descriptor metadata during pairing/heartbeat.
+- Capability lists such as `display.pixelFace`, `audio.soundEffects`, `input.dismiss`, `surface.floatingBubble`, and `constellation.securePairing`.
+- Heartbeat freshness for trusted physical Shrine primary eligibility.
+- Dev simulator for a Raspberry Pi Shrine descriptor.
+- Compatibility tests proving existing Mac-to-Mac mesh pairing still works.
+
+Physical Shrine must be capability-based. Nox must never assume modules from a device model name.
+
 ## Two nodes on one Mac
 
 1. Build Nox: `xcodebuild -scheme Nox -destination 'platform=macOS' -configuration Debug build`

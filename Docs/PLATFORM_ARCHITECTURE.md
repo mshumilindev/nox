@@ -13,6 +13,7 @@ Other Apple platforms are future consumers of shared packages; they must not dup
 ```
 Packages/
   NoxPlatformContracts/   # Protocols only (Foundation)
+  NoxShrineCore/          # Shrine embodiment contracts (Foundation)
   NoxCore/                # Universal primitives
   NoxContextCore/         # (planned) Context domain
   NoxMemoryCore/          # …
@@ -41,6 +42,7 @@ Dependency direction: **Apps → adapters → Packages**. Never Packages → App
 | Notifications | Full | Full | Full | Short | Minimal | Subtle |
 | System interventions | Focus, caffeinate, etc. | Light trust/continuity | Light | Hint | Display | Subtle |
 | Presence mesh | Primary | Limited | Limited | Hint | Passive | Limited |
+| Shrine surfaces | Software fallback + physical controller | Future passive/mirror | Future passive/mirror | No | Future passive/mirror | Optional |
 | Observatory | Dashboard | Summary | Summary | No | No | Optional |
 | Trust UI | Full | Light | Light | Minimal | None | Light |
 
@@ -50,6 +52,13 @@ Dependency direction: **Apps → adapters → Packages**. Never Packages → App
 - **watchOS**: No Observatory, full memory browser, or heavy on-device inference.
 - **tvOS**: Passive/household only; no personal productivity surfaces.
 - **visionOS**: Shared models OK; not canonical core.
+- **Shrine**: Physical Shrine is capability-based and trusted through pairing/heartbeat. Software Shrine is a fallback surface, not canonical memory. Station support is explicit opt-in only.
+
+## Shrine Layer
+
+Shrine is the planned ambient embodiment layer for Nox. It can appear as macOS Notch Shrine, Floating Mini Bubble, Full Shrine Interface, physical Raspberry Pi display, or future passive/mirror Apple surfaces.
+
+Core contracts live in `Packages/NoxShrineCore` and remain Foundation-only. macOS panels/windows/views must live in `Apps/NoxMac/Nox`. Raspberry Pi runtime must be a separate Linux-safe implementation using shared JSON-friendly contracts; do not assume the macOS SwiftUI app can run on Pi.
 
 ## Validation
 

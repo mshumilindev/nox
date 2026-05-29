@@ -27,6 +27,12 @@ struct NoxMenuBarActionsView: View {
                 .opacity(NoxDesignTokens.Opacity.divider)
                 .padding(.vertical, NoxSpacing.sm)
 
+            settingsAction
+
+            Divider()
+                .opacity(NoxDesignTokens.Opacity.divider)
+                .padding(.vertical, NoxSpacing.sm)
+
             quitAction
         }
     }
@@ -45,6 +51,16 @@ struct NoxMenuBarActionsView: View {
         .keyboardShortcut("o", modifiers: .command)
         .accessibilityLabel("Open Nox")
         .accessibilityHint("Opens the floating Nox presence panel.")
+    }
+
+    private var settingsAction: some View {
+        SettingsLink {
+            actionLabel(title: "Settings...", symbolName: "gearshape")
+        }
+        .buttonStyle(.noxBorderless(hover: .row))
+        .foregroundStyle(NoxDesignTokens.ColorRole.textPrimary)
+        .accessibilityLabel("Settings")
+        .accessibilityHint("Opens Nox settings, including launch at login.")
     }
 
     private var quitAction: some View {

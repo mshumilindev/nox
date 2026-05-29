@@ -1,14 +1,35 @@
 # Nox Current Functionality
 
-Last updated: 2026-05-20
+Last updated: 2026-05-29
 
 This document is the living inventory of what Nox actually implements today. Update it after every development phase so planning reflects shipped behavior, not intent.
 
 ## Product State
 
-Nox is currently a native macOS menu bar app with an adaptive ambient shell, local activity awareness, trust surfaces, memory controls, deterministic context inference, structured memory, stabilized engagement filtering, continuity detection, reflective continuity, **local macOS system-state contradictions (Phase 13)**, **Observatory**, **Presence Mesh v1 (local-first multi-node pairing)**, and local persistence.
+Nox is currently a native macOS menu bar app with an adaptive ambient shell, local activity awareness, trust surfaces, memory controls, deterministic context inference, structured memory, stabilized engagement filtering, continuity detection, reflective continuity, **local macOS system-state contradictions (Phase 13)**, **Observatory**, **Presence Mesh v1 (local-first multi-node pairing)**, local persistence, and a planned/prepared **Shrine** specification plus platform-neutral Shrine contracts.
 
-It is not a chatbot, cloud assistant, productivity scorer, screenshot recorder, clipboard tracker, or keystroke logger.
+It is not a chatbot, cloud assistant, productivity scorer, screenshot recorder, clipboard tracker, keystroke logger, shipped physical Shrine device, or free-form voice assistant.
+
+## Planned Shrine Architecture
+
+Shrine is now documented as Nox's ambient visual/presence embodiment layer. It is planned as a set of Shrine Surfaces, not a single widget or a Raspberry Pi-only device.
+
+Prepared today:
+
+- Shrine specs under `Docs/SHRINE_*.md`.
+- `Packages/NoxShrineCore` with Foundation-only Codable/Sendable contracts for surface kind/mode/form, capabilities, face states, animations, sound cues, behavior packets, surface descriptors, and events.
+- Codable roundtrip tests for the core Shrine contracts.
+
+Not shipped today:
+
+- macOS Notch Shrine UI.
+- Floating Mini Bubble UI.
+- Full Shrine Interface.
+- Physical Raspberry Pi runtime.
+- camera/identity behavior.
+- free-form voice or AI behavior generation.
+
+Product boundary: Shrine may later provide a Software Shrine fallback on Nox I/Satellite and a trusted physical Shrine primary surface, but it does not own canonical memory, does not replace Presence Mesh, and does not change existing menu bar, Observatory, local memory, or system-state contradiction behavior.
 
 ## App Shell
 

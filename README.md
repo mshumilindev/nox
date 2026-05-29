@@ -60,6 +60,16 @@ Calendar support is implemented in code. Before treating it as release-proven, v
 
 ## Run
 
+For normal daily use, install the standalone Release app:
+
+```bash
+./scripts/release-local.sh
+```
+
+This builds the `Nox` Release scheme, safely installs `/Applications/Nox.app`, and launches that installed app. Thereafter, open Nox from Applications, Spotlight, or its **Launch Nox at login** setting rather than from a debugger.
+
+For development:
+
 1. Open `Nox.xcodeproj`
 2. Scheme **Nox** -> **My Mac**
 3. Press **Cmd-R**
@@ -67,6 +77,8 @@ Calendar support is implemented in code. Before treating it as release-proven, v
 Menu bar icon -> **Open Nox**. **Quit Nox** exits fully.
 
 For permission-sensitive testing, build and launch the standalone app from a stable path. See `Docs/DEV_IDENTITY.md`.
+
+Installed-app workflow, login launch, local data, uninstall, and reset instructions are in [Docs/LOCAL_INSTALL.md](Docs/LOCAL_INSTALL.md).
 
 ## Tests
 
@@ -81,6 +93,7 @@ xcodebuild -scheme Nox -destination 'platform=macOS' test -only-testing:NoxTests
 - [Docs/ROADMAP.md](Docs/ROADMAP.md) - shipped phases and next candidates
 - [Docs/PROJECT_RULES.md](Docs/PROJECT_RULES.md) - development and product rules
 - [Docs/DEV_IDENTITY.md](Docs/DEV_IDENTITY.md) - bundle identity and permission testing
+- [Docs/LOCAL_INSTALL.md](Docs/LOCAL_INSTALL.md) - standalone Release installation and login launch
 - [Docs/CONTEXT_QA_MATRIX.md](Docs/CONTEXT_QA_MATRIX.md) - scenario-class context validation
 
 ## Philosophy
