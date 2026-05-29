@@ -1,0 +1,24 @@
+---
+description: Orby flying-sphere feature freeze — bugfix and doc-only unless product lifts freeze
+globs: Apps/NoxMac/Nox/**/Orby*, Apps/NoxMac/Nox/**/ShrineMini*, Docs/Features/Shrine/Orby*
+alwaysApply: false
+---
+
+# Orby feature freeze (flying sphere)
+
+**FROZEN** since 2026-05-30 until product explicitly lifts it. See `Docs/Features/Shrine/Orby_FEATURE_FREEZE.md`.
+
+## Allowed
+
+- Bug fixes restoring documented shipped behavior
+- Tests and doc updates aligned with shipped behavior
+- Zero–visual-change dependency/security fixes
+
+## Not allowed without explicit product approval
+
+- New moods, phases, microbehaviors, particles, or interactions
+- Visual redesign (eyes, mouth, cosmic material, blush, hover, wake/sleep rituals)
+- New permissions or persistence
+- Scope beyond the macOS floating orb face
+
+When asked for Orby features during freeze: implement only if clearly a **bugfix** for shipped spec; otherwise note the freeze and ask for lift confirmation.

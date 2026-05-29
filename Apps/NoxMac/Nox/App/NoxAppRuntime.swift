@@ -11,6 +11,7 @@ import NoxSystemStateCore
 import NoxObservatoryCore
 import NoxPresenceCore
 import NoxDesignCore
+import NoxShrineCore
 
 @MainActor
 enum NoxAppRuntime {
@@ -18,4 +19,5 @@ enum NoxAppRuntime {
     static let panelState = NoxPanelState()
     static let statusBar = NoxStatusBarController()
     static let presenceMesh = PresenceMeshManager()
+    static let shrine = ShrineSurfaceController()
 }

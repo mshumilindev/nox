@@ -11,6 +11,7 @@ import NoxSystemStateCore
 import NoxObservatoryCore
 import NoxPresenceCore
 import NoxDesignCore
+import NoxShrineCore
 
 struct NoxMenuBarView: View {
     @Environment(AppEnvironment.self) private var environment
@@ -43,6 +44,8 @@ struct NoxMenuBarView: View {
             if !presentation.isEmpty {
                 NoxLiveSignalsView(signals: environment.liveSignals, compact: true)
             }
+
+            OrbyMenuBarSectionView()
 
             NoxMenuBarActionsView()
 

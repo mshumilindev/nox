@@ -1,6 +1,6 @@
 # Shrine macOS Surface Specification
 
-Status: planned.  
+Status: mixed — **Floating Mini Bubble shipped**; Notch + full Shrine mostly planned.  
 Last updated: 2026-05-29
 
 ## Goal
@@ -15,13 +15,11 @@ The next implementation prompt should be:
 
 Add entries without breaking existing menu bar behavior:
 
-- Open Shrine
-- Show Mini Shrine
-- Show Notch Shrine, when available
-- Hide Shrine
-- Disable Shrine Sounds
-- Shrine Settings
-- Reset Shrine Position
+- Open Full Shrine (placeholder window)
+- **ORBY** section (menu bar): **Toggle Orby** only; small mood preview right; show → default bottom-right placement
+- Show Notch Shrine, when available (planned)
+- Mute Orby sounds (context menu on bubble; settings later)
+- Shrine Settings (planned)
 
 These actions should connect to a macOS `ShrineSurfaceController`, not directly instantiate random windows from menu rows.
 
@@ -50,18 +48,16 @@ Risk checks:
 
 ## Floating Mini Bubble
 
-MVP behavior:
+**Status: shipped.** Authoritative feature spec (as implemented): [Docs/Features/Shrine/Orby.md](Features/Shrine/Orby.md).
 
-- small always-on-top AppKit panel with SwiftUI content;
-- pixel face only in idle mini mode;
-- draggable;
-- position remembered per display;
-- clamped to visible/safe bounds;
-- contextual quick actions;
-- click opens Full Shrine Interface;
-- dismiss and snooze actions;
-- no Dock presence;
-- no unnecessary focus steal.
+Summary:
+
+- always-on-top transparent `NSPanel` (96×96 pt) with squircle chrome (76×76 pt face);
+- deterministic mood + hover-excited; ~60 Hz cursor-following eyes;
+- AppKit drag with persist-on-release; `UserDefaults` per display;
+- tray **ORBY** block: Toggle Orby + small mood orb; show uses default position;
+- context menu; click → Full Shrine **placeholder** (not dashboard);
+- no Dock icon; no rectangular window shadow artifact.
 
 State:
 

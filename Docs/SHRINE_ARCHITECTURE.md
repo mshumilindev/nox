@@ -1,6 +1,6 @@
 # Shrine Architecture
 
-Status: planned architecture with minimal core contracts added.  
+Status: architecture doc; **Floating Mini Bubble shipped** on macOS (see feature spec).  
 Last updated: 2026-05-29
 
 ## Layering
@@ -12,10 +12,14 @@ Packages/
   NoxShrineCore/          # Foundation-only Shrine contracts
 Apps/
   NoxMac/Nox/
-    Core/Shrine/          # future AppKit/SwiftUI/macOS adapters
-    Features/Shrine/      # future Shrine views
+    Core/Shrine/          # macOS controllers (mini panel, full placeholder, mood, position)
+    Features/Shrine/      # SwiftUI face, chrome, host views
+Docs/
+  Features/Shrine/        # per-feature specs (e.g. Orby.md — as implemented)
 Physical Shrine runtime/  # future Linux-safe runtime, not the macOS app
 ```
+
+**Shipped feature spec:** [Features/Shrine/Orby.md](Features/Shrine/Orby.md).
 
 `NoxShrineCore` must not import SwiftUI, AppKit, UIKit, Combine UI adapters, or persistence implementations. It should contain Codable/Sendable contracts and pure policy services only.
 
