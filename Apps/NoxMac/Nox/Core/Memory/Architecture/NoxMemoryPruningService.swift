@@ -11,6 +11,7 @@ import NoxSystemStateCore
 import NoxObservatoryCore
 import NoxPresenceCore
 import NoxDesignCore
+import NoxShrineCore
 
 /// Applies retention policies: prune warm noise after meaning is compressed.
 struct NoxMemoryPruningService {

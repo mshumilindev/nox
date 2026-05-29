@@ -12,6 +12,7 @@ import NoxSystemStateCore
 import NoxObservatoryCore
 import NoxPresenceCore
 import NoxDesignCore
+import NoxShrineCore
 
 /// Generates and persists local node identity under the active mesh profile folder.
 final class LocalIdentityProvider: IdentityProvider, @unchecked Sendable {

@@ -12,6 +12,7 @@ import NoxSystemStateCore
 import NoxObservatoryCore
 import NoxPresenceCore
 import NoxDesignCore
+import NoxShrineCore
 import UniformTypeIdentifiers
 
 /// Native macOS Share Sheet — user explicitly picks destination (never auto-AirDrop).

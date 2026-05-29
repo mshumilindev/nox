@@ -11,6 +11,7 @@ import NoxSystemStateCore
 import NoxObservatoryCore
 import NoxPresenceCore
 import NoxDesignCore
+import NoxShrineCore
 
 /// Nox-styled Apple-like silhouettes — tier-4 fallback (not SF Symbols).
 struct NoxPresenceGenericDeviceArtwork: View {

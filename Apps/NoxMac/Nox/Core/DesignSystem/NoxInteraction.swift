@@ -11,6 +11,7 @@ import NoxSystemStateCore
 import NoxObservatoryCore
 import NoxPresenceCore
 import NoxDesignCore
+import NoxShrineCore
 
 /// macOS-native press feedback without shrinking the hit region.
 struct NoxBorderlessPressStyle: ButtonStyle {

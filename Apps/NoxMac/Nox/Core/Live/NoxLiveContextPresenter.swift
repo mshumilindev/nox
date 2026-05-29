@@ -11,6 +11,7 @@ import NoxSystemStateCore
 import NoxObservatoryCore
 import NoxPresenceCore
 import NoxDesignCore
+import NoxShrineCore
 
 /// Splits live context into semantic pulse (primary) and raw detail (secondary).
 enum NoxLiveContextPresenter {

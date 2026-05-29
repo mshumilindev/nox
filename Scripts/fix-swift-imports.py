@@ -31,6 +31,7 @@ NOX_PACKAGES = [
     "NoxObservatoryCore",
     "NoxPresenceCore",
     "NoxDesignCore",
+    "NoxShrineCore",
 ]
 
 ORDER = {

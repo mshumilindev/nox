@@ -11,6 +11,7 @@ import NoxSystemStateCore
 import NoxObservatoryCore
 import NoxPresenceCore
 import NoxDesignCore
+import NoxShrineCore
 
 /// Deep window mode — pattern overview (activity threads, forming signals, rhythms).
 struct NoxDeepPatternsSurfaceView: View {

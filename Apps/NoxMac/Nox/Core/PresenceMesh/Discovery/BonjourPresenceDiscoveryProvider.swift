@@ -11,6 +11,7 @@ import NoxSystemStateCore
 import NoxObservatoryCore
 import NoxPresenceCore
 import NoxDesignCore
+import NoxShrineCore
 
 /// Publishes Nox and listens for curated Apple ecosystem presence.
 final class BonjourPresenceDiscoveryProvider: NSObject, PresenceDiscoveryProvider, @unchecked Sendable {

@@ -10,6 +10,7 @@ import NoxSystemStateCore
 import NoxObservatoryCore
 import NoxPresenceCore
 import NoxDesignCore
+import NoxShrineCore
 import CoreGraphics
 
 /// Titlebar / shell chrome vertical rhythm.

@@ -11,6 +11,7 @@ import NoxSystemStateCore
 import NoxObservatoryCore
 import NoxPresenceCore
 import NoxDesignCore
+import NoxShrineCore
 
 /// Three surface levels — avoid “everything is a mega card”.
 enum NoxSurfaceTier: Sendable {

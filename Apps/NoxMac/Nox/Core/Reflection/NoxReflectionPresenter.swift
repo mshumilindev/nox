@@ -11,6 +11,7 @@ import NoxSystemStateCore
 import NoxObservatoryCore
 import NoxPresenceCore
 import NoxDesignCore
+import NoxShrineCore
 
 nonisolated enum NoxReflectionPresenter {
     static let defaultDetailLine = "Grounded in recent local memory — not advice."

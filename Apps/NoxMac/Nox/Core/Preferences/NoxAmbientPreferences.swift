@@ -11,6 +11,7 @@ import NoxSystemStateCore
 import NoxObservatoryCore
 import NoxPresenceCore
 import NoxDesignCore
+import NoxShrineCore
 
 nonisolated struct NoxAmbientPreferences: Codable, Equatable, Sendable {
     var windowMode: NoxWindowMode

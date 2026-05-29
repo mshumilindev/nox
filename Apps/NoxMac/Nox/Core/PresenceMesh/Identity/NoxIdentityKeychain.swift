@@ -11,6 +11,7 @@ import NoxSystemStateCore
 import NoxObservatoryCore
 import NoxPresenceCore
 import NoxDesignCore
+import NoxShrineCore
 import Security
 
 /// Stores Ed25519 private key material in Keychain with human-facing labels (not dev bundle IDs).

@@ -11,6 +11,7 @@ import NoxSystemStateCore
 import NoxObservatoryCore
 import NoxPresenceCore
 import NoxDesignCore
+import NoxShrineCore
 
 struct NoxRestartRecoveryResult: Sendable {
     let resumedSession: NoxWorkSession?

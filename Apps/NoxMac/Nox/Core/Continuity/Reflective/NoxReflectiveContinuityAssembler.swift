@@ -11,6 +11,7 @@ import NoxSystemStateCore
 import NoxObservatoryCore
 import NoxPresenceCore
 import NoxDesignCore
+import NoxShrineCore
 
 struct NoxReflectiveContinuityBundle: Equatable, Sendable {
     let longHorizon: NoxLongHorizonSnapshot

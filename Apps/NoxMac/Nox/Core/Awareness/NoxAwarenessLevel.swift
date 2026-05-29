@@ -11,6 +11,7 @@ import NoxSystemStateCore
 import NoxObservatoryCore
 import NoxPresenceCore
 import NoxDesignCore
+import NoxShrineCore
 
 /// Human-facing awareness ladder — distinct from internal permission tiers.
 enum NoxAwarenessLevel: Int, CaseIterable, Codable, Sendable, Comparable {

@@ -12,6 +12,7 @@ import NoxSystemStateCore
 import NoxObservatoryCore
 import NoxPresenceCore
 import NoxDesignCore
+import NoxShrineCore
 
 /// Narrow drag strip — must not sit behind interactive SwiftUI controls.
 struct NoxWindowDragHandle: NSViewRepresentable {

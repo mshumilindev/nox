@@ -11,6 +11,7 @@ import NoxSystemStateCore
 import NoxObservatoryCore
 import NoxPresenceCore
 import NoxDesignCore
+import NoxShrineCore
 
 /// Settings row — full-width tap toggles the switch; subtle hover, no button chrome.
 struct NoxSettingsToggleRow: View {

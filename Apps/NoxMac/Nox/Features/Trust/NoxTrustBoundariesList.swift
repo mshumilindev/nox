@@ -11,6 +11,7 @@ import NoxSystemStateCore
 import NoxObservatoryCore
 import NoxPresenceCore
 import NoxDesignCore
+import NoxShrineCore
 
 /// Trust boundaries — one composed surface, not stacked slabs.
 struct NoxTrustBoundariesList: View {

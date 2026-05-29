@@ -11,6 +11,7 @@ import NoxSystemStateCore
 import NoxObservatoryCore
 import NoxPresenceCore
 import NoxDesignCore
+import NoxShrineCore
 
 /// Collapsed developer tools — never dominates the Presence experience.
 struct NoxPresenceDeveloperPanel: View {

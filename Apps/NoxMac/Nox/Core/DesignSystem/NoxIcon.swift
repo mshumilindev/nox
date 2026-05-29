@@ -11,6 +11,7 @@ import NoxSystemStateCore
 import NoxObservatoryCore
 import NoxPresenceCore
 import NoxDesignCore
+import NoxShrineCore
 
 /// Unified SF Symbol rendering — consistent optical weight across the shell.
 struct NoxIcon: View {

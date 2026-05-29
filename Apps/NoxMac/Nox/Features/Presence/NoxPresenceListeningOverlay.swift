@@ -11,6 +11,7 @@ import NoxSystemStateCore
 import NoxObservatoryCore
 import NoxPresenceCore
 import NoxDesignCore
+import NoxShrineCore
 
 /// Full-window Presence listening — one triskelion, centered copy, graphite overlay.
 struct NoxPresenceListeningOverlay: View {

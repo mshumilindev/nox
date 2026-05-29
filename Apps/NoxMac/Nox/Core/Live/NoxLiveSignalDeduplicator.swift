@@ -11,6 +11,7 @@ import NoxSystemStateCore
 import NoxObservatoryCore
 import NoxPresenceCore
 import NoxDesignCore
+import NoxShrineCore
 
 enum NoxLiveSignalDeduplicator {
     private static let nearDuplicateWindow: TimeInterval = 25

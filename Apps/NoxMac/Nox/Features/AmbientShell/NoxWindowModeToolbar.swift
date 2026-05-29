@@ -11,6 +11,7 @@ import NoxSystemStateCore
 import NoxObservatoryCore
 import NoxPresenceCore
 import NoxDesignCore
+import NoxShrineCore
 
 /// Mode control lives in shell chrome — kept for previews.
 struct NoxWindowModeToolbar: View {

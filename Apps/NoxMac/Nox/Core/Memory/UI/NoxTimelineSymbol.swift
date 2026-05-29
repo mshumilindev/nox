@@ -11,6 +11,7 @@ import NoxSystemStateCore
 import NoxObservatoryCore
 import NoxPresenceCore
 import NoxDesignCore
+import NoxShrineCore
 
 /// Timeline rail icons — always validated SF Symbols with calm, meaningful defaults.
 nonisolated enum NoxTimelineSymbol {

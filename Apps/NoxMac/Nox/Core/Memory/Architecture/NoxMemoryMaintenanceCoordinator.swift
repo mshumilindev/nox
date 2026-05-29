@@ -11,6 +11,7 @@ import NoxSystemStateCore
 import NoxObservatoryCore
 import NoxPresenceCore
 import NoxDesignCore
+import NoxShrineCore
 
 /// Compresses memory through adaptive horizons, extracts typed entities, then prunes warm noise.
 @MainActor

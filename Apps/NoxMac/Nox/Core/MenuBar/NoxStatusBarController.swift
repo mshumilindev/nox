@@ -12,6 +12,7 @@ import NoxSystemStateCore
 import NoxObservatoryCore
 import NoxPresenceCore
 import NoxDesignCore
+import NoxShrineCore
 
 /// Native status item — persists in the primary menu bar (autosaveName) unlike overflow-prone MenuBarExtra.
 @MainActor

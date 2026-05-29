@@ -11,6 +11,7 @@ import NoxSystemStateCore
 import NoxObservatoryCore
 import NoxPresenceCore
 import NoxDesignCore
+import NoxShrineCore
 
 /// Presence hardware visual — AppleDB artwork with Nox generic fallback.
 struct NoxPresenceDeviceVisual: View {

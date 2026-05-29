@@ -11,6 +11,7 @@ import NoxSystemStateCore
 import NoxObservatoryCore
 import NoxPresenceCore
 import NoxDesignCore
+import NoxShrineCore
 
 nonisolated struct NoxPairingInvite: Codable, Sendable, Equatable {
     static let fileType = "nox_pairing_invite"

@@ -11,6 +11,7 @@ import NoxSystemStateCore
 import NoxObservatoryCore
 import NoxPresenceCore
 import NoxDesignCore
+import NoxShrineCore
 
 nonisolated enum NoxPatternConfidenceModel {
     static let minimumDisplay: Double = 0.55

@@ -11,6 +11,7 @@ import NoxSystemStateCore
 import NoxObservatoryCore
 import NoxPresenceCore
 import NoxDesignCore
+import NoxShrineCore
 
 /// Curated presence row — hardware-led, with quiet explicit actions.
 struct NoxPresenceDeviceCard: View {

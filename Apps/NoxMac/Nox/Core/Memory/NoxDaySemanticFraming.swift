@@ -11,6 +11,7 @@ import NoxSystemStateCore
 import NoxObservatoryCore
 import NoxPresenceCore
 import NoxDesignCore
+import NoxShrineCore
 
 /// Lightweight day-level framing — shape of the day, not analytics.
 enum NoxDaySemanticFraming {

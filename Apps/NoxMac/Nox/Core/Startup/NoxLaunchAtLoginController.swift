@@ -1,6 +1,19 @@
+import Foundation
 import AppKit
 import Combine
-import Foundation
+import NoxCore
+import NoxPlatformContracts
+import NoxContextCore
+import NoxSemanticCore
+import NoxMemoryCore
+import NoxContinuityCore
+import NoxBehavioralIntelligenceCore
+import NoxAmbientUtilityCore
+import NoxSystemStateCore
+import NoxObservatoryCore
+import NoxPresenceCore
+import NoxDesignCore
+import NoxShrineCore
 import ServiceManagement
 
 /// Registers the installed main app as a modern macOS login item.

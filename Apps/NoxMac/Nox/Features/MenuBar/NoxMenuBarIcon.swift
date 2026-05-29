@@ -12,6 +12,7 @@ import NoxSystemStateCore
 import NoxObservatoryCore
 import NoxPresenceCore
 import NoxDesignCore
+import NoxShrineCore
 
 enum NoxMenuBarIcon {
     /// Template image adapts to light/dark menu bar automatically.

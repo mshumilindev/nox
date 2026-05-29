@@ -11,6 +11,7 @@ import NoxSystemStateCore
 import NoxObservatoryCore
 import NoxPresenceCore
 import NoxDesignCore
+import NoxShrineCore
 
 /// Horizontal semantic navigation for compact window mode.
 struct NoxCompactNavigationBar: View {

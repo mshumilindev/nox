@@ -11,6 +11,7 @@ import NoxSystemStateCore
 import NoxObservatoryCore
 import NoxPresenceCore
 import NoxDesignCore
+import NoxShrineCore
 
 actor AppleDBDeviceCatalog {
     static let shared = AppleDBDeviceCatalog()

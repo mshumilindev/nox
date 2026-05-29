@@ -12,6 +12,7 @@ import NoxSystemStateCore
 import NoxObservatoryCore
 import NoxPresenceCore
 import NoxDesignCore
+import NoxShrineCore
 
 actor NoxBehavioralIntelligenceSignalStore {
     private var db: OpaquePointer?

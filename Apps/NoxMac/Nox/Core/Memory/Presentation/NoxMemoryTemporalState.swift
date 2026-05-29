@@ -11,6 +11,7 @@ import NoxSystemStateCore
 import NoxObservatoryCore
 import NoxPresenceCore
 import NoxDesignCore
+import NoxShrineCore
 
 /// Presentation-only temporal emphasis for memory surfaces (not engine state).
 nonisolated enum NoxMemoryTemporalState: String, Sendable {

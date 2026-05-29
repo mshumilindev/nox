@@ -11,6 +11,7 @@ import NoxSystemStateCore
 import NoxObservatoryCore
 import NoxPresenceCore
 import NoxDesignCore
+import NoxShrineCore
 import CoreGraphics
 
 nonisolated enum NoxWindowMode: String, CaseIterable, Identifiable, Codable, Sendable {

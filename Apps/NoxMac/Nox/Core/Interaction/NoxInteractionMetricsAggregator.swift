@@ -11,6 +11,7 @@ import NoxSystemStateCore
 import NoxObservatoryCore
 import NoxPresenceCore
 import NoxDesignCore
+import NoxShrineCore
 
 // TODO(platform): move to mac adapter package when NoxRetentionPolicyDefaults stays in MemoryCore.
 @MainActor

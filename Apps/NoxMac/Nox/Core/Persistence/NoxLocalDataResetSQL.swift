@@ -12,6 +12,7 @@ import NoxSystemStateCore
 import NoxObservatoryCore
 import NoxPresenceCore
 import NoxDesignCore
+import NoxShrineCore
 
 enum NoxLocalDataResetSQL {
     private static let bundleId = "dev.nox.Nox"

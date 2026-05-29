@@ -11,6 +11,7 @@ import NoxSystemStateCore
 import NoxObservatoryCore
 import NoxPresenceCore
 import NoxDesignCore
+import NoxShrineCore
 
 /// Reserves vertical space so sibling cards/rows stay the same height when copy is optional.
 struct NoxFixedLineText: View {

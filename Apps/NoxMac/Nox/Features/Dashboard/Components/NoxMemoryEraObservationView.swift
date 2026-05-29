@@ -11,6 +11,7 @@ import NoxSystemStateCore
 import NoxObservatoryCore
 import NoxPresenceCore
 import NoxDesignCore
+import NoxShrineCore
 
 /// Very light era surfacing — observational, not a hero card.
 struct NoxMemoryEraObservationView: View {

@@ -11,6 +11,7 @@ import NoxSystemStateCore
 import NoxObservatoryCore
 import NoxPresenceCore
 import NoxDesignCore
+import NoxShrineCore
 
 struct NoxMemoryPeriodPicker: View {
   @Environment(AppEnvironment.self) private var environment

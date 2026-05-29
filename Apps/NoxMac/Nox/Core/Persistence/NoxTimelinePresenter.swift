@@ -11,6 +11,7 @@ import NoxSystemStateCore
 import NoxObservatoryCore
 import NoxPresenceCore
 import NoxDesignCore
+import NoxShrineCore
 
 nonisolated enum NoxTimelinePresenter {
     static func displayText(for event: NoxEvent) -> String {

@@ -11,6 +11,7 @@ import NoxSystemStateCore
 import NoxObservatoryCore
 import NoxPresenceCore
 import NoxDesignCore
+import NoxShrineCore
 
 /// Floating panel — standard titlebar drag band, content not under titlebar hit zone.
 final class NoxFloatingWindow: NSWindow {

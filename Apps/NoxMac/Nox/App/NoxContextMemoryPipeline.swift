@@ -1,5 +1,6 @@
 import Foundation
 import NoxCore
+import NoxPlatformContracts
 import NoxContextCore
 import NoxSemanticCore
 import NoxMemoryCore
@@ -8,6 +9,9 @@ import NoxBehavioralIntelligenceCore
 import NoxAmbientUtilityCore
 import NoxSystemStateCore
 import NoxObservatoryCore
+import NoxPresenceCore
+import NoxDesignCore
+import NoxShrineCore
 
 /// Heavy memory/dashboard refresh and cross-domain orchestration (extracted from `NoxContextService`).
 @MainActor

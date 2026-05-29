@@ -11,6 +11,7 @@ import NoxSystemStateCore
 import NoxObservatoryCore
 import NoxPresenceCore
 import NoxDesignCore
+import NoxShrineCore
 
 enum NoxLiveSignalPresenter {
     static func from(event: NoxEvent) -> NoxLiveSignal? {

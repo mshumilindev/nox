@@ -24,7 +24,8 @@ The old day-by-day MVP checklist has been retired. Nox is now tracked by shipped
 | 11.5 | Shipped in code | Utility calibration: notification fatigue/trust, gravity evolution, interruption cost, silence refinement, long-horizon relevance |
 | 12 | Shipped in code | Memory evolution: aging, long-horizon continuity, identity consistency, era evolution, ecology, temporal weights, long-term resurfacing |
 | 12.5 | Shipped in code | Memory evolution UX: temporal copy, visual aging, resurfacing rows, weight-based ordering, light era surfacing |
-| Shrine Spec Freeze | Prepared | Shrine specs and `NoxShrineCore` contracts for future Software Shrine and Physical Shrine surfaces |
+| Shrine Spec Freeze | Prepared | Shrine specs and `NoxShrineCore` contracts for Software Shrine and Physical Shrine surfaces |
+| Orby (Mini Shrine face) | Shipped | macOS circular orb + polish; see `Docs/Features/Shrine/Orby.md` |
 
 ## Current Product Boundary
 
@@ -42,7 +43,7 @@ Phase 10 behavioral intelligence is wired into memory reload and long-horizon su
 | P1 | Update permission onboarding for awareness tiers and Calendar | Current capability is stronger than the first-launch explanation |
 | P1 | Add native Mail/Slack metadata connectors | Communication pressure currently uses local activity proxies |
 | P1 | Tune long-horizon density on real memory | Long-horizon surfaces can grow crowded as rollups accumulate |
-| P1 | Implement macOS Software Shrine MVP | Specs/contracts are ready; next step is menu entries, Notch Shrine MVP, Floating Mini Bubble MVP, and Full Shrine placeholder |
+| P1 | Extend macOS Software Shrine | Mini Bubble shipped; next: Notch Shrine MVP, Full Shrine beyond placeholder, sound cues, safe-zone / video policy |
 | P1 | Integrate Shrine descriptors with Presence Mesh | Physical Shrine priority/fallback needs trusted capability heartbeat metadata |
 | P2 | Prototype Physical Shrine v0 | Raspberry Pi screen + pixel face + pairing + heartbeat + sound cues + hard dismiss/snooze |
 | P2 | Add encrypted local export/backup | Current storage is local-only without portability |
@@ -51,7 +52,7 @@ Phase 10 behavioral intelligence is wired into memory reload and long-horizon su
 
 ## Shrine Path
 
-1. Software Shrine v0: macOS menu entries, Notch Shrine MVP, Floating Mini Bubble MVP, Full Shrine Interface placeholder, sound cues, auto-summon gates, safe-zone v0, fullscreen/video awareness v0.
+1. Software Shrine v0: ~~Floating Mini Bubble MVP~~ (shipped), Notch Shrine MVP, Full Shrine Interface beyond placeholder, sound cues, auto-summon gates, safe-zone v0, fullscreen/video awareness v0.
 2. Physical Shrine v0: Raspberry Pi screen, pixel face, local discovery/pairing, capability heartbeat, premade sounds, hard dismiss/snooze.
 3. Physical Shrine v2: optional LED halo, mmWave, environment sensors, CO2, PM2.5, UPS/PoE, optional AI Camera, optional guest recognition, optional cat detection, optional HomePod relay.
 

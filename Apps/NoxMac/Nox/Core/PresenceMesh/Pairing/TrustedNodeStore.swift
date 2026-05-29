@@ -11,6 +11,7 @@ import NoxSystemStateCore
 import NoxObservatoryCore
 import NoxPresenceCore
 import NoxDesignCore
+import NoxShrineCore
 
 /// Persists trusted mesh nodes locally per profile.
 final class TrustedNodeStore: @unchecked Sendable {

@@ -12,6 +12,7 @@ import NoxSystemStateCore
 import NoxObservatoryCore
 import NoxPresenceCore
 import NoxDesignCore
+import NoxShrineCore
 
 /// Constellation — curated device ecosystem, not a network browser.
 struct NoxPresenceSurfaceView: View {

@@ -11,6 +11,7 @@ import NoxSystemStateCore
 import NoxObservatoryCore
 import NoxPresenceCore
 import NoxDesignCore
+import NoxShrineCore
 
 /// Ensures SF Symbol names used in UI exist on this macOS version.
 nonisolated enum NoxSFSymbol {

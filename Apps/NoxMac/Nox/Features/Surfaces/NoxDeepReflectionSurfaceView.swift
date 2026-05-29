@@ -11,6 +11,7 @@ import NoxSystemStateCore
 import NoxObservatoryCore
 import NoxPresenceCore
 import NoxDesignCore
+import NoxShrineCore
 
 /// Deep window mode — calm reflective observations only.
 struct NoxDeepReflectionSurfaceView: View {

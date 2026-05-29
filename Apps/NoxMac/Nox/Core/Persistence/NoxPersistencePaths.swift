@@ -11,6 +11,7 @@ import NoxSystemStateCore
 import NoxObservatoryCore
 import NoxPresenceCore
 import NoxDesignCore
+import NoxShrineCore
 
 /// Stable on-disk location for all Nox local data (survives Xcode restarts).
 nonisolated enum NoxPersistencePaths {

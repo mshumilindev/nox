@@ -11,6 +11,7 @@ import NoxSystemStateCore
 import NoxObservatoryCore
 import NoxPresenceCore
 import NoxDesignCore
+import NoxShrineCore
 
 /// Topology weights for recurring, unresolved, and stabilizing continuity structures.
 nonisolated enum NoxStructuralContinuityModel {

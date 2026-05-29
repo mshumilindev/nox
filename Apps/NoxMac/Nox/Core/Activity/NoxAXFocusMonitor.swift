@@ -11,6 +11,7 @@ import NoxSystemStateCore
 import NoxObservatoryCore
 import NoxPresenceCore
 import NoxDesignCore
+import NoxShrineCore
 import ApplicationServices
 
 /// Fires when the focused window or its title changes (Accessibility).

@@ -11,6 +11,7 @@ import NoxSystemStateCore
 import NoxObservatoryCore
 import NoxPresenceCore
 import NoxDesignCore
+import NoxShrineCore
 import CoreGraphics
 
 /// Poll-based interaction signal collection. No semantic inference.

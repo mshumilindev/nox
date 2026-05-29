@@ -11,6 +11,7 @@ import NoxSystemStateCore
 import NoxObservatoryCore
 import NoxPresenceCore
 import NoxDesignCore
+import NoxShrineCore
 
 /// Narrows timeline layers to filter hits so search and dedup use the same time scope.
 enum NoxMemorySearchScope {

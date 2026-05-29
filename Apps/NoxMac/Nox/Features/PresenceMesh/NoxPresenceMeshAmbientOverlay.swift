@@ -11,6 +11,7 @@ import NoxSystemStateCore
 import NoxObservatoryCore
 import NoxPresenceCore
 import NoxDesignCore
+import NoxShrineCore
 
 /// Full-window pulse feedback — centered triskelion, blocks interaction.
 struct NoxPresenceMeshAmbientOverlay: View {

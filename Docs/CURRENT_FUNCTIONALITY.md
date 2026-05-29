@@ -6,30 +6,30 @@ This document is the living inventory of what Nox actually implements today. Upd
 
 ## Product State
 
-Nox is currently a native macOS menu bar app with an adaptive ambient shell, local activity awareness, trust surfaces, memory controls, deterministic context inference, structured memory, stabilized engagement filtering, continuity detection, reflective continuity, **local macOS system-state contradictions (Phase 13)**, **Observatory**, **Presence Mesh v1 (local-first multi-node pairing)**, local persistence, and a planned/prepared **Shrine** specification plus platform-neutral Shrine contracts.
+Nox is currently a native macOS menu bar app with an adaptive ambient shell, local activity awareness, trust surfaces, memory controls, deterministic context inference, structured memory, stabilized engagement filtering, continuity detection, reflective continuity, **local macOS system-state contradictions (Phase 13)**, **Observatory**, **Presence Mesh v1 (local-first multi-node pairing)**, local persistence, **Orby** (Mini Shrine circular face / Software Shrine MVP), and broader **Shrine** product specs plus `NoxShrineCore` contracts.
 
 It is not a chatbot, cloud assistant, productivity scorer, screenshot recorder, clipboard tracker, keystroke logger, shipped physical Shrine device, or free-form voice assistant.
 
-## Planned Shrine Architecture
+## Shrine (Software)
 
-Shrine is now documented as Nox's ambient visual/presence embodiment layer. It is planned as a set of Shrine Surfaces, not a single widget or a Raspberry Pi-only device.
+Shrine is Nox's ambient visual/presence embodiment layer—a set of surfaces, not a single widget or Raspberry Pi-only device.
 
-Prepared today:
+**Shipped (macOS):**
 
-- Shrine specs under `Docs/SHRINE_*.md`.
-- `Packages/NoxShrineCore` with Foundation-only Codable/Sendable contracts for surface kind/mode/form, capabilities, face states, animations, sound cues, behavior packets, surface descriptors, and events.
-- Codable roundtrip tests for the core Shrine contracts.
+- **Orby** — circular Mini Shrine face with **emotion matrix** (`OrbyEmotionCompositor`); sleep/wake ritual; morphing mouth; **launch greeting** (silent “Hello” visemes on manual show, ~1.35 s, no text/audio); **cheek blush** on friendly states (9×4 pt capsules below eyes — [Orby_CHEEK_BLUSH.md](Features/Shrine/Orby_CHEEK_BLUSH.md)); adaptive bezel; **visual drag deformation** (`OrbyDragPhysicsSimulator` — panel moves immediately); **post-drag dizzy** only on throw-like gesture (`OrbyDragGestureClassifier`); **15 idle microbehaviors** (uniform random; timer pauses during drag/dizzy/sleep/wake). Specs: [Orby.md](Features/Shrine/Orby.md), [Orby_LAUNCH_GREETING.md](Features/Shrine/Orby_LAUNCH_GREETING.md), [Orby_VISUAL_POLISH.md](Features/Shrine/Orby_VISUAL_POLISH.md), [Orby_DRAG_PHYSICS.md](Features/Shrine/Orby_DRAG_PHYSICS.md), [Orby_DRAG_DAZED.md](Features/Shrine/Orby_DRAG_DAZED.md), [Orby_IDLE_MICROBEHAVIOR.md](Features/Shrine/Orby_IDLE_MICROBEHAVIOR.md), [Orby_EMOTION_MATRIX.md](Features/Shrine/Orby_EMOTION_MATRIX.md).
+- `NoxAppRuntime.shrine` (`ShrineSurfaceController`) — separate from dashboard `NoxPanelState`.
+- Menu bar **ORBY**: one **plate button** (Toggle label + 32 pt mood preview, full-row hit + hover); each show → default bottom-right; hide preserves last drag origin per display.
 
-Not shipped today:
+**Prepared / not shipped:**
 
+- Product and platform docs under `Docs/SHRINE_*.md`; feature specs under `Docs/Features/`.
+- `Packages/NoxShrineCore` (Foundation-only contracts + placement helpers).
 - macOS Notch Shrine UI.
-- Floating Mini Bubble UI.
-- Full Shrine Interface.
-- Physical Raspberry Pi runtime.
-- camera/identity behavior.
-- free-form voice or AI behavior generation.
+- Full Shrine Interface (beyond placeholder window).
+- Physical Raspberry Pi runtime, camera/identity, free-form voice or AI behavior generation.
+- Shrine sound playback (mute flag exists; no audio engine).
 
-Product boundary: Shrine may later provide a Software Shrine fallback on Nox I/Satellite and a trusted physical Shrine primary surface, but it does not own canonical memory, does not replace Presence Mesh, and does not change existing menu bar, Observatory, local memory, or system-state contradiction behavior.
+Product boundary: Shrine does not own canonical memory, does not replace Presence Mesh, and does not change existing menu bar, Observatory, local memory, or system-state contradiction behavior beyond additive tray actions and the mini/full windows.
 
 ## App Shell
 

@@ -11,6 +11,7 @@ import NoxSystemStateCore
 import NoxObservatoryCore
 import NoxPresenceCore
 import NoxDesignCore
+import NoxShrineCore
 
 /// Quiet mode switch — integrated into chrome, not a glossy pill.
 struct NoxWindowModeControl: View {

@@ -11,6 +11,7 @@ import NoxSystemStateCore
 import NoxObservatoryCore
 import NoxPresenceCore
 import NoxDesignCore
+import NoxShrineCore
 
 /// Agent app (`LSUIElement`): menu-bar-only, no Dock icon.
 final class NoxAppDelegate: NSObject, NSApplicationDelegate {
@@ -23,6 +24,7 @@ final class NoxAppDelegate: NSObject, NSApplicationDelegate {
             environment: NoxAppRuntime.environment,
             panelState: NoxAppRuntime.panelState
         )
+        NoxAppRuntime.shrine.install(environment: NoxAppRuntime.environment)
         // Nox mesh (_nox._tcp + transport) must run at launch so peers can discover each other.
         // Apple AirPlay / BLE browsing stays gated until the Presence page opens.
         NoxAppRuntime.presenceMesh.start()

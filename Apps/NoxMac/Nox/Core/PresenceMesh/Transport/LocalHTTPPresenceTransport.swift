@@ -12,6 +12,7 @@ import NoxSystemStateCore
 import NoxObservatoryCore
 import NoxPresenceCore
 import NoxDesignCore
+import NoxShrineCore
 
 /// Local HTTP transport — POST /mesh with JSON body; no cloud dependency.
 final class LocalHTTPPresenceTransport: PresenceTransportProvider, @unchecked Sendable {

@@ -1,6 +1,17 @@
 import SwiftUI
 import NoxCore
+import NoxPlatformContracts
+import NoxContextCore
+import NoxSemanticCore
+import NoxMemoryCore
+import NoxContinuityCore
+import NoxBehavioralIntelligenceCore
+import NoxAmbientUtilityCore
+import NoxSystemStateCore
+import NoxObservatoryCore
+import NoxPresenceCore
 import NoxDesignCore
+import NoxShrineCore
 
 /// Rail / compact navigation label — feature destinations vs memory ecology mode.
 struct NoxSemanticNavigationLabel: View {

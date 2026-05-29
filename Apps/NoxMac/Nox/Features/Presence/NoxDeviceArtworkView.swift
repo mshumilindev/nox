@@ -12,6 +12,7 @@ import NoxSystemStateCore
 import NoxObservatoryCore
 import NoxPresenceCore
 import NoxDesignCore
+import NoxShrineCore
 
 /// Non-blocking device artwork for Presence cards.
 struct NoxDeviceArtworkView: View {

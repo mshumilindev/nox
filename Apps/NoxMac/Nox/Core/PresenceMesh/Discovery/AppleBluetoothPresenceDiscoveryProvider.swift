@@ -12,6 +12,7 @@ import NoxSystemStateCore
 import NoxObservatoryCore
 import NoxPresenceCore
 import NoxDesignCore
+import NoxShrineCore
 
 /// Listens for high-confidence Apple Continuity BLE presence.
 final class AppleBluetoothPresenceDiscoveryProvider: NSObject, @unchecked Sendable {

@@ -21,6 +21,7 @@ PACKAGES = [
     "NoxObservatoryCore",
     "NoxPresenceCore",
     "NoxDesignCore",
+    "NoxShrineCore",
 ]
 
 

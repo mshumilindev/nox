@@ -11,6 +11,7 @@ import NoxSystemStateCore
 import NoxObservatoryCore
 import NoxPresenceCore
 import NoxDesignCore
+import NoxShrineCore
 
 /// Calm, human-facing copy for live context detail — not raw telemetry labels.
 nonisolated enum NoxLiveContextCopy {

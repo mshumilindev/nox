@@ -1,5 +1,17 @@
 import Foundation
 import NoxCore
+import NoxPlatformContracts
+import NoxContextCore
+import NoxSemanticCore
+import NoxMemoryCore
+import NoxContinuityCore
+import NoxBehavioralIntelligenceCore
+import NoxAmbientUtilityCore
+import NoxSystemStateCore
+import NoxObservatoryCore
+import NoxPresenceCore
+import NoxDesignCore
+import NoxShrineCore
 
 struct NoxSemanticEvaluationSignature: Equatable, Sendable {
     let bundleId: String?

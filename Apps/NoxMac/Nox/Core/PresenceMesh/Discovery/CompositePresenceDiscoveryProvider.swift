@@ -11,6 +11,7 @@ import NoxSystemStateCore
 import NoxObservatoryCore
 import NoxPresenceCore
 import NoxDesignCore
+import NoxShrineCore
 
 final class CompositePresenceDiscoveryProvider: PresenceDiscoveryProvider, @unchecked Sendable {
     var onNodesChanged: (@Sendable ([NoxDiscoveredNode]) -> Void)?

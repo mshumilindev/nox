@@ -1,4 +1,16 @@
+import NoxCore
+import NoxPlatformContracts
+import NoxContextCore
+import NoxSemanticCore
+import NoxMemoryCore
+import NoxContinuityCore
+import NoxBehavioralIntelligenceCore
+import NoxAmbientUtilityCore
+import NoxSystemStateCore
+import NoxObservatoryCore
 import NoxPresenceCore
+import NoxDesignCore
+import NoxShrineCore
 
 /// Resolves constellation role labels to SF Symbols that exist on this Mac.
 enum NoxConstellationRoleIconResolver {
