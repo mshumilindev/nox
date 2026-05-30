@@ -21,16 +21,24 @@ final class ShrineSurfaceController {
   let miniPanel = ShrineMiniPanelController()
   let fullWindow = ShrineFullWindowController()
   let miniVisual = OrbyMiniVisualController()
+  let notchDocking = OrbyNotchDockingController()
 
   private(set) var soundsMuted = false
   private(set) var recentMiniDismissCount = 0
   private weak var environment: AppEnvironment?
 
-  var isMiniVisible: Bool { miniPanel.isVisible }
+  var isMiniVisible: Bool { miniPanel.isVisible || notchDocking.notchPanel.isVisible }
 
   func install(environment: AppEnvironment) {
     self.environment = environment
     miniPanel.bind(environment: environment, surfaceController: self)
+    miniPanel.notchDocking = notchDocking
+    notchDocking.bind(
+      bubblePanel: miniPanel,
+      visual: miniVisual,
+      surfaceController: self,
+      environment: environment
+    )
   }
 
   func showMini() {
@@ -47,12 +55,11 @@ final class ShrineSurfaceController {
   }
 
   func showMiniAtDefaultPosition() {
-    miniPanel.showAtDefaultPosition()
-    miniVisual.noteShow(playLaunchGreeting: true)
+    notchDocking.showPreferredSurface(playLaunchGreeting: true)
   }
 
   func hideMini() {
-    miniPanel.hide()
+    notchDocking.hideAll()
     miniVisual.noteHide()
   }
 

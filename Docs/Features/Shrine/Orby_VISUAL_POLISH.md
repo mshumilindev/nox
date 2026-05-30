@@ -10,7 +10,30 @@ Visual polish pass: eye-shape blink/sleep (no eyelid overlays), morphing mouth, 
 
 Blink/sleep/squint = **eye height morph** only. `eyelidClosure` in API = **narrow amount** (0 open → 1 thin slit). No separate lid shapes. No opacity-only blink.
 
-**Canonical awake layout** (`OrbyEmotionAppearance`): spacing **16**, width **9.5**, default heights **9.5 / 7.5**; all awake moods share spacing/width/shift — expression varies **height only**. `OrbyEyeMetrics.sizeScale` **1.08**. `passive` / `muted` use full `neutralDefault` eyes (not extra-dimmed slits). `eyesDimmed` reserved for `disconnected`. **Hard drop shadows** on eyes/mouth (offset duplicate, no blur) toward bottom-right via `OrbyFaceShadowStyle`.
+**Canonical awake layout** (`OrbyEmotionAppearance`): spacing **16**, width **9.5**; all awake moods share spacing/width/horizontal shift — expression varies **height only** (and rare vertical shift on right eye). `OrbyEyeMetrics.sizeScale` **1.08**. `eyesDimmed` reserved for `disconnected` (not passive/muted). **Hard drop shadows** on eyes/mouth (offset duplicate, no blur) toward bottom-right via `OrbyFaceShadowStyle`.
+
+**Awake eye heights (L / R, pt)** — `OrbyEmotionCompositor`, phase `.awake`, intensity `.normal`:
+
+| Mood | Left ↕ | Right ↕ | Read |
+|------|--------|---------|------|
+| neutral | 9.5 | 7.5 | Calm canonical asymmetry |
+| passive | 8.5 | 6.8 | Quiet, present, less active |
+| muted | 8.0 | 6.5 | Lower energy, softer contrast |
+| curious | 10.5 | 8.5 | Open interest, livelier gaze |
+| focused | 6.0 | 5.5 | Narrow, collected |
+| deepFocus | 5.5 | 5.0 | Tighter focus |
+| pleased | 9.0 | 9.0 | Warm, even openness |
+| thinking | 8.5 | 7.5 | Reflective |
+| concerned | 9.5 | 7.5 | Worried asymmetry |
+| skeptical | 6.5 | 8.0 | Raised-brow (R taller) |
+| annoyed | 7.5 | 7.0 | Irritated narrow |
+| alarmed | 11.0 | 10.0 | Wide alert |
+| sleepy / tired | 5.5 | 5.0 | Heavy lids |
+| disconnected | 7.0 | 6.5 | Dimmed render |
+| overloaded | 10.0 | 9.5 | Stressed wide |
+| nightWatch | 6.0 | 5.5 | Calm night narrow |
+
+Full matrix: [Orby_EMOTION_MATRIX.md](Orby_EMOTION_MATRIX.md).
 
 ## 2. Ambient blink
 

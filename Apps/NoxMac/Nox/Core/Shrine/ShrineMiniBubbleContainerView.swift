@@ -90,7 +90,12 @@ final class ShrineMiniBubbleContainerView: NSView {
       x: startOrigin.x + deltaX,
       y: startOrigin.y + deltaY
     )
-    panelController.setFrameOrigin(nextOrigin, persist: false)
+    panelController.setFrameOrigin(nextOrigin, persist: false, cursor: currentMouse)
+
+    if let panel = window as? NSPanel {
+      let orbCenter = OrbyOrbGeometry.orbCenterScreen(panel: panel)
+      panelController.noteBubbleDrag(orbCenter: orbCenter, mouse: currentMouse)
+    }
   }
 
   override func mouseUp(with event: NSEvent) {
@@ -103,8 +108,13 @@ final class ShrineMiniBubbleContainerView: NSView {
       mouseDownInsideOrb = false
     }
     guard mouseDownInsideOrb else { return }
-    let metrics = dragGestureTracker.finish(at: NSEvent.mouseLocation, time: sampleTime(for: event))
-    panelController?.endUserDrag(metrics: metrics)
+    let releaseMouse = NSEvent.mouseLocation
+    let metrics = dragGestureTracker.finish(at: releaseMouse, time: sampleTime(for: event))
+    let orbCenter: NSPoint = {
+      guard let panel = window as? NSPanel else { return releaseMouse }
+      return OrbyOrbGeometry.orbCenterScreen(panel: panel)
+    }()
+    panelController?.endUserDrag(metrics: metrics, orbCenter: orbCenter, cursor: releaseMouse)
     if !didDrag {
       onClick?()
     }

@@ -26,6 +26,45 @@ import Testing
     #expect(clamped.y == 228)
 }
 
+@Test func notchDockingClampExtendsTopBeyondVisibleFrame() {
+    let screen = NoxShrineScreenRect(x: 0, y: 0, width: 1440, height: 900)
+    let visible = NoxShrineScreenRect(x: 0, y: 0, width: 1440, height: 876)
+    let size = NoxShrineSize(width: 104, height: 104)
+    let normal = NoxShrineMiniBubblePlacement.clamp(
+        origin: NoxShrinePoint(x: 600, y: 820),
+        panelSize: size,
+        mode: .normalBubble,
+        screenFrame: screen,
+        visibleFrame: visible
+    )
+    let docking = NoxShrineMiniBubblePlacement.clamp(
+        origin: NoxShrinePoint(x: 600, y: 820),
+        panelSize: size,
+        mode: .notchDocking,
+        screenFrame: screen,
+        visibleFrame: visible
+    )
+    #expect(normal.y == 772)
+    #expect(docking.y == 820)
+    #expect(docking.y > normal.y)
+}
+
+@Test func notchDockingClampCanPlaceOrbCenterOnAnchor() {
+    let screen = NoxShrineScreenRect(x: 0, y: 0, width: 1440, height: 900)
+    let visible = NoxShrineScreenRect(x: 0, y: 0, width: 1440, height: 876)
+    let size = NoxShrineSize(width: 156, height: 156)
+    let anchorY: CGFloat = 885
+    let docking = NoxShrineMiniBubblePlacement.clamp(
+        origin: NoxShrinePoint(x: 600, y: anchorY - size.height / 2),
+        panelSize: size,
+        mode: .notchDocking,
+        screenFrame: screen,
+        visibleFrame: visible,
+        notchAnchorY: anchorY
+    )
+    #expect(docking.y == anchorY - size.height / 2)
+}
+
 @Test func invalidSavedOriginFallsBackToBottomRight() {
     let visible = NoxShrineScreenRect(x: 0, y: 0, width: 500, height: 400)
     let size = NoxShrineSize(width: 72, height: 72)

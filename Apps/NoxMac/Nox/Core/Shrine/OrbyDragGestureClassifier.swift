@@ -34,6 +34,7 @@ enum OrbyDazedTriggerReason: Equatable {
   case shake
   case highAcceleration
   case combinedScore
+  case forcedUndock
 }
 
 enum OrbyDragReleaseClassification: Equatable {

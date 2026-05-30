@@ -6,7 +6,9 @@ struct OrbyOrbChrome<Face: View>: View {
   @ViewBuilder let face: () -> Face
 
   private let diameter: CGFloat = OrbyOrbGeometry.orbDiameter
-  private let shadowPadding: CGFloat = OrbyOrbGeometry.chromePadding
+  private var shadowPadding: CGFloat {
+    presentation.materialSimplified ? 0 : OrbyOrbGeometry.chromePadding
+  }
 
   @State private var breatheOut = false
 
@@ -73,7 +75,7 @@ struct OrbyOrbChrome<Face: View>: View {
   /// Soft oval under the orb, fully inside padded bounds — never clipped by panel.
   private var groundShadow: some View {
     Ellipse()
-      .fill(Color.black.opacity(0.28))
+      .fill(Color.black.opacity(presentation.materialSimplified ? 0 : 0.28))
       .frame(width: diameter * 0.62, height: diameter * 0.14)
       .blur(radius: 5)
       .offset(y: diameter * 0.36)

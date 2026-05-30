@@ -6,6 +6,8 @@ struct OrbyEyeAppearance: Equatable {
   var height: CGFloat = 9.5
   var horizontalShift: CGFloat = 0
   var verticalShift: CGFloat = 0
+  /// Inward angry slant (degrees); left eye positive, right eye negative.
+  var rotationDegrees: CGFloat = 0
 }
 
 /// Tint layered on orb gradient (not a full repaint).
@@ -55,7 +57,7 @@ struct OrbyEmotionAppearance: Equatable {
   var cheekBlushStrength: Double = 0
 
   /// Fixed eye-row layout for all awake moods (expression = height only; not spacing/shift).
-  /// Spacing matches legacy `focused` (16). Default heights match `curious` — slight smile mood.
+  /// Spacing matches legacy `focused` (16). Neutral heights 9.5 / 7.5 — calm canonical asymmetry.
   static let canonicalEyeSpacing: CGFloat = 16
   static let canonicalEyeWidth: CGFloat = 9.5
   static let canonicalLeftHeight: CGFloat = 9.5

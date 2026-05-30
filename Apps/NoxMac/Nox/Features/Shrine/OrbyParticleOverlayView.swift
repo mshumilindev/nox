@@ -11,7 +11,7 @@ struct OrbyParticleOverlayView: View {
 
   var body: some View {
     Group {
-      if opacity > 0.02 {
+      if opacity > 0.02 && particle != .none {
         TimelineView(.animation(minimumInterval: 1.0 / 30.0)) { timeline in
           let t = timeline.date.timeIntervalSinceReferenceDate
           ZStack {

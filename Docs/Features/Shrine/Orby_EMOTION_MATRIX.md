@@ -32,18 +32,43 @@ Example: `annoyed(.strong)` → red tint + narrowed eyes + optional steam; `anno
 - **Readable at ~76pt** — no micro text, no realistic anatomy.
 - **Sparse particles** — Zzz, dazed halo, steam (anger), sparks (overload), glints (pleased), thought dots (thinking), alarm ring — phase-bound only.
 
+## Awake eye heights (shipped)
+
+Phase `.awake`, intensity `.normal`, `OrbyEmotionCompositor` — heights in pt before `OrbyEyeMetrics.sizeScale` (**1.08**). Width **9.5**, spacing **16** for all moods below.
+
+| Mood | L ↕ | R ↕ | Notes |
+|------|-----|-----|-------|
+| neutral | 9.5 | 7.5 | Canonical calm asymmetry |
+| passive | 8.5 | 6.8 | Quieter presence |
+| muted | 8.0 | 6.5 | Lower energy |
+| curious | 10.5 | 8.5 | Open, lively interest |
+| focused | 6.0 | 5.5 | Narrow focus |
+| deepFocus | 5.5 | 5.0 | Deep flow |
+| pleased | 9.0 | 9.0 | Even warm eyes |
+| thinking | 8.5 | 7.5 | Reflective |
+| concerned | 9.5 | 7.5 | Worried |
+| skeptical | 6.5 | 8.0 | R eye taller |
+| annoyed | 7.5 | 7.0 | Irritated |
+| alarmed | 11.0 | 10.0 | Wide alert |
+| sleepy / tired | 5.5 | 5.0 | Heavy |
+| disconnected | 7.0 | 6.5 | + `eyesDimmed` |
+| overloaded | 10.0 | 9.5 | Stressed |
+| nightWatch | 6.0 | 5.5 | Night calm |
+
+`hoverExcited` / `.excited` mood: **11 / 10**. Phases (drag, sleep, dazed, greeting) override — see [Orby_VISUAL_POLISH.md](Orby_VISUAL_POLISH.md).
+
 ## Matrix (summary)
 
 Full behavioral notes per state are in product spec; implementation maps via `OrbyEmotionCompositor`.
 
 | # | State | Role |
 |---|--------|------|
-| 1 | neutral | Default calm |
+| 1 | neutral | Default calm; eyes **9.5 / 7.5** |
 | 2 | focused | Coherent work |
 | 3 | deepFocus | Strong flow / low interruption |
 | 4 | pleased | Good continuity |
 | 5 | excited | `hoverExcited` phase: **surprised “o” mouth** + cheek blush + larger eyes ([Orby_CHEEK_BLUSH.md](Orby_CHEEK_BLUSH.md)) |
-| 6 | curious | Ambiguous context |
+| 6 | curious | Ambiguous context; eyes **10.5 / 8.5** |
 | 7 | thinking | Short local wait |
 | 8 | concerned | Mild mismatch |
 | 9 | skeptical | “Really?” |
@@ -58,7 +83,8 @@ Full behavioral notes per state are in product spec; implementation maps via `Or
 | 18 | sleepyTransition | Phase: cursor idle |
 | 19 | asleep | Phase: full sleep |
 | 20 | waking | Phase sequence |
-| 21–40 | confused, lost, disconnected, glitch, passive, muted, waiting, notifying, celebrating, protective, overloaded, melting, suspicious, embarrassed, proud, coldQuiet, nightWatch, alarmGentle/Strong, ritual | Later tiers |
+| 21–40 | confused, lost, disconnected, glitch, waiting, notifying, celebrating, protective, melting, suspicious, embarrassed, proud, coldQuiet, alarmGentle/Strong, ritual | Later tiers |
+| — | passive, muted, overloaded, nightWatch | Shipped base moods (see eye table above) |
 
 ## Color / tint categories
 

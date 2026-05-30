@@ -59,13 +59,22 @@ enum OrbyOrbLighting {
     tint: OrbyTintAppearance,
     sleepDepth: CGFloat
   ) -> (r: Double, g: Double, b: Double) {
-    let mid = (
+    let anger = min(max(Double(tint.redShift) / 0.42, 0), 1)
+    let purple = (
       r: 0.22 + Double(tint.warmShift) * 0.06 - Double(tint.desaturation) * 0.05,
       g: 0.14 + Double(tint.warmShift) * 0.03 - Double(tint.desaturation) * 0.04,
       b: 0.42 - Double(tint.redShift) * 0.10 + Double(tint.cyanShift) * 0.08
     )
+    let crimson = (
+      r: 0.44 + Double(tint.warmShift) * 0.04,
+      g: 0.045,
+      b: 0.145 + Double(tint.coolShift) * 0.02
+    )
+    let mid = blend(purple, crimson, anger)
     let k = Double(min(max(sleepDepth, 0), 1)) * 0.92
-    let night = (r: 0.035, g: 0.015, b: 0.10)
+    let nightPurple = (r: 0.035, g: 0.015, b: 0.10)
+    let nightCrimson = (r: 0.105, g: 0.010, b: 0.035)
+    let night = blend(nightPurple, nightCrimson, anger)
     return (
       r: mid.r + (night.r - mid.r) * k,
       g: mid.g + (night.g - mid.g) * k,

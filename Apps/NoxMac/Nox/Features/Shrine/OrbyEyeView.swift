@@ -8,8 +8,29 @@ struct OrbyEyeView: View {
   let narrowAmount: Double
   let horizontalShift: CGFloat
   let verticalShift: CGFloat
+  let rotationDegrees: CGFloat
   let color: Color
   var dimOpacity: Double = 1
+
+  init(
+    width: CGFloat,
+    baseHeight: CGFloat,
+    narrowAmount: Double,
+    horizontalShift: CGFloat,
+    verticalShift: CGFloat,
+    rotationDegrees: CGFloat = 0,
+    color: Color,
+    dimOpacity: Double = 1
+  ) {
+    self.width = width
+    self.baseHeight = baseHeight
+    self.narrowAmount = narrowAmount
+    self.horizontalShift = horizontalShift
+    self.verticalShift = verticalShift
+    self.rotationDegrees = rotationDegrees
+    self.color = color
+    self.dimOpacity = dimOpacity
+  }
 
   private var renderedHeight: CGFloat {
     let t = min(max(narrowAmount, 0), 1)
@@ -39,6 +60,7 @@ struct OrbyEyeView: View {
         .offset(x: horizontalShift, y: verticalShift)
         .opacity(dimOpacity)
     }
+    .rotationEffect(.degrees(rotationDegrees))
     .frame(width: width + 1, height: baseHeight, alignment: .center)
   }
 }

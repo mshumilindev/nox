@@ -124,7 +124,7 @@ One persistent morphing mouth (`OrbyMouthView` + `OrbyMouthShape` + `OrbyMouthPa
 
 ## 14b. Eyes, blink, Zzz, dizzy
 
-No visible eyelid overlays — blink/sleep/squint narrow eye height (`OrbyEyeView`). Ambient blink uses mood intervals × `ambientBlinkIntervalRarityMultiplier` (**1.0**, no extra rarity stretch) × per-mood `blinkIntervalScale`. **Canonical awake eye row:** spacing **16**, width **9.5**, default heights **9.5 / 7.5** (curious-like slight smile); expression varies height only — not spacing or horizontal shift. Global `OrbyEyeMetrics.sizeScale` **1.08**. Zzz color adapts to sampled background: saturated violet on light backgrounds, pale lavender on dark backgrounds. Post-drag dazed: 4 yellow cartoon stars on an orbit **centered on the orb** (+10% star size and horizontal orbit width vs first pass). Details: [Orby_VISUAL_POLISH.md](Orby_VISUAL_POLISH.md).
+No visible eyelid overlays — blink/sleep/squint narrow eye height (`OrbyEyeView`). Ambient blink uses mood intervals × `ambientBlinkIntervalRarityMultiplier` (**1.0**, no extra rarity stretch) × per-mood `blinkIntervalScale`. **Canonical awake eye row:** spacing **16**, width **9.5**; **neutral** heights **9.5 / 7.5**; **curious** **10.5 / 8.5**; **passive** **8.5 / 6.8**; **muted** **8.0 / 6.5** — expression varies height only (not spacing or horizontal shift). Table: [Orby_VISUAL_POLISH.md](Orby_VISUAL_POLISH.md). Global `OrbyEyeMetrics.sizeScale` **1.08**. Zzz color adapts to sampled background: saturated violet on light backgrounds, pale lavender on dark backgrounds. Post-drag dazed: 4 yellow cartoon stars on an orbit **centered on the orb** (+10% star size and horizontal orbit width vs first pass). Details: [Orby_VISUAL_POLISH.md](Orby_VISUAL_POLISH.md).
 
 ## 14c. Cheek blush
 
@@ -144,7 +144,23 @@ Friendly-state **11×5 pt** rose capsules on an **eye-row overlay** — vertical
 | `waking*` | Full ritual from `asleep` only: yawn (~4.6 s) → 2 blinks → squint → glance R/L → awake (**no** post-yawn smile phase); **0.16 s gap** between steps; micro **paused** |
 | Context menu | Blocks scheduling while open |
 
-Sleep: 30 s cursor idle → `sleepyTransition` → `asleep`. Wake from `asleep` only (not from aborted sleepy).
+Sleep: 30 s cursor idle → `sleepyTransition` → `asleep`. Wake from `asleep` only (not from aborted sleepy). **Notch:** same sleep/wake timer and Zzz ritual when docked (`OrbySurfaceFormBehavior.allowsSleepCycle`).
+
+## 15b. Fake Dynamic Notch (docked Orby)
+
+When `surfaceForm == .notch` (fake notch dock on built-in MacBook):
+
+| Feature | Notch | Bubble |
+|---------|-------|--------|
+| Sleep / wake / Zzz | ✅ same | ✅ |
+| Idle microbehaviors | ✅ same | ✅ |
+| Ambient blink | ✅ same | ✅ |
+| Launch Hello | ❌ | ✅ on manual show |
+| Ambient sky meteors | ❌ (CPU) | ✅ |
+| Animated starfield body | ❌ simplified gradient | ✅ full |
+| Bezel background sampling | ❌ | ✅ |
+
+Code: `OrbySurfaceFormBehavior.swift`, `OrbyNotchDockingController`, `ShrineNotchHostView`.
 
 ## 16. Post-drag dazed (dizzy)
 

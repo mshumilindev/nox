@@ -3,6 +3,26 @@ import Testing
 import NoxCore
 @testable import Nox
 
+@Test func orbyCompositorNeutralPassiveMutedCuriousEyeHeights() {
+  let cases: [(OrbyMood, CGFloat, CGFloat)] = [
+    (.neutral, 9.5, 7.5),
+    (.passive, 8.5, 6.8),
+    (.muted, 8.0, 6.5),
+    (.curious, 10.5, 8.5)
+  ]
+  for (mood, leftH, rightH) in cases {
+    let appearance = OrbyEmotionCompositor.compose(
+      mood: mood,
+      intensity: .normal,
+      phase: .awake,
+      eyelidClosure: 0,
+      isExcited: false
+    )
+    #expect(appearance.leftEye.height == leftH)
+    #expect(appearance.rightEye.height == rightH)
+  }
+}
+
 @Test func awakeMoodsShareCanonicalEyeLayout() {
   let moods: [OrbyMood] = [
     .neutral, .passive, .muted, .focused, .deepFocus, .pleased, .curious, .thinking,

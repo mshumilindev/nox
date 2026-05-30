@@ -6,6 +6,8 @@
 
 Rare, quiet autonomous moments while Orby is **awake** and not directly interacted with. Not persisted to memory/timeline. Does **not** reset the cursor sleep timer.
 
+**Notch parity:** The same scheduler runs when Orby is docked in the fake Dynamic Notch (`OrbySurfaceForm.notch`) — same delays, gaze gate, and pause rules as bubble. Policy: `OrbySurfaceFormBehavior`.
+
 ## Baseline blink (separate)
 
 Blink is physiology, not idle microbehavior. Shipped intervals use mood table × **`ambientBlinkIntervalRarityMultiplier` (1.0)** × per-mood `blinkIntervalScale`.

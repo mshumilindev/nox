@@ -90,6 +90,8 @@ struct OrbyMiniVisualPresentation: Equatable {
   var dayNightBlend: CGFloat = 0
   /// Passive internal-sky meteor streaks (not microbehaviors; Orby does not react).
   var ambientSkyMeteors: [OrbyAmbientMeteorRenderItem] = []
+  /// Static orb body in compact notch dock (avoids TimelineView starfield cost). Face/sleep/micro unchanged.
+  var materialSimplified: Bool = false
 
   var mouthParameters: OrbyMouthParameters { emotion.mouth }
   var faceBrightness: Double { emotion.faceBrightness }

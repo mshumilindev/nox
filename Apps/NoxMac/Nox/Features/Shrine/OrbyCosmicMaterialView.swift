@@ -27,6 +27,24 @@ struct OrbyCosmicMaterialView: View {
   }
 
   var body: some View {
+    if presentation.materialSimplified {
+      simplifiedBody
+    } else {
+      animatedBody
+    }
+  }
+
+  private var simplifiedBody: some View {
+    ZStack {
+      baseFill
+      innerVignette
+    }
+    .frame(width: diameter, height: diameter)
+    .clipShape(Circle())
+    .allowsHitTesting(false)
+  }
+
+  private var animatedBody: some View {
     let shift = parallax
     return TimelineView(.animation(minimumInterval: 1.0 / 15.0)) { timeline in
       let drift = timeline.date.timeIntervalSinceReferenceDate / 48
@@ -46,7 +64,6 @@ struct OrbyCosmicMaterialView: View {
         innerVignette
           .opacity(Double(1 - blend))
 
-        // Day sky crossfades in over the cosmos, sun glow rises in the back half.
         if config.daySkyVisibility > 0.001 {
           OrbyDaySkyView(blend: blend, diameter: diameter)
             .opacity(Double(config.daySkyVisibility))

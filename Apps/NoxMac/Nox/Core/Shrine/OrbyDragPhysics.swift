@@ -37,6 +37,9 @@ struct OrbyDragPhysicsConstants: Equatable {
   var dazedReleaseStiffness: CGFloat = 128
   var dazedReleaseDamping: CGFloat = 13
   var faceInheritDeformationStrength: CGFloat = 0.36
+  /// Stiffness/damping used when pointer pauses mid-drag, tuned to settle within ~0.5 s.
+  var pausedDragReturnStiffness: CGFloat = 420
+  var pausedDragReturnDamping: CGFloat = 38
   var settleEpsilon: CGFloat = 0.004
   var maxFrameDt: TimeInterval = 1.0 / 30.0
 }
@@ -298,10 +301,11 @@ final class OrbyDragPhysicsSimulator {
     case .idle:
       break
     case .dragging:
-      // Decay toward rest when pointer pauses mid-drag.
+      // Decay toward rest when pointer pauses mid-drag (~0.5 s settle).
       let speed = OrbyDragPhysicsMath.vectorLength(smoothedVelocity)
       if speed < constants.velocityDeadZone {
-        smoothedVelocity = OrbyDragPhysicsMath.lerpVector(smoothedVelocity, .zero, factor: 0.2)
+        smoothedVelocity = OrbyDragPhysicsMath.lerpVector(smoothedVelocity, .zero, factor: 0.35)
+        smoothedAcceleration = OrbyDragPhysicsMath.lerpVector(smoothedAcceleration, .zero, factor: 0.35)
         let targets = OrbyDragPhysicsMath.deformationTargets(
           deformationIntensity: 0,
           accelerationMagnitude: 0,
@@ -311,10 +315,10 @@ final class OrbyDragPhysicsSimulator {
           stretchTarget: targets.stretch,
           compressionTarget: targets.compression,
           faceTarget: .zero,
-          stiffness: constants.deformationStiffness,
-          damping: constants.deformationDamping,
-          faceStiffness: constants.faceLagStiffness,
-          faceDamping: constants.faceLagDamping,
+          stiffness: constants.pausedDragReturnStiffness,
+          damping: constants.pausedDragReturnDamping,
+          faceStiffness: constants.faceLagStiffness * 1.4,
+          faceDamping: constants.faceLagDamping * 1.3,
           dt: dtCG
         )
       }

@@ -61,7 +61,7 @@ enum OrbyEmotionCompositor {
       return applyExcited(.neutralDefault)
 
     case .curious:
-      var a = eyePair()
+      var a = eyePair(leftH: 10.5, rightH: 8.5)
       a.mouth = OrbyMouthParameters(width: 12, lineHeight: 2.3, cornerLift: 2, curvature: 0.4)
       a.tint.cyanShift = 0.1
       if intensity == .strong {
@@ -131,10 +131,18 @@ enum OrbyEmotionCompositor {
       a.microBob = mood == .tired ? 0.25 : 0.15
       return a
 
-    case .passive, .muted:
-      var a = OrbyEmotionAppearance.neutralDefault
+    case .passive:
+      var a = eyePair(leftH: 8.5, rightH: 6.8)
       a.mouth = OrbyMouthParameters(width: 11, lineHeight: 2.2)
-      a.tint.desaturation = mood == .muted ? 0.18 : 0.1
+      a.tint.desaturation = 0.1
+      a.blinkIntervalScale = 1.4
+      a.trackingScale = 0.85
+      return a
+
+    case .muted:
+      var a = eyePair(leftH: 8.0, rightH: 6.5)
+      a.mouth = OrbyMouthParameters(width: 11, lineHeight: 2.2)
+      a.tint.desaturation = 0.18
       a.blinkIntervalScale = 1.4
       a.trackingScale = 0.85
       return a

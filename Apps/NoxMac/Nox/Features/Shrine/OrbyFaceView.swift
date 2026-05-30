@@ -238,6 +238,7 @@ struct OrbyFaceView: View {
       narrowAmount: combinedNarrowAmount,
       horizontalShift: metrics.horizontalShift,
       verticalShift: metrics.verticalShift,
+      rotationDegrees: spec.rotationDegrees,
       color: faceForeground,
       dimOpacity: (presentation.isExcited ? 1 : (emotion.eyesDimmed ? 0.55 : 1)) * asleepDim
         * (1 - stylizedEyeReveal)

@@ -16,6 +16,25 @@ final class OrbyMiniVisualController {
   var isDragging = false
   var isContextMenuOpen = false
 
+  /// Test / diagnostics seam for post-drag dazed without building full presentation.
+  var isPostDragDazedActive: Bool {
+    if case .postDragDazed = phase { return true }
+    return false
+  }
+
+  var onPostDragDazedFinished: (() -> Void)?
+
+  var isLaunchGreetingActive: Bool {
+    if case .launchGreeting = phase { return true }
+    return false
+  }
+
+  private(set) var surfaceForm: OrbySurfaceForm = .bubble
+  private(set) var notchPreviewBlend: CGFloat = 0
+  private(set) var notchPullTension: CGFloat = 0
+  private(set) var notchPullVisualOffset: CGSize = .zero
+  private(set) var notchUndockTrembleOffset: CGSize = .zero
+
   private var phase: OrbyMiniVisualPhase = .awake
   private var postDragDazedStartedAt: Date?
   private var dragStartedAt: Date?
@@ -56,6 +75,8 @@ final class OrbyMiniVisualController {
   private(set) var backgroundLuminance: Double = 0.5
   /// Bumped while a microbehavior runs so SwiftUI re-renders progress (scheduler is not @Observable).
   private(set) var idleMicroRenderTick: UInt = 0
+  /// Bumped while notch undock tremble / resistance is active.
+  private(set) var notchVisualRenderTick: UInt = 0
   /// Bumped every frame while a passive sky event is visible.
   private(set) var ambientSkyRenderTick: UInt = 0
   /// Bumped every frame while Orby sleeps so the breathing (mouth + orb) re-renders smoothly.
@@ -67,24 +88,51 @@ final class OrbyMiniVisualController {
   private let idleMicroScheduler = OrbyIdleMicrobehaviorScheduler()
   private let ambientSkyScheduler = OrbyAmbientSkyEventScheduler()
   private var lastResolvedMood: OrbyMood = .neutral
+  private var tickCounter: UInt = 0
 
   func attach(panel: NSPanel) {
     self.panel = panel
   }
 
+  /// Active tick rate: 60 fps for animations, 30 fps when idle.
+  private static let activeInterval: TimeInterval = 1.0 / 60.0
+  private static let idleInterval: TimeInterval = 1.0 / 30.0
+  private var currentTimerInterval: TimeInterval = 1.0 / 60.0
+
   func start() {
     guard timer == nil else { return }
     lastMeaningfulMovementAt = Date()
     phase = .awake
-    let timer = Timer(timeInterval: OrbyMiniVisualTiming.cursorSampleInterval, repeats: true) { [weak self] _ in
+    installTimer(interval: Self.activeInterval)
+    installContextMenuMonitor()
+    tick()
+  }
+
+  private func installTimer(interval: TimeInterval) {
+    timer?.invalidate()
+    currentTimerInterval = interval
+    let timer = Timer(timeInterval: interval, repeats: true) { [weak self] _ in
       MainActor.assumeIsolated {
         self?.tick()
       }
     }
     RunLoop.main.add(timer, forMode: .common)
     self.timer = timer
-    installContextMenuMonitor()
-    tick()
+  }
+
+  /// Returns true when Orby needs high-frequency updates.
+  private func needsActiveTickRate() -> Bool {
+    if isDragging { return true }
+    if dragPhysics.needsFrameUpdates { return true }
+    if notchPullTension > 0 { return true }
+    if isLaunchGreetingPhase { return true }
+    if isWakePhase { return true }
+    if isPostDragDazedPhase { return true }
+    if case .sleepyTransition = phase { return true }
+    if case .asleep = phase { return true }
+    if idleMicroScheduler.active != nil { return true }
+    // Hovering and awake/asleep are near-static — 10 fps is enough.
+    return false
   }
 
   func stop() {
@@ -100,7 +148,8 @@ final class OrbyMiniVisualController {
     sleepyTransitionEnteredAt = nil
     wakeSequenceStartedAt = nil
     pendingHoverExcitedAfterGreeting = false
-    if playLaunchGreeting, shouldPlayLaunchGreeting() {
+    let shouldGreet = playLaunchGreeting && shouldPlayLaunchGreeting()
+    if shouldGreet {
       idleMicroScheduler.noteShow()
       ambientSkyScheduler.noteShow()
       startLaunchGreeting()
@@ -109,6 +158,36 @@ final class OrbyMiniVisualController {
       idleMicroScheduler.noteManualShowcase()
       ambientSkyScheduler.noteShow()
     }
+  }
+
+  func setSurfaceForm(_ form: OrbySurfaceForm) {
+    surfaceForm = form
+    if form == .notch {
+      cancelLaunchGreeting()
+      idleMicroScheduler.cancelActiveForInteraction(now: Date(), mood: lastResolvedMood)
+    }
+    if OrbySurfaceFormBehavior.allowsIdleMicrobehaviors(form), !isDragging, !isContextMenuOpen {
+      idleMicroScheduler.setSchedulingSuspended(false)
+    }
+  }
+
+  func setNotchPreviewBlend(_ blend: CGFloat) {
+    notchPreviewBlend = min(max(blend, 0), 1)
+  }
+
+  func clearNotchPreviewBlend() {
+    notchPreviewBlend = 0
+  }
+
+  func setNotchPullVisual(offset: CGSize, tension: CGFloat) {
+    notchPullVisualOffset = offset
+    notchPullTension = min(max(tension, 0), 1)
+  }
+
+  func clearNotchPullVisual() {
+    notchPullVisualOffset = .zero
+    notchPullTension = 0
+    notchUndockTrembleOffset = .zero
   }
 
   func noteHide() {
@@ -151,23 +230,29 @@ final class OrbyMiniVisualController {
     _ = totalDistance
   }
 
-  func endDrag(metrics: OrbyDragGestureMetrics) {
+  func endDrag(metrics: OrbyDragGestureMetrics, forcedUndock: Bool = false, forceNormal: Bool = false) {
     isDragging = false
     dragStartedAt = nil
     lastMeaningfulMovementAt = Date()
 
-    let classification = OrbyDragGestureClassifier.classify(metrics)
     let dazed: Bool
-    if case .dazed = classification { dazed = true } else { dazed = false }
+    if forcedUndock {
+      dazed = true
+    } else if forceNormal {
+      dazed = false
+    } else {
+      let classification = OrbyDragGestureClassifier.classify(metrics)
+      if case .dazed = classification { dazed = true } else { dazed = false }
+    }
     dragPhysics.release(dazed: dazed)
 
-    switch classification {
-    case .dazed:
+    if dazed {
       postDragDazedStartedAt = Date()
       phase = .postDragDazed(progress: 0)
-    case .normal:
+    } else {
       phase = isHovering ? .hoverExcited : .awake
     }
+    clearNotchPullVisual()
   }
 
   func setHovering(_ hovering: Bool) {
@@ -212,28 +297,35 @@ final class OrbyMiniVisualController {
   }
 
   func presentation(resolvedMood: OrbyMood, intensity: OrbyEmotionIntensity) -> OrbyMiniVisualPresentation {
-    lastResolvedMood = resolvedMood
+    // Avoid writing to observable properties inside view body evaluation.
+    if lastResolvedMood != resolvedMood { lastResolvedMood = resolvedMood }
     _ = idleMicroRenderTick
+    _ = notchVisualRenderTick
     _ = dragPhysicsRenderTick
     _ = sleepBreathRenderTick
     _ = ambientSkyRenderTick
     let now = Date()
     var sleepBreath = 0.0
     let deformation = dragPhysics.snapshot()
-    dragFaceLagOffset = deformation.faceLagOffset
+    let currentDragFaceLag = deformation.faceLagOffset
     let effectivePhase = prioritizedPhase()
+
+    let (presentationMood, presentationIntensity) = (resolvedMood, intensity)
 
     let tracking = eyeTrackingFactor(for: effectivePhase)
     var closure = resolvedEyelidClosure(for: effectivePhase)
     var scripted = scriptedEyeOffset(for: effectivePhase)
     let excited = effectivePhase == .hoverExcited
     var emotionBase = OrbyEmotionCompositor.compose(
-      mood: resolvedMood,
-      intensity: intensity,
+      mood: presentationMood,
+      intensity: presentationIntensity,
       phase: effectivePhase,
       eyelidClosure: closure,
       isExcited: excited
     )
+    if notchPullTension > 0 {
+      emotionBase = OrbyNotchResistanceAppearance.apply(tension: notchPullTension, to: emotionBase)
+    }
 
     var idleOverlay = OrbyIdleMicroOverlay()
     var idleNudge = CGSize.zero
@@ -348,16 +440,20 @@ final class OrbyMiniVisualController {
       now: now,
       dayNightBlend: CGFloat(idleOverlay.animeEyeReveal)
     )
-    let ambientSkyMeteors = ambientSkyScheduler.renderItems(now: now, context: skyContext)
+    let ambientSkyMeteors = OrbySurfaceFormBehavior.usesAmbientSkyMeteors(surfaceForm)
+      ? ambientSkyScheduler.renderItems(now: now, context: skyContext)
+      : []
+    let notchScale = resolvedNotchOrbScale()
+    let combinedDragLag = currentDragFaceLag
 
     return OrbyMiniVisualPresentation(
-      resolvedMood: resolvedMood,
-      intensity: intensity,
+      resolvedMood: presentationMood,
+      intensity: presentationIntensity,
       phase: effectivePhase,
       emotion: emotionBase,
       cursorEyeOffset: cursorOffset,
       scriptedEyeOffset: scripted,
-      dragFaceLagOffset: dragFaceLagOffset,
+      dragFaceLagOffset: combinedDragLag,
       dragDeformation: deformation,
       dragFaceDeformationStrength: dragPhysics.faceDeformationStrength,
       headTurnXDegrees: headTurnXDegrees * headFactor + headXExtra,
@@ -369,7 +465,7 @@ final class OrbyMiniVisualController {
       breathingScale: breathingScale(for: effectivePhase),
       zzzOpacity: zzzOpacity(for: effectivePhase),
       dazedHaloOpacity: dazedHaloOpacity(for: effectivePhase),
-      orbScale: orbScale(for: effectivePhase) * idleOrbScale,
+      orbScale: orbScale(for: effectivePhase) * idleOrbScale * notchScale,
       isExcited: excited,
       isDragging: isDragging,
       allowsAmbientBlink: blinkAllowed,
@@ -386,7 +482,8 @@ final class OrbyMiniVisualController {
       // blooms to day (and back) during the anime self-satisfied beat, tied to
       // that behavior's reveal envelope.
       dayNightBlend: CGFloat(idleOverlay.animeEyeReveal),
-      ambientSkyMeteors: ambientSkyMeteors
+      ambientSkyMeteors: ambientSkyMeteors,
+      materialSimplified: OrbySurfaceFormBehavior.usesSimplifiedOrbMaterial(surfaceForm)
     )
   }
 
@@ -543,6 +640,10 @@ final class OrbyMiniVisualController {
   }
 
   private func updateIdleMicrobehaviors(now: Date, mood: OrbyMood, phase: OrbyMiniVisualPhase) {
+    guard OrbySurfaceFormBehavior.allowsIdleMicrobehaviors(surfaceForm) else {
+      idleMicroScheduler.setSchedulingSuspended(true)
+      return
+    }
     idleMicroScheduler.setSchedulingSuspended(
       OrbyIdleMicrobehaviorPolicy.schedulingSuspended(
         for: phase,
@@ -604,7 +705,11 @@ private extension OrbyMiniVisualController {
   func tick() {
     guard let panel, panel.isVisible else { return }
     let now = Date()
-    updateBezelAppearance(panel: panel)
+    tickCounter &+= 1
+
+    if OrbySurfaceFormBehavior.samplesBezelFromBackground(surfaceForm) {
+      updateBezelAppearance(panel: panel)
+    }
     sampleCursor(relativeTo: panel)
     updateOrbHover(panel: panel)
     updateDragPhysicsFrame()
@@ -615,18 +720,35 @@ private extension OrbyMiniVisualController {
       updatePriorityPhase(now: now)
     }
     updateIdleMicrobehaviors(now: now, mood: lastResolvedMood, phase: prioritizedPhase())
-    updateAmbientSkyEvents(now: now, mood: lastResolvedMood, phase: prioritizedPhase())
+    if notchPullTension > 0 {
+      updateNotchUndockTremble(now: now)
+    } else if notchUndockTrembleOffset != .zero {
+      notchUndockTrembleOffset = .zero
+      notchVisualRenderTick &+= 1
+    }
+    if OrbySurfaceFormBehavior.usesAmbientSkyMeteors(surfaceForm) {
+      updateAmbientSkyEvents(now: now, mood: lastResolvedMood, phase: prioritizedPhase())
+    }
 
-    // Drive the asleep breathing (mouth + orb) at frame rate so it animates
-    // smoothly even when no other state is changing.
     if case .asleep = prioritizedPhase() {
       sleepBreathRenderTick &+= 1
+    }
+
+    // Adaptive tick rate: drop to 10 fps when idle to save CPU.
+    let wantsActive = needsActiveTickRate()
+    let desiredInterval = wantsActive ? Self.activeInterval : Self.idleInterval
+    if abs(currentTimerInterval - desiredInterval) > 0.001 {
+      installTimer(interval: desiredInterval)
     }
   }
 
   func updateDragPhysicsFrame() {
     guard dragPhysics.needsFrameUpdates else { return }
-    dragPhysics.advanceFrame(dt: OrbyMiniVisualTiming.cursorSampleInterval)
+    dragPhysics.advanceFrame(dt: currentTimerInterval)
+    let snap = dragPhysics.snapshot()
+    if snap.faceLagOffset != dragFaceLagOffset {
+      dragFaceLagOffset = snap.faceLagOffset
+    }
     dragPhysicsRenderTick &+= 1
   }
 
@@ -917,7 +1039,7 @@ private extension OrbyMiniVisualController {
   }
 
   func shouldPlayLaunchGreeting() -> Bool {
-    true
+    OrbySurfaceFormBehavior.allowsLaunchGreeting(surfaceForm)
   }
 
   func startLaunchGreeting() {
@@ -1061,6 +1183,7 @@ private extension OrbyMiniVisualController {
     wakeSequenceStartedAt = nil
     sleepyTransitionEnteredAt = nil
     phase = next
+    onPostDragDazedFinished?()
   }
 
   func updateWakeMouthCrossfade(now: Date) {
@@ -1368,6 +1491,41 @@ private extension OrbyMiniVisualController {
     default:
       return 1
     }
+  }
+
+  func resolvedNotchOrbScale() -> CGFloat {
+    if surfaceForm == .notch {
+      return OrbyNotchDockingMetrics.dockedOrbScale
+    }
+    if notchPreviewBlend > 0 {
+      // Gradually shrink all the way to docked size as Orby approaches the notch.
+      let dockedScale = OrbyNotchDockingMetrics.dockedOrbScale
+      return 1 - notchPreviewBlend * (1 - dockedScale)
+    }
+    return 1
+  }
+
+  func updateNotchUndockTremble(now: Date) {
+    guard notchPullTension > 0 else {
+      if notchUndockTrembleOffset != .zero {
+        notchUndockTrembleOffset = .zero
+        notchVisualRenderTick &+= 1
+      }
+      return
+    }
+    let trembleStart = CGFloat(0.15)
+    let normalized = min(max((notchPullTension - trembleStart) / (1 - trembleStart), 0), 1)
+    let eased = normalized * normalized * (3 - 2 * normalized)
+    // Intense trembling: up to 4px amplitude, high frequency with a second harmonic for jitter.
+    let amp = 4.0 * eased
+    let t = now.timeIntervalSinceReferenceDate
+    let primary = sin(t * 2.0 * .pi * 42.0)
+    let secondary = sin(t * 2.0 * .pi * 67.0) * 0.35
+    notchUndockTrembleOffset = CGSize(
+      width: (primary + secondary) * amp,
+      height: sin(t * 2.0 * .pi * 53.0) * amp * 0.25
+    )
+    notchVisualRenderTick &+= 1
   }
 
   func allowsAmbientBlink(for phase: OrbyMiniVisualPhase, now: Date) -> Bool {

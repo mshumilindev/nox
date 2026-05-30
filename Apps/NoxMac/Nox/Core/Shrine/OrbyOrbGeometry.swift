@@ -32,4 +32,15 @@ enum OrbyOrbGeometry {
   static func orbCenter(inHostSize size: CGSize) -> CGPoint {
     CGPoint(x: size.width / 2, y: size.height / 2)
   }
+
+  static func orbCenterScreen(panel: NSPanel) -> NSPoint {
+    guard let contentView = panel.contentView else {
+      let frame = panel.frame
+      return NSPoint(x: frame.midX, y: frame.midY)
+    }
+    let trackView = contentView.subviews.first ?? contentView
+    let centerLocal = orbCenter(inHostSize: trackView.bounds.size)
+    let centerWindow = trackView.convert(centerLocal, to: nil)
+    return panel.convertPoint(toScreen: centerWindow)
+  }
 }

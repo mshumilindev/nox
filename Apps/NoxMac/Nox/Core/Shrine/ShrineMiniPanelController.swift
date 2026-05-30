@@ -25,6 +25,7 @@ final class ShrineMiniPanelController: NSObject, NSWindowDelegate {
 
   private weak var environment: AppEnvironment?
   private weak var surfaceController: ShrineSurfaceController?
+  weak var notchDocking: OrbyNotchDockingController?
 
   /// Transparent margin so inner ground shadow is never clipped by the panel.
   private let chromeMargin: CGFloat = OrbyOrbGeometry.chromePadding
@@ -66,6 +67,20 @@ final class ShrineMiniPanelController: NSObject, NSWindowDelegate {
     surfaceController.miniVisual.start()
   }
 
+  /// Shows the bubble panel without changing placement (used after notch undock).
+  func showWithoutDefaultPlacement() {
+    buildIfNeeded()
+    guard let panel, let surfaceController else { return }
+    surfaceController.miniVisual.attach(panel: panel)
+    panel.orderFrontRegardless()
+    surfaceController.miniVisual.start()
+  }
+
+  func persistCurrentOrigin() {
+    guard let panel, let screen = panel.screen ?? NSScreen.main else { return }
+    positionStore.save(origin: panel.frame.origin, for: screen)
+  }
+
   func hide() {
     surfaceController?.miniVisual.stop()
     panel?.orderOut(nil)
@@ -79,7 +94,10 @@ final class ShrineMiniPanelController: NSObject, NSWindowDelegate {
   }
 
   func beginUserDrag() {
+    notchDocking?.noteBubbleDragBegan()
     surfaceController?.miniVisual.beginDrag()
+    // Raise panel above the notch panel so bubble renders on top during drag.
+    panel?.level = NSWindow.Level(rawValue: Int(CGWindowLevelForKey(.statusWindow)) + 4)
   }
 
   func noteDragStep(screenDelta: CGSize, sampleTime: Date, totalDistance: CGFloat) {
@@ -90,10 +108,16 @@ final class ShrineMiniPanelController: NSObject, NSWindowDelegate {
     )
   }
 
-  func endUserDrag(metrics: OrbyDragGestureMetrics) {
-    surfaceController?.miniVisual.endDrag(metrics: metrics)
-    if let panel, let screen = panel.screen ?? NSScreen.main {
-      positionStore.save(origin: panel.frame.origin, for: screen)
+  func noteBubbleDrag(orbCenter: NSPoint, mouse: NSPoint) {
+    notchDocking?.noteBubbleDrag(orbCenter: orbCenter, mouse: mouse)
+  }
+
+  func endUserDrag(metrics: OrbyDragGestureMetrics, orbCenter: NSPoint, cursor: NSPoint) {
+    notchDocking?.endBubbleDrag(orbCenter: orbCenter, cursor: cursor, metrics: metrics)
+    // Restore normal level after drag.
+    panel?.level = NSWindow.Level(rawValue: Int(CGWindowLevelForKey(.statusWindow)) + 1)
+    if notchDocking?.isDockedInNotch != true {
+      snapToVisibleFrameIfNeeded(animated: true)
     }
   }
 
@@ -101,19 +125,51 @@ final class ShrineMiniPanelController: NSObject, NSWindowDelegate {
     surfaceController?.miniVisual.noteContextMenuOpened()
   }
 
-  func setFrameOrigin(_ origin: NSPoint, persist: Bool) {
+  func setFrameOrigin(_ origin: NSPoint, persist: Bool, cursor: NSPoint? = nil) {
     guard let panel else { return }
     let screen = positionStore.screen(containing: NSRect(origin: origin, size: panel.frame.size))
-    let clampedPoint = NoxShrineMiniBubblePlacement.clamp(
-      origin: ShrineScreenGeometry.point(origin),
-      panelSize: ShrineScreenGeometry.panelSize(panelSize),
-      visibleFrame: ShrineScreenGeometry.screenRect(screen.visibleFrame)
+    let clamped = clampedOrigin(
+      origin,
+      on: screen,
+      cursor: cursor ?? NSEvent.mouseLocation
     )
-    let clamped = ShrineScreenGeometry.cgPoint(clampedPoint)
-    applyFrame(origin: clamped, on: screen, animate: false)
+    applyFrame(origin: clamped, on: screen, animate: false, originAlreadyClamped: true)
     if persist {
       positionStore.save(origin: clamped, for: screen)
     }
+  }
+
+  /// True when any part of the bubble panel sits outside the screen's safe visible area.
+  func isOutsideVisibleFrame() -> Bool {
+    guard let panel else { return false }
+    let screen = positionStore.screen(containing: panel.frame)
+    return !NoxShrineMiniBubblePlacement.isFullyVisible(
+      origin: ShrineScreenGeometry.point(panel.frame.origin),
+      panelSize: ShrineScreenGeometry.panelSize(panelSize),
+      visibleFrame: ShrineScreenGeometry.screenRect(screen.visibleFrame)
+    )
+  }
+
+  /// Snaps Bubble Orby to the nearest origin fully inside `visibleFrame`. Returns whether a move occurred.
+  @discardableResult
+  func snapToVisibleFrameIfNeeded(animated: Bool) -> Bool {
+    guard let panel else { return false }
+    let screen = positionStore.screen(containing: panel.frame)
+    let clamped = clampedOrigin(
+      panel.frame.origin,
+      on: screen,
+      cursor: nil,
+      forceNormal: true
+    )
+    guard clamped != panel.frame.origin else { return false }
+    applyFrame(origin: clamped, on: screen, animate: animated)
+    positionStore.save(origin: clamped, for: screen)
+    return true
+  }
+
+  /// Returns Bubble to the normal visibleFrame after a failed notch docking attempt.
+  func clampToVisibleFrame(animated: Bool) {
+    snapToVisibleFrameIfNeeded(animated: animated)
   }
 
   // MARK: - Private
@@ -146,8 +202,9 @@ final class ShrineMiniPanelController: NSObject, NSWindowDelegate {
       defer: false
     )
     panel.isFloatingPanel = true
-    panel.level = .floating
-    panel.collectionBehavior = [.canJoinAllSpaces, .fullScreenAuxiliary]
+    panel.level = NSWindow.Level(rawValue: Int(CGWindowLevelForKey(.statusWindow)) + 1)
+    panel.collectionBehavior = [.canJoinAllSpaces, .fullScreenAuxiliary, .stationary, .ignoresCycle]
+    panel.animationBehavior = .none
     panel.backgroundColor = .clear
     panel.isOpaque = false
     panel.hasShadow = false
@@ -176,17 +233,52 @@ final class ShrineMiniPanelController: NSObject, NSWindowDelegate {
     applyFrame(origin: origin, on: screen, animate: animated)
   }
 
-  private func applyFrame(origin: CGPoint, on screen: NSScreen, animate: Bool) {
+  private func clampedOrigin(
+    _ origin: NSPoint,
+    on screen: NSScreen,
+    cursor: NSPoint?,
+    forceNormal: Bool = false
+  ) -> NSPoint {
+    let clampMode: NoxShrineMiniBubblePlacement.ClampMode
+    if !forceNormal,
+       surfaceController?.miniVisual.isDragging == true,
+       let cursor {
+      let inCorridor = OrbyNotchGeometry.isCursorInNotchCaptureCorridor(cursor: cursor, on: screen)
+      clampMode = inCorridor ? .notchDocking : .normalBubble
+    } else {
+      clampMode = .normalBubble
+    }
+
+    let notchAnchorY: CGFloat? = clampMode == .notchDocking
+      ? notchDocking?.notchAnchorY(for: screen)
+      : nil
+
+    let clampedPoint = NoxShrineMiniBubblePlacement.clamp(
+      origin: ShrineScreenGeometry.point(origin),
+      panelSize: ShrineScreenGeometry.panelSize(panelSize),
+      mode: clampMode,
+      screenFrame: ShrineScreenGeometry.screenRect(screen.frame),
+      visibleFrame: ShrineScreenGeometry.screenRect(screen.visibleFrame),
+      topMargin: 0,
+      notchAnchorY: notchAnchorY
+    )
+    return ShrineScreenGeometry.cgPoint(clampedPoint)
+  }
+
+  private func applyFrame(
+    origin: CGPoint,
+    on screen: NSScreen,
+    animate: Bool,
+    originAlreadyClamped: Bool = false
+  ) {
     guard let panel else { return }
     var frame = panel.frame
-    frame.origin = origin
     frame.size = panelSize
-    let clampedPoint = NoxShrineMiniBubblePlacement.clamp(
-      origin: ShrineScreenGeometry.point(frame.origin),
-      panelSize: ShrineScreenGeometry.panelSize(panelSize),
-      visibleFrame: ShrineScreenGeometry.screenRect(screen.visibleFrame)
-    )
-    frame.origin = ShrineScreenGeometry.cgPoint(clampedPoint)
+    if originAlreadyClamped {
+      frame.origin = origin
+    } else {
+      frame.origin = clampedOrigin(origin, on: screen, cursor: nil, forceNormal: true)
+    }
     isApplyingFrame = true
     panel.setFrame(frame, display: true, animate: animate)
     isApplyingFrame = false
@@ -197,12 +289,7 @@ final class ShrineMiniPanelController: NSObject, NSWindowDelegate {
           surfaceController?.miniVisual.isDragging != true,
           let panel = notification.object as? NSPanel else { return }
     let screen = positionStore.screen(containing: panel.frame)
-    let clampedPoint = NoxShrineMiniBubblePlacement.clamp(
-      origin: ShrineScreenGeometry.point(panel.frame.origin),
-      panelSize: ShrineScreenGeometry.panelSize(panelSize),
-      visibleFrame: ShrineScreenGeometry.screenRect(screen.visibleFrame)
-    )
-    let clamped = ShrineScreenGeometry.cgPoint(clampedPoint)
+    let clamped = clampedOrigin(panel.frame.origin, on: screen, cursor: nil, forceNormal: true)
     if clamped != panel.frame.origin {
       applyFrame(origin: clamped, on: screen, animate: false)
     }
